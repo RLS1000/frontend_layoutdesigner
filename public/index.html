@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>LAYOUT-DESIGNER</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+        
+        <!-- Google Fonts einbinden -->
+        <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100;200;300;400;500;600;700;800;900" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet">
+
+        <style>
+            body { font-family: Arial, sans-serif; text-align: center; }
+            #canvas-container {
+                 position: relative;
+                 display: inline-block;
+                 border: 2px solid black;
+                 margin-top: 10px;
+            }
+
+            #toolbar {
+                position: relative;
+                display: none;
+                background: #f0f0f0;
+                padding: 8px;
+                border-radius: 5px;
+                box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+                z-index: 10;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-top: 10px;
+                justify-content: center;
+            }
+            button, select, input { margin: 3px; padding: 5px; }
+        </style>
+    </head>
+    
+<body>
+
+    <h2>LAYOUT-DESIGNER</h2>
+    <div><label for="layoutSelector">Wähle Deinen Style:</label><select id="layoutSelector" onchange="changeLayout(this.value)"></select><button id="exportBtn">PNG Export</button></div>
+    
+    <div id="apiVariableEditor">
+        <h3>Variablen bearbeiten</h3>
+        <label>Name 1: <input type="text" id="varName1" value="SOPHIE"></label>
+        <label>Name 2: <input type="text" id="varName2" value="MAX"></label>
+        <label>Datum: <input type="text" id="varWeddingDate" value="12. März 2025"></label>
+        <button onclick="updateVariables()">Variablen speichern</button>
+    </div>
+    
+    
+    <div id="canvas-container">
+        <canvas id="canvas" width="800" height="400"></canvas>
+    </div>
+    <div><button id="textModeBtn">Textfeld hinzufügen</button></div>
+    
+    <div id="toolbar">
+        <select id="fontFamily" onchange="updateText('fontFamily', this.value)">
+            <option value="Raleway">Raleway</option>
+            <option value="Baskerville">Baskerville</option>
+            <option value="Arial">Arial</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Courier New">Courier</option>
+            <option value="Georgia">Georgia</option>
+        </select>
+        <input type="number" id="fontSize" value="30" min="10" max="100" onchange="updateText('fontSize', this.value)">
+        <button onclick="toggleBold()">B</button>
+        <button onclick="toggleItalic()">I</button>
+        <button onclick="setAlign('left')">⬅</button>
+        <button onclick="setAlign('center')">🔳</button>
+        <button onclick="setAlign('right')">➡</button>
+        <input type="color" id="textColor" onchange="updateText('fill', this.value)">
+        <button onclick="deleteText()">Löschen</button>
+    </div>
+  
+    <script>
+        const layouts = [
+    { id: 1, name: "Style 1 - 15x10 - 2 Fotos", format: "15x10", background: "assets/style1.png", textGroups: [
+            { groupId: "names", 
+                groupX: 300,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 84,   // Vertikale Position der Gruppe
+                spacing: 15,  // Abstand zwischen den Texten
+                maxWidth: 450, // Maximale Breite der Gruppe
+                originY: "bottom",
+                texts: [
+                    { text: "name1", size: 30, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                    { text: "&", size: 30, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 300, fill: "#000000"},
+                    { text: "name2", size: 30, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "date",
+                groupX: 300,  // Zentrum der Gruppe
+                groupY: 103,  // Vertikale Position
+                spacing: 15,
+                maxWidth: 200, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "• weddingDate •", size: 18, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "ad",
+                groupX: 300,  // Zentrum der Gruppe
+                groupY: 156,  // Vertikale Position
+                spacing: 15,
+                maxWidth: 500, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "EINFACH KNIPS®", size: 8, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            }
+        ]
+    },
+
+    { id: 2, name: "Style 2 - 15x10 - 2 Fotos", format: "15x10", background: "assets/style2.png", textGroups: [
+            { groupId: "names", 
+                groupX: 300,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 282,   // Vertikale Position der Gruppe
+                spacing: 15,  // Abstand zwischen den Texten
+                maxWidth: 500, // Maximale Breite der Gruppe
+                originY: "bottom",
+                texts: [
+                    { text: "name1", size: 18, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                    { text: "&", size: 18, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 300, fill: "#000000"},
+                    { text: "name2", size: 18, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                    { text: "•  weddingDate", size: 18, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "ad",
+                groupX: 300,  // Zentrum der Gruppe
+                groupY: 301,  // Vertikale Position
+                spacing: 15,
+                maxWidth: 500, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "EINFACH KNIPS®", size: 8, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            }
+        ]
+    },
+
+    { id: 3, name: "Style 3 - 15x10 - 2 Fotos", format: "15x10", background: "assets/style3.png", textGroups: [
+            { groupId: "names1", 
+                groupX: 155,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 127,   // Vertikale Position der Gruppe
+                spacing: 15,  // Abstand zwischen den Texten
+                maxWidth: 250, // Maximale Breite der Gruppe
+                originY: "bottom",
+                texts: [
+                    { text: "name1", size: 27, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"}
+                ]
+            },
+            { groupId: "and", 
+                groupX: 155,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 133,   // Vertikale Position der Gruppe
+                spacing: 15,  // Abstand zwischen den Texten
+                maxWidth: 250, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "und", size: 18, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 200, fill: "#000000"}
+                ]
+            },
+            { groupId: "names2", 
+                groupX: 155,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 166,   // Vertikale Position der Gruppe
+                spacing: 15,  // Abstand zwischen den Texten
+                maxWidth: 250, // Maximale Breite der Gruppe
+                originY: "top",
+                texts: [
+                    { text: "name2", size: 27, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"}
+                ]
+            },
+            { groupId: "date", 
+                groupX: 155,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 215,   // Vertikale Position der Gruppe
+                spacing: 15,  // Abstand zwischen den Texten
+                maxWidth: 500, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "weddingDate", size: 12, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 100, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "ad",
+                groupX: 155,  // Zentrum der Gruppe
+                groupY: 370,  // Vertikale Position
+                spacing: 15,
+                maxWidth: 500, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "EINFACH KNIPS®", size: 8, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            }
+        ]
+    },
+    
+    { id: 4, name: "Style 4 - 15x10 - 3 Fotos", format: "15x10", background: "assets/style4.png", textGroups: [
+    { groupId: "names", 
+                groupX: 166,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 72,   // Vertikale Position der Gruppe
+                spacing: 15,  // Abstand zwischen den Texten
+                maxWidth: 230, // Maximale Breite der Gruppe
+                originY: "bottom",
+                texts: [
+                    { text: "name1", size: 20, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                    { text: "&", size: 20, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 300, fill: "#000000"},
+                    { text: "name2", size: 20, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "date",
+                groupX: 166,  // Zentrum der Gruppe
+                groupY: 96,  // Vertikale Position
+                spacing: 15,
+                maxWidth: 500, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "weddingDate", size: 12, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "ad",
+                groupX: 166,  // Zentrum der Gruppe
+                groupY: 161,  // Vertikale Position
+                spacing: 15,
+                maxWidth: 500, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "EINFACH KNIPS®", size: 8, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            }
+        ]
+    },
+
+    { id: 5, name: "Style 5 - 10x15 - 6 Fotos", format: "10x15", background: "assets/style5.png", textGroups: [
+    { groupId: "names", 
+                groupX: 200,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 463,   // Vertikale Position der Gruppe
+                spacing: 15,  // Abstand zwischen den Texten
+                maxWidth: 350, // Maximale Breite der Gruppe
+                originY: "bottom",
+                texts: [
+                    { text: "name1", size: 28, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                    { text: "&", size: 28, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                    { text: "name2", size: 28, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "date",
+                groupX: 200,  // Zentrum der Gruppe
+                groupY: 490,  // Vertikale Position
+                spacing: 15,
+                maxWidth: 500, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "weddingDate", size: 14, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 100, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "ad",
+                groupX: 200,  // Zentrum der Gruppe
+                groupY: 560,  // Vertikale Position
+                spacing: 15,
+                maxWidth: 500, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "EINFACH KNIPS®", size: 8, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            }
+        ]
+    },
+
+    { id: 6, name: "Style 6 - 15x10 - 3 Fotos", format: "15x10", background: "assets/style6.png", textGroups: [
+    { groupId: "names", 
+                groupX: 300,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 88,   // Vertikale Position der Gruppe
+                spacing: 15,  // Abstand zwischen den Texten
+                maxWidth: 500, // Maximale Breite der Gruppe
+                originY: "bottom",
+                texts: [
+                    { text: "name1", size: 30, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                    { text: "&", size: 30, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 300, fill: "#000000"},
+                    { text: "name2", size: 30, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "date",
+                groupX: 300,  // Zentrum der Gruppe
+                groupY: 107,  // Vertikale Position
+                spacing: 15,
+                maxWidth: 500, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "weddingDate", size: 14, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "ad",
+                groupX: 300,  // Zentrum der Gruppe
+                groupY: 383,  // Vertikale Position
+                spacing: 15,
+                maxWidth: 500, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "EINFACH KNIPS®", size: 8, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            }
+        ]
+    },
+
+    { id: 7, name: "Style 7 - 15x10 - 3 Fotos", format: "15x10", background: "assets/style7.png", textGroups: [
+    { groupId: "names", 
+                groupX: 120,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 186,   // Vertikale Position der Gruppe
+                spacing: 10,  // Abstand zwischen den Texten
+                maxWidth: 200, // Maximale Breite der Gruppe
+                originY: "bottom",
+                texts: [
+                    { text: "name1", size: 16, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                    { text: "&", size: 16, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                    { text: "name2", size: 16, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "date",
+                groupX: 120,  // Zentrum der Gruppe
+                groupY: 146,  // Vertikale Position
+                spacing: 5,
+                maxWidth: 200, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "Erinnerungen für die Ewigkeit", size: 8, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 80, fill: "#000000"} ,
+                    { text: "|", size: 8, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 80, fill: "#000000"} ,
+                    { text: "weddingDate", size: 8, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 80, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "ad",
+                groupX: 120,  // Zentrum der Gruppe
+                groupY: 206,  // Vertikale Position
+                spacing: 15,
+                maxWidth: 500, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "EINFACH KNIPS®", size: 8, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            }
+        ]
+    },
+
+    { id: 8, name: "Style 8 - 15x10 - 2 Fotos", format: "15x10", background: "assets/style8.png", textGroups: [
+    { groupId: "names", 
+                groupX: 300,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 59,   // Vertikale Position der Gruppe
+                spacing: 10,  // Abstand zwischen den Texten
+                maxWidth: 285, // Maximale Breite der Gruppe
+                originY: "center",
+                texts: [
+                    { text: "name1", size: 30, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                    { text: "&", size: 30, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 300, fill: "#000000"},
+                    { text: "name2", size: 30, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "date_ad",
+                groupX: 300,  // Zentrum der Gruppe
+                groupY: 367,  // Vertikale Position
+                spacing: 5,
+                maxWidth: 200, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "weddingDate", size: 10, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 80, fill: "#000000"},
+                    { text: "| EINFACH KNIPS®", size: 10, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            }
+        ]
+    },
+
+    { id: 9, name: "Style 9 - 15x5 - 2 Fotos", format: "15x5", background: "assets/style9.png", textGroups: [
+            {   groupId: "names1", 
+                groupX: 68,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 77,   // Vertikale Position der Gruppe
+                spacing: 5,  // Abstand zwischen den Texten
+                maxWidth: 100, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "name1", size: 21, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"},
+                ]
+            },
+            {   groupId: "names2", 
+                groupX: 68,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 124,   // Vertikale Position der Gruppe
+                spacing: 5,  // Abstand zwischen den Texten
+                maxWidth: 100, // Maximale Breite der Gruppe
+                originY: "bottom",
+                texts: [
+                    { text: "&", size: 21, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 300, fill: "#000000"},
+                    { text: "name2", size: 21, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "date",
+                groupX: 68,  // Zentrum der Gruppe
+                groupY: 46,  // Vertikale Position
+                spacing: 5,
+                maxWidth: 100, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "weddingDate", size: 8, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 80, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "ad",
+                groupX: 68,  // Zentrum der Gruppe
+                groupY: 145,  // Vertikale Position
+                spacing: 15,
+                maxWidth: 100, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "EINFACH KNIPS®", size: 7, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            }
+        ]
+    },
+
+    { id: 10, name: "Style 10 - 15x5 - 2 Fotos", format: "15x5", background: "assets/style10.png", textGroups: [
+            {   groupId: "names1", 
+                groupX: 507,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 50,   // Vertikale Position der Gruppe
+                spacing: 5,  // Abstand zwischen den Texten
+                maxWidth: 110, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "name1", size: 20, fontFamily: "Raleway", charSpacing: 200, fill: "#000000"},
+                ]
+            },
+            {   groupId: "names2", 
+                groupX: 507,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 73,   // Vertikale Position der Gruppe
+                spacing: 5,  // Abstand zwischen den Texten
+                maxWidth: 110, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "&", size: 20, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 100, fill: "#000000"},
+                    { text: "name2", size: 20, fontFamily: "Raleway", charSpacing: 200, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "date",
+                groupX: 507,  // Zentrum der Gruppe
+                groupY: 103,  // Vertikale Position
+                spacing: 5,
+                maxWidth: 100, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "weddingDate", size: 8, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 80, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "ad",
+                groupX: 507,  // Zentrum der Gruppe
+                groupY: 159,  // Vertikale Position
+                spacing: 15,
+                maxWidth: 100, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "EINFACH KNIPS®", size: 8, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            }
+        ]
+    },
+
+    { id: 11, name: "Style 11 - 15x5 - 2 Fotos", format: "15x5", background: "assets/style11.png", textGroups: [
+            { 
+                groupId: "names", 
+                groupX: 300,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 160,   // Vertikale Position der Gruppe
+                spacing: 10,  // Abstand zwischen den Texten
+                maxWidth: 285, // Maximale Breite der Gruppe
+                originY: "center",
+                texts: [
+                    { text: "• name1", size: 15, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                    { text: "&", size: 15, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                    { text: "name2 •", size: 15, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "date_ad",
+                groupX: 300,  // Zentrum der Gruppe
+                groupY: 175,  // Vertikale Position
+                spacing: 5,
+                maxWidth: 200, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "weddingDate", size: 10, fontFamily: "Raleway", charSpacing: 80, fill: "#000000"},
+                    { text: "| EINFACH KNIPS®", size: 10, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            }
+        ]
+    },
+
+    { id: 12, name: "Style 12 - 15x5 - 3 Fotos", format: "15x5", background: "assets/style12.png", textGroups: [
+            { 
+                groupId: "names", 
+                groupX: 300,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 18,   // Vertikale Position der Gruppe
+                spacing: 10,  // Abstand zwischen den Texten
+                maxWidth: 400, // Maximale Breite der Gruppe
+                originY: "center",
+                texts: [
+                    { text: "• name1", size: 14, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                    { text: "&", size: 14, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 300, fill: "#000000"},
+                    { text: "name2 •", size: 14, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "date_ad",
+                groupX: 300,  // Zentrum der Gruppe
+                groupY: 175,  // Vertikale Position
+                spacing: 5,
+                maxWidth: 500, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "Ab jetzt - für immer |", size: 9, fontFamily: "Raleway", charSpacing: 80, fill: "#000000"} ,
+                    { text: "weddingDate", size: 9, fontFamily: "Raleway", charSpacing: 80, fill: "#000000"},
+                    { text: "| EINFACH KNIPS®", size: 9, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            }
+        ]
+    },
+
+    { id: 13, name: "Style 13 - 5x15 - 4 Fotos", format: "5x15", background: "assets/style13.png", textGroups: [
+            { 
+                groupId: "names", 
+                groupX: 100,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 533,   // Vertikale Position der Gruppe
+                spacing: 10,  // Abstand zwischen den Texten
+                maxWidth: 160, // Maximale Breite der Gruppe
+                originY: "bottom",
+                texts: [
+                    { text: "name1", size: 15, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                    { text: "&", size: 15, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 300, fill: "#000000"},
+                    { text: "name2", size: 15, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "date",
+                groupX: 100,  // Zentrum der Gruppe
+                groupY: 547,  // Vertikale Position
+                spacing: 5,
+                maxWidth: 200, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "weddingDate", size: 12, fontFamily: "Raleway", charSpacing: 80, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "ad",
+                groupX: 100,  // Zentrum der Gruppe
+                groupY: 577,  // Vertikale Position
+                spacing: 15,
+                maxWidth: 500, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "EINFACH KNIPS®", size: 8, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            }
+        ]
+    },
+
+    { id: 14, name: "Style 14 - 5x15 - 3 Fotos", format: "5x15", background: "assets/style14.png", textGroups: [
+    {   groupId: "names1", 
+                groupX: 100,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 63,   // Vertikale Position der Gruppe
+                spacing: 5,  // Abstand zwischen den Texten
+                maxWidth: 160, // Maximale Breite der Gruppe
+                originY: "bottom",
+                texts: [
+                    { text: "name1", size: 24, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                ]
+            },
+            {   groupId: "names2", 
+                groupX: 100,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 61,   // Vertikale Position der Gruppe
+                spacing: 5,  // Abstand zwischen den Texten
+                maxWidth: 160, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "&", size: 24, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 100, fill: "#000000"},
+                    { text: "name2", size: 24, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "date",
+                groupX: 100,  // Zentrum der Gruppe
+                groupY: 107,  // Vertikale Position
+                spacing: 5,
+                maxWidth: 200, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "weddingDate", size: 10, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 80, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "ad",
+                groupX: 100,  // Zentrum der Gruppe
+                groupY: 542,  // Vertikale Position
+                spacing: 15,
+                maxWidth: 500, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "EINFACH KNIPS®", size: 8, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            }
+        ]
+    },
+
+    { id: 15, name: "Style 15 - 5x15 - 3 Fotos", format: "5x15", background: "assets/style15.png", textGroups: [
+    {   groupId: "names1", 
+                groupX: 100,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 205,   // Vertikale Position der Gruppe
+                spacing: 5,  // Abstand zwischen den Texten
+                maxWidth: 160, // Maximale Breite der Gruppe
+                originY: "bottom",
+                texts: [
+                    { text: "name1", size: 24, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                ]
+            },
+            {   groupId: "names2", 
+                groupX: 100,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 201,   // Vertikale Position der Gruppe
+                spacing: 5,  // Abstand zwischen den Texten
+                maxWidth: 160, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "&", size: 24, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 100, fill: "#000000"},
+                    { text: "name2", size: 24, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "date",
+                groupX: 100,  // Zentrum der Gruppe
+                groupY: 237,  // Vertikale Position
+                spacing: 5,
+                maxWidth: 200, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "• weddingDate •", size: 10, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 80, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "ad",
+                groupX: 100,  // Zentrum der Gruppe
+                groupY: 572,  // Vertikale Position
+                spacing: 15,
+                maxWidth: 500, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "EINFACH KNIPS®", size: 8, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            }
+        ]
+    },
+
+    { id: 16, name: "Style 16 - 5x15 - 4 Fotos", format: "5x15", background: "assets/style16.png", textGroups: [
+            { 
+                groupId: "names", 
+                groupX: 100,  // Mittelpunkt der Gruppe auf X-Achse
+                groupY: 30,   // Vertikale Position der Gruppe
+                spacing: 10,  // Abstand zwischen den Texten
+                maxWidth: 170, // Maximale Breite der Gruppe
+                originY: "bottom",
+                texts: [
+                    { text: "name1", size: 14, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                    { text: "+", size: 14, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"},
+                    { text: "name2", size: 14, fontFamily: "Raleway", charSpacing: 300, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "date",
+                groupX: 100,  // Zentrum der Gruppe
+                groupY: 558,  // Vertikale Position
+                spacing: 5,
+                maxWidth: 80, // Maximale Breite der Gruppe
+                originY: "center",
+                texts: [
+                    { text: "weddingDate", size: 10, fontFamily: "Baskerville", fontWeight: "italic", charSpacing: 80, fill: "#000000"}
+                ]
+            },
+            {
+                groupId: "ad",
+                groupX: 100,  // Zentrum der Gruppe
+                groupY: 574,  // Vertikale Position
+                spacing: 15,
+                maxWidth: 500, // Maximale Breite der Gruppe
+                texts: [
+                    { text: "EINFACH KNIPS®", size: 8, fontFamily: "Raleway", charSpacing: 100, fill: "#000000"}
+                ]
+            }
+        ]
+    },
+ ]
+ 
+ // 🔹 Globale API-Variablen
+ const apiVariables = {
+            name1: "SOPHIE",
+            name2: "MAX",
+            weddingDate: "12. März 2025",
+};
+
+        function populateDropdown() {
+            const dropdown = document.getElementById("layoutSelector");
+            layouts.forEach(layout => {
+                const option = document.createElement("option");
+                option.value = layout.id;
+                option.textContent = `${layout.id}: ${layout.name} (${layout.format})`;
+                dropdown.appendChild(option);
+            });
+        }
+
+        function addTextGroups(layout) {
+    layout.textGroups.forEach(group => {
+        let textObjects = [];
+
+        // Falls kein originY definiert ist, nutze "top" als Standard
+        const originY = group.originY || "top"; 
+
+        // 1️⃣ Erstelle die Texte & speichere die exakten Breiten
+        group.texts.forEach((t) => {
+            const textObj = new fabric.IText(t.text, {
+                fontSize: t.size,
+                fontFamily: t.fontFamily || "Arial",
+                fontWeight: t.fontWeight || "normal",
+                charSpacing: t.charSpacing || 0,
+                fill: t.fill || "#000000",
+                originX: "left",
+                originY: originY,
+                selectable: true,
+                editable: true
+            });
+
+            canvas.add(textObj);
+            textObjects.push(textObj);
+        });
+
+        // 2️⃣ Berechne `totalWidth` der Gruppe
+        let totalWidth = textObjects.reduce((sum, obj, index) => sum + obj.width + (index < textObjects.length - 1 ? group.spacing : 0), 0);
+
+        // 3️⃣ Falls die Gruppe zu breit ist, verkleinere die Schriftgröße
+        if (totalWidth > group.maxWidth) {
+            let scaleFactor = group.maxWidth / totalWidth;
+            textObjects.forEach(obj => {
+                obj.set("fontSize", obj.fontSize * scaleFactor);
+            });
+
+            canvas.renderAll();
+
+            // Nach dem Skalieren erneut `totalWidth` berechnen
+            totalWidth = textObjects.reduce((sum, obj, index) => sum + obj.width + (index < textObjects.length - 1 ? group.spacing : 0), 0);
+        }
+
+        // 4️⃣ Berechne den Startpunkt für die exakte Zentrierung
+        let startX = group.groupX - (totalWidth / 2);
+
+        // 5️⃣ Positioniere die Texte mit korrekt berechnetem Abstand
+        textObjects.forEach((obj, index) => {
+            obj.set({ left: startX, top: group.groupY });
+            obj.setCoords();
+            startX += obj.width + (index < textObjects.length - 1 ? group.spacing : 0);
+        });
+
+        canvas.renderAll();
+    });
+}
+
+
+
+
+        function changeLayout(layoutId) {
+            const layout = layouts.find(l => l.id == layoutId);
+            if (!layout) return;
+
+            // Hintergrund direkt in Originalgröße setzen
+            fabric.Image.fromURL(layout.background, function(img) {
+            img.set({
+                left: 0,
+                top: 0,
+                scaleX: canvas.width / img.width,
+                scaleY: canvas.height / img.height,
+                originX: "left",
+                originY: "top"
+            });
+
+            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+            }, { crossOrigin: "anonymous" });
+
+
+            // Canvas-Größe anpassen
+            if (layout.format === "15x10") {
+                canvas.setDimensions({ width: 600, height: 400 }); // Querformat groß
+            } else if (layout.format === "10x15") {
+                canvas.setDimensions({ width: 400, height: 600 }); // Hochformat groß
+            } else if (layout.format === "15x5") {
+                canvas.setDimensions({ width: 600, height: 200 }); // Sehr breites Format
+            } else if (layout.format === "5x15") {
+                canvas.setDimensions({ width: 200, height: 600 }); // Sehr hohes Format
+            }
+
+            canvas.clear();
+            addTextGroups(layout);  // Füge nun alle Textgruppen korrekt zentriert hinzu
+
+
+            // Textfelder setzen
+            layout.texts.forEach(t => {
+                const text = new fabric.IText(t.text, {
+                    left: t.x,
+                    top: t.y,
+                    fontSize: t.size,
+                    fontFamily: t.fontFamily || "Arial", // Falls keine Schriftart definiert ist, Standard: Arial
+                    fontWeight: t.fontWeight || "normal", // Falls keine Schriftstärke definiert ist, Standard: normal
+                    textAlign: t.textAlign || "center", // Falls keine Ausrichtung definiert ist, Standard: linksbündig
+                    charSpacing: t.charSpacing || 0, // Falls keine Laufweite definiert, Standard: 0
+                    fill: t.fill || "#000000", // Falls keine Farbe definiert ist, Standard: Schwarz
+                    originX: "left", // Nutzt den JSON-Wert oder Standard "left"
+                    selectable: true,
+                    editable: true
+                });
+                canvas.add(text);
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            populateDropdown();
+            changeLayout(layouts[0].id);
+        });
+        const canvas = new fabric.Canvas("canvas");
+
+        canvas.selection = true; // Mehrfachauswahl durch Auswahlbox aktivieren
+        
+        let textModeActive = false; // Standard: Kein neues Textfeld erstellen
+
+// Event-Listener für den T-Button
+document.getElementById("textModeBtn").addEventListener("click", function() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    addText(centerX, centerY); // Erstellt sofort ein Textfeld in der Mitte des Canvas
+});
+
+
+// Falls außerhalb eines Textfelds geklickt wird, deaktivieren
+canvas.on("mouse:down", function(event) {
+    if (!event.target) {
+        if (textModeActive) {
+            addText(event.pointer.x, event.pointer.y);
+            textModeActive = false; // Nach dem Hinzufügen deaktivieren
+            document.getElementById("textModeBtn").classList.remove("active");
+        } else {
+            canvas.discardActiveObject();
+            canvas.renderAll();
+            document.getElementById("toolbar").style.display = "none"; // Toolbar ausblenden
+        }
+    }
+});
+
+
+      canvas.on("object:moving", function(event) {
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects.length > 1) {
+        activeObjects.forEach(obj => {
+            obj.setCoords(); // Position aktualisieren
+        });
+    }
+});
+
+function updateToolbar() {
+    const activeObject = canvas.getActiveObject();
+    if (!activeObject || !activeObject.isType("i-text")) {
+        document.getElementById("toolbar").style.display = "none";
+        return;
+    }
+
+    // 🔹 Setze die aktuellen Werte aus dem ausgewählten Textfeld
+    document.getElementById("fontFamily").value = activeObject.fontFamily || "Arial";
+    document.getElementById("fontSize").value = activeObject.fontSize || 30;
+    document.getElementById("textColor").value = activeObject.fill || "#000000";
+
+    // 🔹 Aktualisiere den Status von Bold & Italic Buttons
+    document.querySelector("button[onclick='toggleBold()']").classList.toggle("active", activeObject.fontWeight === "bold");
+    document.querySelector("button[onclick='toggleItalic()']").classList.toggle("active", activeObject.fontStyle === "italic");
+
+    // 🔹 Setze die richtige Textausrichtung als "active"
+    document.querySelectorAll("#toolbar button").forEach(btn => btn.classList.remove("active"));
+    if (activeObject.originX) {
+        document.querySelector(`button[onclick="setAlign('${activeObject.originX}')"]`)?.classList.add("active");
+    }
+
+    // 🔹 Toolbar einblenden
+    document.getElementById("toolbar").style.display = "flex";
+}
+
+function addText(x, y) {
+    const text = new fabric.IText("Hier Text eingeben", {
+        left: x,
+        top: y,
+        fontFamily: "Arial",
+        fontSize: 20,
+        fill: "#000000",
+        fontWeight: "normal",
+        fontStyle: "normal",
+        textAlign: "left",
+        selectable: true,
+        editable: true
+    });
+
+    canvas.add(text);
+    canvas.setActiveObject(text);
+    text.enterEditing();
+
+    setTimeout(() => {
+        if (text.hiddenTextarea) {
+            text.hiddenTextarea.focus();
+        }
+    }, 100); 
+
+    showToolbar();
+}
+
+
+
+        function showToolbar() {
+            document.getElementById("toolbar").style.display = "flex";
+        }
+
+        function updateText(property, value) {
+          const activeObjects = canvas.getActiveObjects();
+          if (activeObjects.length > 0) {
+             activeObjects.forEach(obj => {
+            if (obj.isType("i-text")) {
+                obj.set(property, value);
+            }
+        });
+        canvas.renderAll();
+        updateToolbar(); // Toolbar-Werte nach Änderung aktualisieren
+    }
+}
+
+
+        function toggleBold() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && activeObject.isType("i-text")) {
+                activeObject.set("fontWeight", activeObject.fontWeight === "bold" ? "normal" : "bold");
+                canvas.renderAll();
+            }
+        }
+
+        function toggleItalic() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && activeObject.isType("i-text")) {
+                activeObject.set("fontStyle", activeObject.fontStyle === "italic" ? "normal" : "italic");
+                canvas.renderAll();
+            }
+        }
+
+        function setAlign(align) {
+            const activeObjects = canvas.getActiveObjects();
+             if (activeObjects.length > 0) {
+                  activeObjects.forEach(obj => {
+                  if (obj.isType("i-text")) {
+                obj.set({ originX: align });
+            }
+        });
+        
+        canvas.renderAll();
+        updateToolbar(); // 🔹 Toolbar nach Änderung aktualisieren
+    }
+}
+
+
+        function deleteText() {
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects.length > 0) {
+        activeObjects.forEach(obj => {
+            if (obj.isType("i-text")) {
+                canvas.remove(obj);
+            }
+        });
+        canvas.discardActiveObject();
+        canvas.renderAll();
+        document.getElementById("toolbar").style.display = "none";
+    }
+}
+
+        canvas.on("object:moving", function(event) {
+            let obj = event.target;
+            if (obj && obj.isType("i-text")) {
+            console.log(`Text: "${obj.text}" | X: ${Math.round(obj.left)}, Y: ${Math.round(obj.top)}`);
+            }
+        });
+
+        document.getElementById("exportBtn").addEventListener("click", function() {
+    exportCanvasAsPNG();
+});
+
+
+function exportCanvasAsPNG() {
+    // Speichere die aktuelle Canvas-Größe
+    const originalWidth = canvas.width;
+    const originalHeight = canvas.height;
+    const currentLayout = layouts.find(l => l.id == document.getElementById("layoutSelector").value);
+
+    if (!currentLayout) return;
+
+    let exportWidth, exportHeight;
+    if (currentLayout.format === "15x10") {
+        exportWidth = 1844;
+        exportHeight = 1240;
+    } else if (currentLayout.format === "10x15") {
+        exportWidth = 1240;
+        exportHeight = 1844;
+    } else if (currentLayout.format === "15x5") {
+        exportWidth = 1844;
+        exportHeight = 620;
+    } else if (currentLayout.format === "5x15") {
+        exportWidth = 620;
+        exportHeight = 1844;
+    }
+
+    const scaleFactorX = exportWidth / originalWidth;
+    const scaleFactorY = exportHeight / originalHeight;
+
+    // 1️⃣ Canvas auf Exportgröße setzen
+    canvas.setDimensions({ width: exportWidth, height: exportHeight });
+
+    // 2️⃣ Hintergrundbild in Originalgröße laden
+    fabric.Image.fromURL(currentLayout.background, function(img) {
+        img.set({
+            left: 0,
+            top: 0,
+            scaleX: exportWidth / img.width,
+            scaleY: exportHeight / img.height,
+            originX: "left",
+            originY: "top"
+        });
+
+        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+
+        // 3️⃣ Alle Objekte auf Exportgröße skalieren
+        canvas.getObjects().forEach(obj => {
+            obj.set({
+                left: obj.left * scaleFactorX,
+                top: obj.top * scaleFactorY,
+                scaleX: obj.scaleX * scaleFactorX,
+                scaleY: obj.scaleY * scaleFactorY
+            });
+            obj.setCoords();
+        });
+
+        canvas.renderAll();
+
+        // 4️⃣ PNG exportieren
+        setTimeout(() => {
+            const dataURL = canvas.toDataURL({ format: "png", quality: 1 });
+
+            const link = document.createElement("a");
+            link.href = dataURL;
+            link.download = `layout.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // 5️⃣ Canvas wieder auf Vorschaugröße zurücksetzen
+            canvas.setDimensions({ width: originalWidth, height: originalHeight });
+
+            // 6️⃣ Hintergrundbild für Vorschau zurückladen
+            fabric.Image.fromURL(currentLayout.background, function(img) {
+                img.set({
+                    left: 0,
+                    top: 0,
+                    scaleX: originalWidth / img.width,
+                    scaleY: originalHeight / img.height,
+                    originX: "left",
+                    originY: "top"
+                });
+
+                canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+            });
+
+            // 7️⃣ Alle Objekte auf Vorschaugröße zurückskalieren
+            canvas.getObjects().forEach(obj => {
+                obj.set({
+                    left: obj.left / scaleFactorX,
+                    top: obj.top / scaleFactorY,
+                    scaleX: obj.scaleX / scaleFactorX,
+                    scaleY: obj.scaleY / scaleFactorY
+                });
+                obj.setCoords();
+            });
+
+            canvas.renderAll();
+        }, 200); // Kleine Verzögerung für Rendering
+    }, { crossOrigin: "anonymous" });
+}
+
+// 🔹 Entferne den doppelten Event Listener für den Export-Button
+document.getElementById("exportBtn").removeEventListener("click", exportCanvasAsPNG);
+
+function updateToolbar() {
+    const activeObjects = canvas.getActiveObjects();
+    document.getElementById("toolbar").style.display = activeObjects.length > 0 ? "flex" : "none";
+}
+
+
+canvas.on("object:modified", function() {
+    updateToolbar();
+});
+
+document.addEventListener("keydown", function(event) {
+    const activeObject = canvas.getActiveObject();
+    if (!activeObject) return;
+
+    // Falls das Textfeld gerade bearbeitet wird
+    if (activeObject.isEditing) {
+        if (event.key === "Enter") {
+            activeObject.exitEditing();
+            canvas.discardActiveObject();
+            canvas.renderAll();
+            document.getElementById("toolbar").style.display = "none";
+            event.preventDefault();
+        }
+        return; // 🔹 Falls bearbeitet wird, keine weiteren Aktionen ausführen
+    }
+
+    // Falls kein Bearbeitungsmodus aktiv ist
+    if (event.key === "Delete" || event.key === "Backspace") {
+        deleteText();
+        event.preventDefault();
+    }
+
+    // Pfeiltasten: Nur wenn nicht im Edit-Modus
+    if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+        let step = event.shiftKey ? 10 : 1;
+        
+        if (event.key === "ArrowLeft") activeObject.set("left", activeObject.left - step);
+        if (event.key === "ArrowRight") activeObject.set("left", activeObject.left + step);
+        if (event.key === "ArrowUp") activeObject.set("top", activeObject.top - step);
+        if (event.key === "ArrowDown") activeObject.set("top", activeObject.top + step);
+
+        activeObject.setCoords();
+        canvas.renderAll();
+        
+        // 🔹 NEU: Zeigt die aktuelle Position in der Konsole an
+        console.log(`Text: "${activeObject.text}" | X: ${Math.round(activeObject.left)}, Y: ${Math.round(activeObject.top)}`);
+
+        event.preventDefault();
+    }
+});
+
+
+
+canvas.on("mouse:dblclick", function(event) {
+    if (event.target && event.target.isType("i-text")) {
+        event.target.enterEditing();
+        setTimeout(() => {
+            event.target.hiddenTextarea?.focus();
+        }, 50);
+    }
+});
+
+canvas.on("mouse:down", function(event) {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.isEditing && !event.target) {
+        activeObject.exitEditing();
+        canvas.discardActiveObject();
+        canvas.renderAll();
+        document.getElementById("toolbar").style.display = "none";
+    }
+});
+
+canvas.on("selection:created", updateToolbar);
+canvas.on("selection:updated", updateToolbar);
+canvas.on("object:modified", updateToolbar);
+
+function updateVariables() {
+    // 1️⃣ Neue Werte aus den Eingabefeldern übernehmen
+    apiVariables.name1 = document.getElementById("varName1").value;
+    apiVariables.name2 = document.getElementById("varName2").value;
+    apiVariables.weddingDate = document.getElementById("varWeddingDate").value;
+
+    console.log("🔹 Aktualisierte Variablen:", apiVariables);
+
+    // 2️⃣ JSON-Daten mit neuen Werten überschreiben
+    layouts.forEach(layout => {
+        layout.textGroups.forEach(group => {
+            group.texts.forEach(t => {
+                t.text = t.text
+                    .replace(/name1/g, apiVariables.name1)
+                    .replace(/name2/g, apiVariables.name2)
+                    .replace(/weddingDate/g, apiVariables.weddingDate);
+            });
+        });
+    });
+
+    // 3️⃣ Layout neu rendern, um Änderungen sichtbar zu machen
+    const currentLayoutId = document.getElementById("layoutSelector").value;
+    changeLayout(parseInt(currentLayoutId));
+}
+
+
+    </script>
+</body>
+</html>
