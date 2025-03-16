@@ -1226,18 +1226,30 @@ function updateVariables() {
 }
 
 function updateCanvasText() {
+    console.log("🔄 Update Canvas Text gestartet...");
+
     canvas.getObjects().forEach(obj => {
         if (obj.isType("i-text")) {
-            if (obj.text.includes("name1")) obj.set("text", apiVariables.name1);
-            if (obj.text.includes("name2")) obj.set("text", apiVariables.name2);
-            if (obj.text.includes("weddingDate")) obj.set("text", apiVariables.weddingDate);
+            console.log("🎯 Vorher:", obj.text);
+            
+            if (obj.text.includes("name1")) {
+                obj.set("text", apiVariables.name1);
+                console.log("✅ Aktualisiert: name1 →", apiVariables.name1);
+            }
+            if (obj.text.includes("name2")) {
+                obj.set("text", apiVariables.name2);
+                console.log("✅ Aktualisiert: name2 →", apiVariables.name2);
+            }
+            if (obj.text.includes("weddingDate")) {
+                obj.set("text", apiVariables.weddingDate);
+                console.log("✅ Aktualisiert: weddingDate →", apiVariables.weddingDate);
+            }
         }
     });
 
-    canvas.renderAll(); // ⚡ Wichtig: Render-Update, um die Änderungen sichtbar zu machen!
+    canvas.renderAll();
+    console.log("✅ Canvas wurde neu gezeichnet.");
 }
-
-
 
 
     </script>
