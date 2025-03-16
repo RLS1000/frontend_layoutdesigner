@@ -684,15 +684,13 @@
 async function loadLayoutFromAPI(layoutId) {
     try {
         const response = await fetch(`https://backendlayoutdesigner-production.up.railway.app/layouts/${layoutId}`);
-        if (!response.ok) {
-            throw new Error("Fehler beim Laden des Layouts");
-        }
+        if (!response.ok) throw new Error("Fehler beim Laden des Layouts");
 
         const layoutData = await response.json();
 
         console.log("📥 Geladenes Layout:", layoutData);
 
-        // API-Daten in die Variablen setzen
+        // 🔹 Standardwerte setzen (für den ersten Besuch)
         document.getElementById("varName1").value = layoutData.name1 || "SONJA";
         document.getElementById("varName2").value = layoutData.name2 || "RYAN";
         document.getElementById("varWeddingDate").value = layoutData.eventDate || "26. Oktober 2013";
@@ -701,20 +699,40 @@ async function loadLayoutFromAPI(layoutId) {
         apiVariables.name2 = layoutData.name2;
         apiVariables.weddingDate = layoutData.eventDate;
 
-        // Falls das Layout aus der API eine `layoutId` enthält, lade es
-        if (layoutData.layoutId) {
-            changeLayout(layoutData.layoutId);
-        } else {
-            changeLayout(1); // Standard-Layout
+        // 🟢 **Entscheidung: Neues oder gespeichertes Layout nutzen?**
+        let useSavedLayout = false;
+
+        if (layoutData.layoutData) {
+            if (layoutData.isFinal) {
+                useSavedLayout = true; // Layout ist final gespeichert, also `layoutData` nutzen
+            } else {
+                // ⏳ Differenz zwischen createdAt und updatedAt berechnen
+                const createdAt = new Date(layoutData.createdAt).getTime();
+                const updatedAt = new Date(layoutData.updatedAt).getTime();
+                const timeDiffSeconds = (updatedAt - createdAt) / 1000; // Zeitdifferenz in Sekunden
+
+                if (timeDiffSeconds > 10) {
+                    useSavedLayout = true; // Falls mehr als 10s vergangen sind, gespeichertes Layout nutzen
+                }
+            }
         }
 
-        // 🔹 API-Daten in den Canvas übertragen
-        updateCanvasText();
+        console.log(`📌 Verwende ${useSavedLayout ? "gespeichertes" : "Standard"} Layout`);
+
+        if (useSavedLayout) {
+            // 🟢 Nutze `layoutData`, da es gespeichert wurde
+            loadCanvasFromSavedData(layoutData.layoutData);
+        } else {
+            // 🔵 Standard-Layout laden und direkt befüllen
+            changeLayout(layoutData.layoutId || 1);
+            updateCanvasText();
+        }
 
     } catch (error) {
         console.error("❌ Fehler beim Laden des Layouts:", error);
     }
 }
+
 
         function populateDropdown() {
             const dropdown = document.getElementById("layoutSelector");
