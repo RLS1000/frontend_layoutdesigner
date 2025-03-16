@@ -707,9 +707,10 @@ async function loadLayoutFromAPI(layoutId) {
         } else {
             changeLayout(1); // Standard-Layout
         }
+
         // 🔹 API-Daten in den Canvas übertragen
         updateCanvasText();
-        
+
     } catch (error) {
         console.error("❌ Fehler beim Laden des Layouts:", error);
     }
@@ -1219,24 +1220,23 @@ function updateVariables() {
             });
         });
     });
-    // 🔹 Text direkt im Canvas aktualisieren
-    updateCanvasText();
 
-    // 3️⃣ Layout neu rendern, um Änderungen sichtbar zu machen
-    const currentLayoutId = document.getElementById("layoutSelector").value;
-    changeLayout(parseInt(currentLayoutId));
+    // 3️⃣ Text direkt im Canvas aktualisieren, ohne das Layout neu zu laden
+    updateCanvasText();
 }
-        function updateCanvasText() {
+
+function updateCanvasText() {
     canvas.getObjects().forEach(obj => {
         if (obj.isType("i-text")) {
-            if (obj.text.includes("name1")) obj.text = apiVariables.name1;
-            if (obj.text.includes("name2")) obj.text = apiVariables.name2;
-            if (obj.text.includes("weddingDate")) obj.text = apiVariables.weddingDate;
+            if (obj.text.includes("name1")) obj.set("text", apiVariables.name1);
+            if (obj.text.includes("name2")) obj.set("text", apiVariables.name2);
+            if (obj.text.includes("weddingDate")) obj.set("text", apiVariables.weddingDate);
         }
     });
 
-    canvas.renderAll();
+    canvas.renderAll(); // ⚡ Wichtig: Render-Update, um die Änderungen sichtbar zu machen!
 }
+
 
 
 
