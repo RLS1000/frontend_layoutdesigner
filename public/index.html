@@ -682,19 +682,6 @@
             weddingDate: "12. März 2025",
 };
 
-function saveTemporaryLayout() {
-    const layoutId = document.getElementById("layoutSelector").value;
-    const canvasData = JSON.stringify(canvas.toJSON());
-
-    sessionStorage.setItem(`layout_${layoutId}`, canvasData);
-    console.log(`💾 Layout ${layoutId} temporär gespeichert`);
-}
-
-// Jedes Mal, wenn das Canvas verändert wird, speichere die Änderung temporär
-canvas.on("object:modified", saveTemporaryLayout);
-canvas.on("object:added", saveTemporaryLayout);
-
-
 // ✅ Funktion zum Laden der Daten aus der API per Deeplink
 async function loadLayoutFromAPI(layoutId) {
     try {
@@ -722,6 +709,17 @@ async function loadLayoutFromAPI(layoutId) {
         lockEditor("Fehler: Layout konnte nicht geladen werden.");
     }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    populateDropdown();
+
+    // ✅ Prüfen, ob eine gültige Layout-ID vorhanden ist
+    const layoutId = checkLayoutID();
+    if (layoutId) {
+        console.log("🔗 Lade Layout aus API für ID:", layoutId);
+        loadLayoutFromAPI(layoutId);
+    }
+});
 
         function populateDropdown() {
             const dropdown = document.getElementById("layoutSelector");
@@ -826,19 +824,6 @@ function changeLayout(layoutId) {
         }, 100);
     }
 }
-
-      
-document.addEventListener("DOMContentLoaded", () => {
-    populateDropdown();
-
-    // ✅ Prüfen, ob eine gültige Layout-ID vorhanden ist
-    const layoutId = checkLayoutID();
-    if (layoutId) {
-        console.log("🔗 Lade Layout aus API für ID:", layoutId);
-        loadLayoutFromAPI(layoutId);
-    }
-});
-
 
 
         const canvas = new fabric.Canvas("canvas");
@@ -1299,6 +1284,18 @@ function checkLayoutID() {
 
     return layoutId;
 }
+
+function saveTemporaryLayout() {
+    const layoutId = document.getElementById("layoutSelector").value;
+    const canvasData = JSON.stringify(canvas.toJSON());
+
+    sessionStorage.setItem(`layout_${layoutId}`, canvasData);
+    console.log(`💾 Layout ${layoutId} temporär gespeichert`);
+}
+
+// Jedes Mal, wenn das Canvas verändert wird, speichere die Änderung temporär
+canvas.on("object:modified", saveTemporaryLayout);
+canvas.on("object:added", saveTemporaryLayout);
 
     </script>
 </body>
