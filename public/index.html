@@ -675,11 +675,87 @@
     },
  ]
  
+document.addEventListener("DOMContentLoaded", () => {
+    populateDropdown();
+
+    // ✅ Prüfen, ob eine gültige Layout-ID vorhanden ist
+    const layoutId = checkLayoutID();
+    if (layoutId) {
+        console.log("🔗 Lade Layout aus API für ID:", layoutId);
+        loadLayoutFromAPI(layoutId);
+    }
+});
+
+document.addEventListener("keydown", function(event) {
+    const activeObject = canvas.getActiveObject();
+    if (!activeObject) return;
+
+    // Falls das Textfeld gerade bearbeitet wird
+    if (activeObject.isEditing) {
+        if (event.key === "Enter") {
+            activeObject.exitEditing();
+            canvas.discardActiveObject();
+            canvas.renderAll();
+            document.getElementById("toolbar").style.display = "none";
+            event.preventDefault();
+        }
+        return; // 🔹 Falls bearbeitet wird, keine weiteren Aktionen ausführen
+    }
+
+    // Falls kein Bearbeitungsmodus aktiv ist
+    if (event.key === "Delete" || event.key === "Backspace") {
+        deleteText();
+        event.preventDefault();
+    }
+
+    // Pfeiltasten: Nur wenn nicht im Edit-Modus
+    if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+        let step = event.shiftKey ? 10 : 1;
+        
+        if (event.key === "ArrowLeft") activeObject.set("left", activeObject.left - step);
+        if (event.key === "ArrowRight") activeObject.set("left", activeObject.left + step);
+        if (event.key === "ArrowUp") activeObject.set("top", activeObject.top - step);
+        if (event.key === "ArrowDown") activeObject.set("top", activeObject.top + step);
+
+        activeObject.setCoords();
+        canvas.renderAll();
+        
+        // 🔹 NEU: Zeigt die aktuelle Position in der Konsole an
+        console.log(`Text: "${activeObject.text}" | X: ${Math.round(activeObject.left)}, Y: ${Math.round(activeObject.top)}`);
+
+        event.preventDefault();
+    }
+});
+
+function populateDropdown() {
+            const dropdown = document.getElementById("layoutSelector");
+            layouts.forEach(layout => {
+                const option = document.createElement("option");
+                option.value = layout.id;
+                option.textContent = `${layout.id}: ${layout.name} (${layout.format})`;
+                dropdown.appendChild(option);
+            });
+        }
+
+// Event-Listener für den T-Button
+document.getElementById("textModeBtn").addEventListener("click", function() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    addText(centerX, centerY); // Erstellt sofort ein Textfeld in der Mitte des Canvas
+});
+
+const canvas = new fabric.Canvas("canvas");
+
+canvas.selection = true; // Mehrfachauswahl durch Auswahlbox aktivieren
+        
+let textModeActive = false; // Standard: Kein neues Textfeld erstellen
+
  // 🔹 Globale API-Variablen
- const apiVariables = {
-            name1: "SOPHIE",
-            name2: "MAX",
-            weddingDate: "12. März 2025",
+const apiVariables = {
+    name1: "ERIKA",
+    name2: "MAX",
+    weddingDate: "01. Januar 1978",
 };
 
 // ✅ Funktion zum Laden der Daten aus der API per Deeplink
@@ -710,28 +786,46 @@ async function loadLayoutFromAPI(layoutId) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    populateDropdown();
+function changeLayout(layoutId) {
+    const layout = layouts.find(l => l.id == layoutId);
+    if (!layout) return;
 
-    // ✅ Prüfen, ob eine gültige Layout-ID vorhanden ist
-    const layoutId = checkLayoutID();
-    if (layoutId) {
-        console.log("🔗 Lade Layout aus API für ID:", layoutId);
-        loadLayoutFromAPI(layoutId);
-    }
-});
+    // Falls es eine temporär gespeicherte Version gibt, lade diese
+    const savedCanvasData = sessionStorage.getItem(`layout_${layoutId}`);
 
-        function populateDropdown() {
-            const dropdown = document.getElementById("layoutSelector");
-            layouts.forEach(layout => {
-                const option = document.createElement("option");
-                option.value = layout.id;
-                option.textContent = `${layout.id}: ${layout.name} (${layout.format})`;
-                dropdown.appendChild(option);
+    // Canvas leeren
+    canvas.clear();
+
+    if (savedCanvasData) {
+        console.log(`🟡 Lade temporär gespeicherte Version von Layout ${layoutId}`);
+        canvas.loadFromJSON(savedCanvasData, () => {
+            canvas.renderAll();
+        });
+    } else {
+        console.log(`🔵 Lade Standard-Layout ${layoutId}`);
+        fabric.Image.fromURL(layout.background, function(img) {
+            img.set({
+                left: 0,
+                top: 0,
+                scaleX: canvas.width / img.width,
+                scaleY: canvas.height / img.height,
+                originX: "left",
+                originY: "top"
             });
-        }
+            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+        }, { crossOrigin: "anonymous" });
 
-        function addTextGroups(layout) {
+        // Text hinzufügen
+        addTextGroups(layout);
+
+        // Standard-Namen und Datum setzen
+        setTimeout(() => {
+            updateCanvasText();
+        }, 100);
+    }
+}
+
+function addTextGroups(layout) {
     layout.textGroups.forEach(group => {
         let textObjects = [];
 
@@ -786,112 +880,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 }
 
-function changeLayout(layoutId) {
-    const layout = layouts.find(l => l.id == layoutId);
-    if (!layout) return;
-
-    // Falls es eine temporär gespeicherte Version gibt, lade diese
-    const savedCanvasData = sessionStorage.getItem(`layout_${layoutId}`);
-
-    // Canvas leeren
-    canvas.clear();
-
-    if (savedCanvasData) {
-        console.log(`🟡 Lade temporär gespeicherte Version von Layout ${layoutId}`);
-        canvas.loadFromJSON(savedCanvasData, () => {
-            canvas.renderAll();
-        });
-    } else {
-        console.log(`🔵 Lade Standard-Layout ${layoutId}`);
-        fabric.Image.fromURL(layout.background, function(img) {
-            img.set({
-                left: 0,
-                top: 0,
-                scaleX: canvas.width / img.width,
-                scaleY: canvas.height / img.height,
-                originX: "left",
-                originY: "top"
-            });
-            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-        }, { crossOrigin: "anonymous" });
-
-        // Text hinzufügen
-        addTextGroups(layout);
-
-        // Standard-Namen und Datum setzen
-        setTimeout(() => {
-            updateCanvasText();
-        }, 100);
-    }
-}
-
-
-        const canvas = new fabric.Canvas("canvas");
-
-        canvas.selection = true; // Mehrfachauswahl durch Auswahlbox aktivieren
-        
-        let textModeActive = false; // Standard: Kein neues Textfeld erstellen
-
-// Event-Listener für den T-Button
-document.getElementById("textModeBtn").addEventListener("click", function() {
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-
-    addText(centerX, centerY); // Erstellt sofort ein Textfeld in der Mitte des Canvas
-});
-
-
-// Falls außerhalb eines Textfelds geklickt wird, deaktivieren
-canvas.on("mouse:down", function(event) {
-    if (!event.target) {
-        if (textModeActive) {
-            addText(event.pointer.x, event.pointer.y);
-            textModeActive = false; // Nach dem Hinzufügen deaktivieren
-            document.getElementById("textModeBtn").classList.remove("active");
-        } else {
-            canvas.discardActiveObject();
-            canvas.renderAll();
-            document.getElementById("toolbar").style.display = "none"; // Toolbar ausblenden
-        }
-    }
-});
-
-
-      canvas.on("object:moving", function(event) {
-    const activeObjects = canvas.getActiveObjects();
-    if (activeObjects.length > 1) {
-        activeObjects.forEach(obj => {
-            obj.setCoords(); // Position aktualisieren
-        });
-    }
-});
-
-function updateToolbar() {
-    const activeObject = canvas.getActiveObject();
-    if (!activeObject || !activeObject.isType("i-text")) {
-        document.getElementById("toolbar").style.display = "none";
-        return;
-    }
-
-    // 🔹 Setze die aktuellen Werte aus dem ausgewählten Textfeld
-    document.getElementById("fontFamily").value = activeObject.fontFamily || "Arial";
-    document.getElementById("fontSize").value = activeObject.fontSize || 30;
-    document.getElementById("textColor").value = activeObject.fill || "#000000";
-
-    // 🔹 Aktualisiere den Status von Bold & Italic Buttons
-    document.querySelector("button[onclick='toggleBold()']").classList.toggle("active", activeObject.fontWeight === "bold");
-    document.querySelector("button[onclick='toggleItalic()']").classList.toggle("active", activeObject.fontStyle === "italic");
-
-    // 🔹 Setze die richtige Textausrichtung als "active"
-    document.querySelectorAll("#toolbar button").forEach(btn => btn.classList.remove("active"));
-    if (activeObject.originX) {
-        document.querySelector(`button[onclick="setAlign('${activeObject.originX}')"]`)?.classList.add("active");
-    }
-
-    // 🔹 Toolbar einblenden
-    document.getElementById("toolbar").style.display = "flex";
-}
-
 function addText(x, y) {
     const text = new fabric.IText("Hier Text eingeben", {
         left: x,
@@ -919,13 +907,7 @@ function addText(x, y) {
     showToolbar();
 }
 
-
-
-        function showToolbar() {
-            document.getElementById("toolbar").style.display = "flex";
-        }
-
-        function updateText(property, value) {
+function updateText(property, value) {
           const activeObjects = canvas.getActiveObjects();
           if (activeObjects.length > 0) {
              activeObjects.forEach(obj => {
@@ -937,25 +919,24 @@ function addText(x, y) {
         updateToolbar(); // Toolbar-Werte nach Änderung aktualisieren
     }
 }
-
-
-        function toggleBold() {
+        
+function toggleBold() {
             const activeObject = canvas.getActiveObject();
             if (activeObject && activeObject.isType("i-text")) {
                 activeObject.set("fontWeight", activeObject.fontWeight === "bold" ? "normal" : "bold");
                 canvas.renderAll();
             }
-        }
+}
 
-        function toggleItalic() {
+function toggleItalic() {
             const activeObject = canvas.getActiveObject();
             if (activeObject && activeObject.isType("i-text")) {
                 activeObject.set("fontStyle", activeObject.fontStyle === "italic" ? "normal" : "italic");
                 canvas.renderAll();
             }
-        }
+}
 
-        function setAlign(align) {
+function setAlign(align) {
             const activeObjects = canvas.getActiveObjects();
              if (activeObjects.length > 0) {
                   activeObjects.forEach(obj => {
@@ -969,8 +950,7 @@ function addText(x, y) {
     }
 }
 
-
-        function deleteText() {
+function deleteText() {
     const activeObjects = canvas.getActiveObjects();
     if (activeObjects.length > 0) {
         activeObjects.forEach(obj => {
@@ -984,18 +964,166 @@ function addText(x, y) {
     }
 }
 
-        canvas.on("object:moving", function(event) {
+function updateCanvasText() {
+    console.log("🔄 Update Canvas Text gestartet...");
+
+    canvas.getObjects().forEach(obj => {
+        if (obj.isType("i-text")) {
+            console.log("🎯 Vorher:", obj.text);
+            
+            if (obj.text.includes("name1")) {
+                obj.set("text", apiVariables.name1);
+                console.log("✅ Aktualisiert: name1 →", apiVariables.name1);
+            }
+            if (obj.text.includes("name2")) {
+                obj.set("text", apiVariables.name2);
+                console.log("✅ Aktualisiert: name2 →", apiVariables.name2);
+            }
+            if (obj.text.includes("weddingDate")) {
+                obj.set("text", apiVariables.weddingDate);
+                console.log("✅ Aktualisiert: weddingDate →", apiVariables.weddingDate);
+            }
+        }
+    });
+
+    canvas.renderAll();
+    console.log("✅ Canvas wurde neu gezeichnet.");
+}
+
+function updateToolbar() {
+    const activeObject = canvas.getActiveObject();
+    if (!activeObject || !activeObject.isType("i-text")) {
+        document.getElementById("toolbar").style.display = "none";
+        return;
+    }
+
+    // 🔹 Setze die aktuellen Werte aus dem ausgewählten Textfeld
+    document.getElementById("fontFamily").value = activeObject.fontFamily || "Arial";
+    document.getElementById("fontSize").value = activeObject.fontSize || 30;
+    document.getElementById("textColor").value = activeObject.fill || "#000000";
+
+    // 🔹 Aktualisiere den Status von Bold & Italic Buttons
+    document.querySelector("button[onclick='toggleBold()']").classList.toggle("active", activeObject.fontWeight === "bold");
+    document.querySelector("button[onclick='toggleItalic()']").classList.toggle("active", activeObject.fontStyle === "italic");
+
+    // 🔹 Setze die richtige Textausrichtung als "active"
+    document.querySelectorAll("#toolbar button").forEach(btn => btn.classList.remove("active"));
+    if (activeObject.originX) {
+        document.querySelector(`button[onclick="setAlign('${activeObject.originX}')"]`)?.classList.add("active");
+    }
+
+    // 🔹 Toolbar einblenden
+    document.getElementById("toolbar").style.display = "flex";
+}
+
+function updateToolbar() {
+    const activeObjects = canvas.getActiveObjects();
+    document.getElementById("toolbar").style.display = activeObjects.length > 0 ? "flex" : "none";
+}
+
+function showToolbar() {
+     document.getElementById("toolbar").style.display = "flex";
+}
+
+    // Falls außerhalb eines Textfelds geklickt wird, deaktivieren
+    canvas.on("mouse:down", function(event) {
+    if (!event.target) {
+        if (textModeActive) {
+            addText(event.pointer.x, event.pointer.y);
+            textModeActive = false; // Nach dem Hinzufügen deaktivieren
+            document.getElementById("textModeBtn").classList.remove("active");
+        } else {
+            canvas.discardActiveObject();
+            canvas.renderAll();
+            document.getElementById("toolbar").style.display = "none"; // Toolbar ausblenden
+        }
+    }
+    });
+
+    canvas.on("object:moving", function(event) {
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects.length > 1) {
+        activeObjects.forEach(obj => {
+            obj.setCoords(); // Position aktualisieren
+        });
+    }
+    });
+
+    canvas.on("object:moving", function(event) {
             let obj = event.target;
             if (obj && obj.isType("i-text")) {
             console.log(`Text: "${obj.text}" | X: ${Math.round(obj.left)}, Y: ${Math.round(obj.top)}`);
             }
+    });
+
+    canvas.on("object:modified", function() {
+    updateToolbar();
+    });
+
+    canvas.on("mouse:dblclick", function(event) {
+    if (event.target && event.target.isType("i-text")) {
+        event.target.enterEditing();
+        setTimeout(() => {
+            event.target.hiddenTextarea?.focus();
+        }, 50);
+    }
+    });
+
+    canvas.on("mouse:down", function(event) {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.isEditing && !event.target) {
+        activeObject.exitEditing();
+        canvas.discardActiveObject();
+        canvas.renderAll();
+        document.getElementById("toolbar").style.display = "none";
+    }
+    });
+
+    canvas.on("selection:created", updateToolbar);
+    canvas.on("selection:updated", updateToolbar);
+    canvas.on("object:modified", updateToolbar);
+
+    // Jedes Mal, wenn das Canvas verändert wird, speichere die Änderung temporär
+    canvas.on("object:modified", saveTemporaryLayout);
+    canvas.on("object:added", saveTemporaryLayout);
+
+
+        
+
+async function saveLayoutToAPI(isFinal = false) {
+    const layoutId = document.getElementById("layoutSelector").value;
+    const canvasData = JSON.stringify(canvas.toJSON());
+
+    const payload = {
+        layoutId: layoutId,
+        layoutData: canvasData,
+        isFinal: isFinal
+    };
+
+    try {
+        const response = await fetch(`https://backendlayoutdesigner-production.up.railway.app/layouts/${layoutId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
         });
 
-        document.getElementById("exportBtn").addEventListener("click", function() {
-    exportCanvasAsPNG();
-});
+        if (!response.ok) throw new Error("Fehler beim Speichern");
 
+        console.log(`✅ Layout ${layoutId} erfolgreich gespeichert (isFinal: ${isFinal})`);
+        alert("Layout gespeichert!");
+    } catch (error) {
+        console.error("❌ Fehler beim Speichern:", error);
+    }
+}       
 
+function saveTemporaryLayout() {
+    const layoutId = document.getElementById("layoutSelector").value;
+    const canvasData = JSON.stringify(canvas.toJSON());
+
+    sessionStorage.setItem(`layout_${layoutId}`, canvasData);
+    console.log(`💾 Layout ${layoutId} temporär gespeichert`);
+}
+        
 function exportCanvasAsPNG() {
     // Speichere die aktuelle Canvas-Größe
     const originalWidth = canvas.width;
@@ -1093,86 +1221,15 @@ function exportCanvasAsPNG() {
             canvas.renderAll();
         }, 200); // Kleine Verzögerung für Rendering
     }, { crossOrigin: "anonymous" });
-}
+}      
+       
+
+document.getElementById("exportBtn").addEventListener("click", function() {
+    exportCanvasAsPNG();
+});
 
 // 🔹 Entferne den doppelten Event Listener für den Export-Button
 document.getElementById("exportBtn").removeEventListener("click", exportCanvasAsPNG);
-
-function updateToolbar() {
-    const activeObjects = canvas.getActiveObjects();
-    document.getElementById("toolbar").style.display = activeObjects.length > 0 ? "flex" : "none";
-}
-
-
-canvas.on("object:modified", function() {
-    updateToolbar();
-});
-
-document.addEventListener("keydown", function(event) {
-    const activeObject = canvas.getActiveObject();
-    if (!activeObject) return;
-
-    // Falls das Textfeld gerade bearbeitet wird
-    if (activeObject.isEditing) {
-        if (event.key === "Enter") {
-            activeObject.exitEditing();
-            canvas.discardActiveObject();
-            canvas.renderAll();
-            document.getElementById("toolbar").style.display = "none";
-            event.preventDefault();
-        }
-        return; // 🔹 Falls bearbeitet wird, keine weiteren Aktionen ausführen
-    }
-
-    // Falls kein Bearbeitungsmodus aktiv ist
-    if (event.key === "Delete" || event.key === "Backspace") {
-        deleteText();
-        event.preventDefault();
-    }
-
-    // Pfeiltasten: Nur wenn nicht im Edit-Modus
-    if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
-        let step = event.shiftKey ? 10 : 1;
-        
-        if (event.key === "ArrowLeft") activeObject.set("left", activeObject.left - step);
-        if (event.key === "ArrowRight") activeObject.set("left", activeObject.left + step);
-        if (event.key === "ArrowUp") activeObject.set("top", activeObject.top - step);
-        if (event.key === "ArrowDown") activeObject.set("top", activeObject.top + step);
-
-        activeObject.setCoords();
-        canvas.renderAll();
-        
-        // 🔹 NEU: Zeigt die aktuelle Position in der Konsole an
-        console.log(`Text: "${activeObject.text}" | X: ${Math.round(activeObject.left)}, Y: ${Math.round(activeObject.top)}`);
-
-        event.preventDefault();
-    }
-});
-
-
-
-canvas.on("mouse:dblclick", function(event) {
-    if (event.target && event.target.isType("i-text")) {
-        event.target.enterEditing();
-        setTimeout(() => {
-            event.target.hiddenTextarea?.focus();
-        }, 50);
-    }
-});
-
-canvas.on("mouse:down", function(event) {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject && activeObject.isEditing && !event.target) {
-        activeObject.exitEditing();
-        canvas.discardActiveObject();
-        canvas.renderAll();
-        document.getElementById("toolbar").style.display = "none";
-    }
-});
-
-canvas.on("selection:created", updateToolbar);
-canvas.on("selection:updated", updateToolbar);
-canvas.on("object:modified", updateToolbar);
 
 function updateVariables() {
     // 1️⃣ Neue Werte aus den Eingabefeldern übernehmen
@@ -1196,58 +1253,6 @@ function updateVariables() {
 
     // 3️⃣ Text direkt im Canvas aktualisieren, ohne das Layout neu zu laden
     updateCanvasText();
-}
-
-function updateCanvasText() {
-    console.log("🔄 Update Canvas Text gestartet...");
-
-    canvas.getObjects().forEach(obj => {
-        if (obj.isType("i-text")) {
-            console.log("🎯 Vorher:", obj.text);
-            
-            if (obj.text.includes("name1")) {
-                obj.set("text", apiVariables.name1);
-                console.log("✅ Aktualisiert: name1 →", apiVariables.name1);
-            }
-            if (obj.text.includes("name2")) {
-                obj.set("text", apiVariables.name2);
-                console.log("✅ Aktualisiert: name2 →", apiVariables.name2);
-            }
-            if (obj.text.includes("weddingDate")) {
-                obj.set("text", apiVariables.weddingDate);
-                console.log("✅ Aktualisiert: weddingDate →", apiVariables.weddingDate);
-            }
-        }
-    });
-
-    canvas.renderAll();
-    console.log("✅ Canvas wurde neu gezeichnet.");
-}
-
-async function saveLayoutToAPI(isFinal = false) {
-    const layoutId = document.getElementById("layoutSelector").value;
-    const canvasData = JSON.stringify(canvas.toJSON());
-
-    const payload = {
-        layoutId: layoutId,
-        layoutData: canvasData,
-        isFinal: isFinal
-    };
-
-    try {
-        const response = await fetch(`https://backendlayoutdesigner-production.up.railway.app/layouts/${layoutId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) throw new Error("Fehler beim Speichern");
-
-        console.log(`✅ Layout ${layoutId} erfolgreich gespeichert (isFinal: ${isFinal})`);
-        alert("Layout gespeichert!");
-    } catch (error) {
-        console.error("❌ Fehler beim Speichern:", error);
-    }
 }
 
 function lockEditor(message) {
@@ -1285,18 +1290,6 @@ function checkLayoutID() {
     return layoutId;
 }
 
-function saveTemporaryLayout() {
-    const layoutId = document.getElementById("layoutSelector").value;
-    const canvasData = JSON.stringify(canvas.toJSON());
-
-    sessionStorage.setItem(`layout_${layoutId}`, canvasData);
-    console.log(`💾 Layout ${layoutId} temporär gespeichert`);
-}
-
-// Jedes Mal, wenn das Canvas verändert wird, speichere die Änderung temporär
-canvas.on("object:modified", saveTemporaryLayout);
-canvas.on("object:added", saveTemporaryLayout);
-
-    </script>
+</script>
 </body>
 </html>
