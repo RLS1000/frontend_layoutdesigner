@@ -787,23 +787,11 @@ async function loadLayoutFromAPI(layoutId) {
 }
 
 function changeLayout(layoutId) {
-    const layout = layouts.find(l => l.id == layoutId);
-    if (!layout) return;
+            const layout = layouts.find(l => l.id == layoutId);
+            if (!layout) return;
 
-    // Falls es eine temporär gespeicherte Version gibt, lade diese
-    const savedCanvasData = sessionStorage.getItem(`layout_${layoutId}`);
-
-    // Canvas leeren
-    canvas.clear();
-
-    if (savedCanvasData) {
-        console.log(`🟡 Lade temporär gespeicherte Version von Layout ${layoutId}`);
-        canvas.loadFromJSON(savedCanvasData, () => {
-            canvas.renderAll();
-        });
-    } else {
-        console.log(`🔵 Lade Standard-Layout ${layoutId}`);
-        fabric.Image.fromURL(layout.background, function(img) {
+            // Hintergrund direkt in Originalgröße setzen
+            fabric.Image.fromURL(layout.background, function(img) {
             img.set({
                 left: 0,
                 top: 0,
@@ -812,9 +800,11 @@ function changeLayout(layoutId) {
                 originX: "left",
                 originY: "top"
             });
-            
+
             canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-        }, { crossOrigin: "anonymous" });
+            }, { crossOrigin: "anonymous" });
+
+
             // Canvas-Größe anpassen
             if (layout.format === "15x10") {
                 canvas.setDimensions({ width: 600, height: 400 }); // Querformat groß
@@ -847,16 +837,7 @@ function changeLayout(layoutId) {
                 });
                 canvas.add(text);
             });
-
-        // Text hinzufügen
-        addTextGroups(layout);
-
-        // Standard-Namen und Datum setzen
-        setTimeout(() => {
-            updateCanvasText();
-        }, 100);
-    }
-}
+        }
 
 function addTextGroups(layout) {
     layout.textGroups.forEach(group => {
