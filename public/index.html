@@ -812,13 +812,11 @@ function changeLayout(layoutId) {
                 originX: "left",
                 originY: "top"
             });
-
-
-        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+            
+            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
         }, { crossOrigin: "anonymous" });
-
-        // Canvas-Größe anpassen
-        if (layout.format === "15x10") {
+            // Canvas-Größe anpassen
+            if (layout.format === "15x10") {
                 canvas.setDimensions({ width: 600, height: 400 }); // Querformat groß
             } else if (layout.format === "10x15") {
                 canvas.setDimensions({ width: 400, height: 600 }); // Hochformat groß
@@ -849,7 +847,9 @@ function changeLayout(layoutId) {
                 });
                 canvas.add(text);
             });
-        }
+
+        // Text hinzufügen
+        addTextGroups(layout);
 
         // Standard-Namen und Datum setzen
         setTimeout(() => {
