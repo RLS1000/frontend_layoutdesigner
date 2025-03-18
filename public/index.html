@@ -745,11 +745,75 @@ document.getElementById("textModeBtn").addEventListener("click", function() {
     addText(centerX, centerY); // Erstellt sofort ein Textfeld in der Mitte des Canvas
 });
 
+let textModeActive = false; // Standard: Kein neues Textfeld erstellen
+
 const canvas = new fabric.Canvas("canvas");
 
 canvas.selection = true; // Mehrfachauswahl durch Auswahlbox aktivieren
+
+// Falls außerhalb eines Textfelds geklickt wird, deaktivieren
+canvas.on("mouse:down", function(event) {
+    if (!event.target) {
+        if (textModeActive) {
+            addText(event.pointer.x, event.pointer.y);
+            textModeActive = false; // Nach dem Hinzufügen deaktivieren
+            document.getElementById("textModeBtn").classList.remove("active");
+        } else {
+            canvas.discardActiveObject();
+            canvas.renderAll();
+            document.getElementById("toolbar").style.display = "none"; // Toolbar ausblenden
+        }
+    }
+    });
+
+    canvas.on("object:moving", function(event) {
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects.length > 1) {
+        activeObjects.forEach(obj => {
+            obj.setCoords(); // Position aktualisieren
+        });
+    }
+    });
+
+    canvas.on("object:moving", function(event) {
+            let obj = event.target;
+            if (obj && obj.isType("i-text")) {
+            console.log(`Text: "${obj.text}" | X: ${Math.round(obj.left)}, Y: ${Math.round(obj.top)}`);
+            }
+    });
+
+    canvas.on("object:modified", function() {
+    updateToolbar();
+    });
+
+    canvas.on("mouse:dblclick", function(event) {
+    if (event.target && event.target.isType("i-text")) {
+        event.target.enterEditing();
+        setTimeout(() => {
+            event.target.hiddenTextarea?.focus();
+        }, 50);
+    }
+    });
+
+    canvas.on("mouse:down", function(event) {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.isEditing && !event.target) {
+        activeObject.exitEditing();
+        canvas.discardActiveObject();
+        canvas.renderAll();
+        document.getElementById("toolbar").style.display = "none";
+    }
+    });
+
+    canvas.on("selection:created", updateToolbar);
+    canvas.on("selection:updated", updateToolbar);
+    canvas.on("object:modified", updateToolbar);
+
+    // Jedes Mal, wenn das Canvas verändert wird, speichere die Änderung temporär
+    canvas.on("object:modified", saveTemporaryLayout);
+    canvas.on("object:added", saveTemporaryLayout);
         
-let textModeActive = false; // Standard: Kein neues Textfeld erstellen
+
 
  // 🔹 Globale API-Variablen
 const apiVariables = {
@@ -787,11 +851,23 @@ async function loadLayoutFromAPI(layoutId) {
 }
 
 function changeLayout(layoutId) {
-            const layout = layouts.find(l => l.id == layoutId);
-            if (!layout) return;
+    const layout = layouts.find(l => l.id == layoutId);
+    if (!layout) return;
 
-            // Hintergrund direkt in Originalgröße setzen
-            fabric.Image.fromURL(layout.background, function(img) {
+    // Falls es eine temporär gespeicherte Version gibt, lade diese
+    const savedCanvasData = sessionStorage.getItem(`layout_${layoutId}`);
+
+    // Canvas leeren
+    canvas.clear();
+
+    if (savedCanvasData) {
+        console.log(`🟡 Lade temporär gespeicherte Version von Layout ${layoutId}`);
+        canvas.loadFromJSON(savedCanvasData, () => {
+            canvas.renderAll();
+        });
+    } else {
+        console.log(`🔵 Lade Standard-Layout ${layoutId}`);
+        fabric.Image.fromURL(layout.background, function(img) {
             img.set({
                 left: 0,
                 top: 0,
@@ -800,11 +876,9 @@ function changeLayout(layoutId) {
                 originX: "left",
                 originY: "top"
             });
-
+            
             canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-            }, { crossOrigin: "anonymous" });
-
-
+        }, { crossOrigin: "anonymous" });
             // Canvas-Größe anpassen
             if (layout.format === "15x10") {
                 canvas.setDimensions({ width: 600, height: 400 }); // Querformat groß
@@ -837,7 +911,16 @@ function changeLayout(layoutId) {
                 });
                 canvas.add(text);
             });
-        }
+
+        // Text hinzufügen
+        addTextGroups(layout);
+
+        // Standard-Namen und Datum setzen
+        setTimeout(() => {
+            updateCanvasText();
+        }, 100);
+    }
+}
 
 function addTextGroups(layout) {
     layout.textGroups.forEach(group => {
@@ -1038,71 +1121,6 @@ function updateToolbar() {
 function showToolbar() {
      document.getElementById("toolbar").style.display = "flex";
 }
-
-    // Falls außerhalb eines Textfelds geklickt wird, deaktivieren
-    canvas.on("mouse:down", function(event) {
-    if (!event.target) {
-        if (textModeActive) {
-            addText(event.pointer.x, event.pointer.y);
-            textModeActive = false; // Nach dem Hinzufügen deaktivieren
-            document.getElementById("textModeBtn").classList.remove("active");
-        } else {
-            canvas.discardActiveObject();
-            canvas.renderAll();
-            document.getElementById("toolbar").style.display = "none"; // Toolbar ausblenden
-        }
-    }
-    });
-
-    canvas.on("object:moving", function(event) {
-    const activeObjects = canvas.getActiveObjects();
-    if (activeObjects.length > 1) {
-        activeObjects.forEach(obj => {
-            obj.setCoords(); // Position aktualisieren
-        });
-    }
-    });
-
-    canvas.on("object:moving", function(event) {
-            let obj = event.target;
-            if (obj && obj.isType("i-text")) {
-            console.log(`Text: "${obj.text}" | X: ${Math.round(obj.left)}, Y: ${Math.round(obj.top)}`);
-            }
-    });
-
-    canvas.on("object:modified", function() {
-    updateToolbar();
-    });
-
-    canvas.on("mouse:dblclick", function(event) {
-    if (event.target && event.target.isType("i-text")) {
-        event.target.enterEditing();
-        setTimeout(() => {
-            event.target.hiddenTextarea?.focus();
-        }, 50);
-    }
-    });
-
-    canvas.on("mouse:down", function(event) {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject && activeObject.isEditing && !event.target) {
-        activeObject.exitEditing();
-        canvas.discardActiveObject();
-        canvas.renderAll();
-        document.getElementById("toolbar").style.display = "none";
-    }
-    });
-
-    canvas.on("selection:created", updateToolbar);
-    canvas.on("selection:updated", updateToolbar);
-    canvas.on("object:modified", updateToolbar);
-
-    // Jedes Mal, wenn das Canvas verändert wird, speichere die Änderung temporär
-    canvas.on("object:modified", saveTemporaryLayout);
-    canvas.on("object:added", saveTemporaryLayout);
-
-
-        
 
 async function saveLayoutToAPI(isFinal = false) {
     const layoutId = document.getElementById("layoutSelector").value;
