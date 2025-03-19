@@ -801,7 +801,16 @@ async function loadLayoutFromAPI(layoutId) {
 
 function changeLayout(layoutId) {
     const layout = layouts.find(l => l.id == layoutId);
-    if (!layout) return;
+    if (!layout) {
+        console.error(`❌ Layout mit ID ${layoutId} nicht gefunden.`);
+        return;
+    }
+
+    // Falls keine Textgruppen vorhanden sind, leeres Array setzen
+    if (!layout.textGroups) {
+        console.warn(`⚠ Kein textGroups in Layout ${layoutId} gefunden. Setze Standard.`);
+        layout.textGroups = [];
+    }
 
     // Falls es eine temporär gespeicherte Version gibt, lade diese
     const savedCanvasData = sessionStorage.getItem(`layout_${layoutId}`);
@@ -816,6 +825,8 @@ function changeLayout(layoutId) {
         });
     } else {
         console.log(`🔵 Lade Standard-Layout ${layoutId}`);
+        
+        // Hintergrundbild setzen
         fabric.Image.fromURL(layout.background, function(img) {
             img.set({
                 left: 0,
@@ -825,44 +836,37 @@ function changeLayout(layoutId) {
                 originX: "left",
                 originY: "top"
             });
-            
+
             canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
         }, { crossOrigin: "anonymous" });
-            // Canvas-Größe anpassen
-            if (layout.format === "15x10") {
-                canvas.setDimensions({ width: 600, height: 400 }); // Querformat groß
-            } else if (layout.format === "10x15") {
-                canvas.setDimensions({ width: 400, height: 600 }); // Hochformat groß
-            } else if (layout.format === "15x5") {
-                canvas.setDimensions({ width: 600, height: 200 }); // Sehr breites Format
-            } else if (layout.format === "5x15") {
-                canvas.setDimensions({ width: 200, height: 600 }); // Sehr hohes Format
-            }
 
-            canvas.clear();
-            addTextGroups(layout);  // Füge nun alle Textgruppen korrekt zentriert hinzu
+        // 📏 Canvas-Größe anpassen
+        adjustCanvasSize(layout.format);
 
+        // **Textgruppen hinzufügen**
+        addTextGroups(layout);
 
-            // Textfelder setzen
+        // Falls `layout.texts` existiert, alle Textobjekte setzen
+        if (layout.texts && Array.isArray(layout.texts)) {
             layout.texts.forEach(t => {
                 const text = new fabric.IText(t.text, {
                     left: t.x,
                     top: t.y,
                     fontSize: t.size,
-                    fontFamily: t.fontFamily || "Arial", // Falls keine Schriftart definiert ist, Standard: Arial
-                    fontWeight: t.fontWeight || "normal", // Falls keine Schriftstärke definiert ist, Standard: normal
-                    textAlign: t.textAlign || "center", // Falls keine Ausrichtung definiert ist, Standard: linksbündig
-                    charSpacing: t.charSpacing || 0, // Falls keine Laufweite definiert, Standard: 0
-                    fill: t.fill || "#000000", // Falls keine Farbe definiert ist, Standard: Schwarz
-                    originX: "left", // Nutzt den JSON-Wert oder Standard "left"
+                    fontFamily: t.fontFamily || "Arial", // Standardwert, falls nicht definiert
+                    fontWeight: t.fontWeight || "normal",
+                    textAlign: t.textAlign || "center",
+                    charSpacing: t.charSpacing || 0,
+                    fill: t.fill || "#000000",
+                    originX: "left",
                     selectable: true,
                     editable: true
                 });
                 canvas.add(text);
             });
-
-        // Text hinzufügen
-        addTextGroups(layout);
+        } else {
+            console.warn(`⚠ Kein 'texts' Array in Layout ${layoutId} gefunden.`);
+        }
 
         // Standard-Namen und Datum setzen
         setTimeout(() => {
@@ -870,6 +874,24 @@ function changeLayout(layoutId) {
         }, 100);
     }
 }
+
+/**
+ * 📏 Passt die Canvas-Größe basierend auf dem Format des Layouts an.
+ */
+function adjustCanvasSize(format) {
+    if (format === "15x10") {
+        canvas.setDimensions({ width: 600, height: 400 });
+    } else if (format === "10x15") {
+        canvas.setDimensions({ width: 400, height: 600 });
+    } else if (format === "15x5") {
+        canvas.setDimensions({ width: 600, height: 200 });
+    } else if (format === "5x15") {
+        canvas.setDimensions({ width: 200, height: 600 });
+    } else {
+        console.warn(`⚠ Unbekanntes Format: ${format}. Standardgröße wird verwendet.`);
+    }
+}
+
 
 function addTextGroups(layout) {
     layout.textGroups.forEach(group => {
