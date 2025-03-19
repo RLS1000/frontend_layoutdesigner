@@ -691,12 +691,16 @@ const apiVariables = {
 document.addEventListener("DOMContentLoaded", () => {
     populateDropdown();
 
-    // ✅ Prüfen, ob eine gültige Layout-ID vorhanden ist
     const layoutId = checkLayoutID();
     if (layoutId) {
         console.log("🔗 Lade Layout aus API für ID:", layoutId);
         loadLayoutFromAPI(layoutId);
     }
+
+    // ✅ API-Werte direkt setzen, falls kein API-Call stattfindet
+    setTimeout(() => {
+        updateCanvasText();
+    }, 300);
 });
 
 document.addEventListener("keydown", function(event) {
@@ -771,7 +775,10 @@ async function loadLayoutFromAPI(layoutId) {
             console.log(`🟢 Lade gespeichertes Layout ${layoutId}`);
             canvas.loadFromJSON(layoutData.layoutData, () => {
                 canvas.renderAll();
-                
+
+                // ✅ Jetzt erst die API-Werte setzen!
+                updateCanvasText();
+
                 if (layoutData.isFinal) {
                     lockEditor("Dieses Layout wurde bereits finalisiert. Änderungen sind nur nach vorheriger Rücksprache möglich.");
                 }
@@ -779,12 +786,18 @@ async function loadLayoutFromAPI(layoutId) {
         } else {
             console.log(`🔵 Kein gespeichertes Layout gefunden, lade Standard-Layout`);
             changeLayout(1); // Standard-Layout 1
+            
+            // ✅ API-Werte trotzdem setzen, falls Layout neu ist
+            setTimeout(() => {
+                updateCanvasText();
+            }, 200);
         }
     } catch (error) {
         console.error("❌ Fehler beim Laden des Layouts:", error);
         lockEditor("Fehler: Layout konnte nicht geladen werden.");
     }
 }
+
 
 function changeLayout(layoutId) {
     const layout = layouts.find(l => l.id == layoutId);
