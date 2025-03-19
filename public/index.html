@@ -771,8 +771,15 @@ async function loadLayoutFromAPI(layoutId) {
         const layoutData = await response.json();
         console.log("📥 Geladenes Layout:", layoutData);
 
-        if (layoutData.layoutData) {
+        // Falls `layoutData.layoutData` null ist, auf leeres Objekt setzen (verhindert Fehler)
+        if (!layoutData.layoutData) {
+            console.warn(`⚠ layoutData.layoutData ist null, setze leeren Standardwert.`);
+            layoutData.layoutData = {}; 
+        }
+
+        if (Object.keys(layoutData.layoutData).length > 0) {
             console.log(`🟢 Lade gespeichertes Layout ${layoutId}`);
+            canvas.clear(); // Nur leeren, wenn ein Layout geladen wird
             canvas.loadFromJSON(layoutData.layoutData, () => {
                 canvas.renderAll();
 
@@ -786,7 +793,7 @@ async function loadLayoutFromAPI(layoutId) {
         } else {
             console.log(`🔵 Kein gespeichertes Layout gefunden, lade Standard-Layout`);
             changeLayout(1); // Standard-Layout 1
-            
+
             // ✅ API-Werte trotzdem setzen, falls Layout neu ist
             setTimeout(() => {
                 updateCanvasText();
@@ -797,7 +804,6 @@ async function loadLayoutFromAPI(layoutId) {
         lockEditor("Fehler: Layout konnte nicht geladen werden.");
     }
 }
-
 
 function changeLayout(layoutId) {
     const layout = layouts.find(l => l.id == layoutId);
