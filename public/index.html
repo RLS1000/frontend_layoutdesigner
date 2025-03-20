@@ -1143,13 +1143,17 @@ function showToolbar() {
 
 function saveTemporaryLayout() {
     const layoutId = document.getElementById("layoutSelector").value;
-    const canvasData = JSON.stringify(canvas.toJSON());
+    const currentCanvasData = JSON.stringify(canvas.toJSON());
+    const storedCanvasData = sessionStorage.getItem(`custom_layout_${layoutId}`);
 
-    sessionStorage.setItem(`custom_layout_${layoutId}`, canvasData);
-    console.log(`💾 Layout ${layoutId} temporär gespeichert`);
-
-    updateDropdownStyles(); // Erst nach Änderung wird "⭐ Dein Style" hinzugefügt
+    // Prüfe, ob sich das Canvas geändert hat
+    if (storedCanvasData !== currentCanvasData) {
+        sessionStorage.setItem(`custom_layout_${layoutId}`, currentCanvasData);
+        console.log(`💾 Layout ${layoutId} temporär gespeichert`);
+        updateDropdownStyles();
+    }
 }
+
         
 function updateDropdownStyles() {
     const dropdown = document.getElementById("layoutSelector");
@@ -1157,11 +1161,15 @@ function updateDropdownStyles() {
 
     for (let i = 0; i < options.length; i++) {
         const layoutId = options[i].value;
+        const storedLayout = sessionStorage.getItem(`custom_layout_${layoutId}`);
 
-        // Nur markieren, wenn eine Änderung für das Layout existiert
-        if (sessionStorage.getItem(`custom_layout_${layoutId}`)) {
-            if (!options[i].textContent.includes("⭐ Dein Style")) {
-                options[i].textContent = `⭐ Dein Style (${options[i].textContent})`;
+        if (storedLayout) {
+            // Prüfe, ob das gespeicherte Layout vom Standard-Layout abweicht
+            const originalLayout = layouts.find(l => l.id == layoutId);
+            if (originalLayout && JSON.stringify(originalLayout) !== storedLayout) {
+                if (!options[i].textContent.includes("⭐ Dein Style")) {
+                    options[i].textContent = `⭐ Dein Style (${options[i].textContent})`;
+                }
             }
         } else {
             options[i].textContent = options[i].textContent.replace("⭐ Dein Style ", "");
