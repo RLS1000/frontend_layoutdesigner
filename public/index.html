@@ -1086,7 +1086,6 @@ function showToolbar() {
 
     canvas.on("object:modified", function() {
     updateToolbar();
-    saveTemporaryLayout();
     });
 
     canvas.on("mouse:dblclick", function(event) {
@@ -1151,7 +1150,6 @@ function saveTemporaryLayout() {
 
     updateDropdownStyles(); // Erst nach Änderung wird "⭐ Dein Style" hinzugefügt
 }
-
         
 function updateDropdownStyles() {
     const dropdown = document.getElementById("layoutSelector");
@@ -1170,7 +1168,6 @@ function updateDropdownStyles() {
         }
     }
 }
-
 
 function exportCanvasAsPNG() {
     // Speichere die aktuelle Canvas-Größe
