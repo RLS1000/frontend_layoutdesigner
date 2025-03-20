@@ -1086,6 +1086,7 @@ function showToolbar() {
 
     canvas.on("object:modified", function() {
     updateToolbar();
+    saveTemporaryLayout();
     });
 
     canvas.on("mouse:dblclick", function(event) {
@@ -1114,9 +1115,6 @@ function showToolbar() {
     // Jedes Mal, wenn das Canvas verändert wird, speichere die Änderung temporär
     canvas.on("object:modified", saveTemporaryLayout);
     canvas.on("object:added", saveTemporaryLayout);
-
-
-        
 
     async function saveLayoutToAPI(isFinal = false) {
     const layoutId = document.getElementById("layoutSelector").value;
@@ -1151,8 +1149,9 @@ function saveTemporaryLayout() {
     sessionStorage.setItem(`custom_layout_${layoutId}`, canvasData);
     console.log(`💾 Layout ${layoutId} temporär gespeichert`);
 
-    updateDropdownStyles(); // Aktualisiert das Dropdown-Design
+    updateDropdownStyles(); // Erst nach Änderung wird "⭐ Dein Style" hinzugefügt
 }
+
         
 function updateDropdownStyles() {
     const dropdown = document.getElementById("layoutSelector");
@@ -1160,8 +1159,12 @@ function updateDropdownStyles() {
 
     for (let i = 0; i < options.length; i++) {
         const layoutId = options[i].value;
+
+        // Nur markieren, wenn eine Änderung für das Layout existiert
         if (sessionStorage.getItem(`custom_layout_${layoutId}`)) {
-            options[i].textContent = `⭐ Dein Style (${options[i].textContent})`;
+            if (!options[i].textContent.includes("⭐ Dein Style")) {
+                options[i].textContent = `⭐ Dein Style (${options[i].textContent})`;
+            }
         } else {
             options[i].textContent = options[i].textContent.replace("⭐ Dein Style ", "");
         }
