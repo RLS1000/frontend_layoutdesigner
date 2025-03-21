@@ -1028,6 +1028,9 @@ function deleteText() {
 function updateCanvasText() {
     console.log("🔄 Update Canvas Text gestartet...");
 
+    // 1️⃣ Platzhalter ersetzen und Textobjekte sammeln
+    const updatedTextObjects = [];
+
     canvas.getObjects().forEach(obj => {
         if (obj.isType("i-text")) {
             console.log("🎯 Vorher:", obj.text);
@@ -1044,12 +1047,28 @@ function updateCanvasText() {
             }
 
             obj.set("text", newText);
+            updatedTextObjects.push(obj);
+
             console.log("✅ Aktualisiert:", newText);
         }
     });
 
     canvas.renderAll();
     console.log("✅ Canvas wurde neu gezeichnet.");
+
+    // 2️⃣ Texte vollständig neu positionieren (zentriert), indem sie neu aufgebaut werden
+    const layoutId = document.getElementById("layoutSelector").value;
+    const layout = layouts.find(l => l.id == layoutId);
+
+    if (layout) {
+        console.log("🎯 Starte Neuplatzierung der Texte gemäß Layout-Vorgabe...");
+
+        // Alle alten Textobjekte entfernen (werden durch addTextGroups ersetzt)
+        updatedTextObjects.forEach(obj => canvas.remove(obj));
+
+        // Gruppierte Texte neu hinzufügen und korrekt zentrieren
+        addTextGroups(layout);
+    }
 }
 
 function updateToolbar() {
