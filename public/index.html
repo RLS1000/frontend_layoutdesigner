@@ -1155,8 +1155,10 @@ function updateDropdownStyles() {
             // Prüfe, ob das gespeicherte Layout vom Standard-Layout abweicht
             const originalLayout = layouts.find(l => l.id == layoutId);
             if (originalLayout && JSON.stringify(originalLayout) !== storedLayout) {
-                if (!options[i].textContent.includes("(Eigene Version)")) {
-                     options[i].textContent += " (Eigene Version)";
+                if (!options[i].textContent.includes("[Bearbeitet]")) {
+                    options[i].textContent += " [Bearbeitet]";
+                    }
+
                     }
             }
         } else {
