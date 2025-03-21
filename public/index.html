@@ -903,6 +903,12 @@ function updateCanvasText() {
 
     canvas.renderAll();
     console.log("✅ Canvas wurde neu gezeichnet.");
+
+    // 3️⃣ Änderungen speichern – wichtig, damit "Bearbeitet"-Status bleibt
+    if (!isProgrammaticLayoutChange) {
+        console.log("💾 Änderungen durch updateCanvasText() speichern...");
+        saveTemporaryLayout();
+    }
 }
 
 
