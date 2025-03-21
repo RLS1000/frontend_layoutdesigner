@@ -925,7 +925,9 @@ function addTextGroups(layout) {
         let startX = group.groupX - (totalWidth / 2);
 
         // 5️⃣ Positioniere die Texte mit korrekt berechnetem Abstand
+        console.log("Größencheck:");
         textObjects.forEach((obj, index) => {
+            console.log(`🔹 ${obj.text} → width: ${obj.width}, scaleX: ${obj.scaleX}, getScaledWidth: ${obj.getScaledWidth?.()}`);
             obj.set({ left: startX, top: group.groupY });
             obj.setCoords();
             startX += obj.width + (index < textObjects.length - 1 ? group.spacing : 0);
