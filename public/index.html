@@ -851,6 +851,9 @@ function changeLayout(layoutId) {
             canvas.renderAll();
             updateCanvasText();
             isProgrammaticLayoutChange = false;
+
+            // ⬇️ Neu: explizit speichern
+            saveTemporaryLayout(); // damit es sicher im SessionStorage landet
         });
         return;
     }
