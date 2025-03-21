@@ -702,6 +702,9 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
         updateCanvasText();
     }, 300);
+    
+    // ✅ NEU: Aktualisiere Dropdown-Stile beim Start
+        updateDropdownStyles();
 });
 
 document.addEventListener("keydown", function(event) {
@@ -946,6 +949,7 @@ function updateText(property, value) {
         });
         canvas.renderAll();
         updateToolbar(); // Toolbar-Werte nach Änderung aktualisieren
+        saveTemporaryLayout(); // 🔄 Layout speichern & Dropdown updaten
     }
 }
         
@@ -954,6 +958,7 @@ function toggleBold() {
             if (activeObject && activeObject.isType("i-text")) {
                 activeObject.set("fontWeight", activeObject.fontWeight === "bold" ? "normal" : "bold");
                 canvas.renderAll();
+                saveTemporaryLayout(); // 🔄 Layout speichern & Dropdown updaten
             }
 }
 
@@ -962,6 +967,7 @@ function toggleItalic() {
             if (activeObject && activeObject.isType("i-text")) {
                 activeObject.set("fontStyle", activeObject.fontStyle === "italic" ? "normal" : "italic");
                 canvas.renderAll();
+                saveTemporaryLayout(); // 🔄 Layout speichern & Dropdown updaten
             }
 }
 
@@ -971,6 +977,7 @@ function setAlign(align) {
                   activeObjects.forEach(obj => {
                   if (obj.isType("i-text")) {
                 obj.set({ originX: align });
+                saveTemporaryLayout(); // 🔄 Layout speichern & Dropdown updaten
             }
         });
         
