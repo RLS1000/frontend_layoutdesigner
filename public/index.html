@@ -818,6 +818,18 @@ async function loadLayoutFromAPI(layoutId) {
     }
 }
 
+function replacePlaceholders(text) {
+    let result = text
+        .replace(/name1/g, apiVariables.name1)
+        .replace(/name2/g, apiVariables.name2)
+        .replace(/weddingDate/g, apiVariables.weddingDate);
+
+    if (apiVariables.name3) {
+        result = result.replace(/name3/g, apiVariables.name3);
+    }
+
+    return result;
+}
 
 function changeLayout(layoutId) {
     console.log(`🔄 Wechsle zu Layout ${layoutId}`);
@@ -871,6 +883,29 @@ function changeLayout(layoutId) {
     isProgrammaticLayoutChange = false;
 }
 
+function updateCanvasText() {
+    console.log("🔄 Update Canvas Text gestartet...");
+
+    const layoutId = document.getElementById("layoutSelector").value;
+    const layout = layouts.find(l => l.id == layoutId);
+    if (!layout) return;
+
+    // 1️⃣ Entferne bestehende Textobjekte (werden neu aufgebaut)
+    canvas.getObjects().forEach(obj => {
+        if (obj.isType("i-text")) {
+            canvas.remove(obj);
+        }
+    });
+
+    // 2️⃣ Gruppierte Texte neu hinzufügen und korrekt zentrieren
+    console.log("🎯 Starte Neuplatzierung der Texte gemäß Layout-Vorgabe...");
+    addTextGroups(layout);
+
+    canvas.renderAll();
+    console.log("✅ Canvas wurde neu gezeichnet.");
+}
+
+
 function addTextGroups(layout) {
     layout.textGroups.forEach(group => {
         let textObjects = [];
@@ -878,9 +913,11 @@ function addTextGroups(layout) {
         // Falls kein originY definiert ist, nutze "top" als Standard
         const originY = group.originY || "top"; 
 
-        // 1️⃣ Erstelle die Texte & speichere sie in textObjects
+        // 1️⃣ Erstelle die Texte & ersetze Platzhalter direkt beim Anlegen
         group.texts.forEach((t) => {
-            const textObj = new fabric.IText(t.text, {
+            const textWithVars = replacePlaceholders(t.text || "");
+
+            const textObj = new fabric.IText(textWithVars, {
                 fontSize: t.size,
                 fontFamily: t.fontFamily || "Arial",
                 fontWeight: t.fontWeight || "normal",
@@ -897,34 +934,32 @@ function addTextGroups(layout) {
             textObjects.push(textObj);
         });
 
-        // 🔧 Neu: Erst nach dem Hinzufügen rendern, damit `obj.width` korrekt ist
+        // 🔧 Nach dem Hinzufügen rendern, damit Breiten korrekt berechnet werden
         canvas.renderAll();
 
-        // 2️⃣ Berechne `totalWidth` der Gruppe
+        // 2️⃣ Berechne die Gesamtbreite der Gruppe inkl. Spacing
         let totalWidth = textObjects.reduce((sum, obj, index) => {
             return sum + obj.width + (index < textObjects.length - 1 ? group.spacing : 0);
         }, 0);
 
-        // 3️⃣ Falls die Gruppe zu breit ist, verkleinere die Schriftgröße
+        // 3️⃣ Falls zu breit, verkleinere proportional
         if (totalWidth > group.maxWidth) {
             let scaleFactor = group.maxWidth / totalWidth;
             textObjects.forEach(obj => {
                 obj.set("fontSize", obj.fontSize * scaleFactor);
             });
 
-            // 🔧 Neu: Nach Änderung erneut rendern, damit width aktualisiert wird
-            canvas.renderAll();
+            canvas.renderAll(); // 🔄 Width nach Update neu berechnen
 
-            // Nochmal `totalWidth` berechnen nach Skalierung
             totalWidth = textObjects.reduce((sum, obj, index) => {
                 return sum + obj.width + (index < textObjects.length - 1 ? group.spacing : 0);
             }, 0);
         }
 
-        // 4️⃣ Berechne den Startpunkt für zentrierte Ausrichtung
+        // 4️⃣ Starte bei zentriertem X-Offset
         let startX = group.groupX - (totalWidth / 2);
 
-        // 5️⃣ Positioniere die Texte mit korrekt berechnetem Abstand
+        // 5️⃣ Positioniere alle Texte mit Abstand
         console.log("Größencheck:");
         textObjects.forEach((obj, index) => {
             console.log(`🔹 ${obj.text} → width: ${obj.width}, scaleX: ${obj.scaleX}, getScaledWidth: ${obj.getScaledWidth?.()}`);
@@ -936,6 +971,7 @@ function addTextGroups(layout) {
         canvas.renderAll();
     });
 }
+
 
 function addText(x, y) {
     const text = new fabric.IText("Hier Text eingeben", {
@@ -1022,52 +1058,6 @@ function deleteText() {
         canvas.discardActiveObject();
         canvas.renderAll();
         document.getElementById("toolbar").style.display = "none";
-    }
-}
-
-function updateCanvasText() {
-    console.log("🔄 Update Canvas Text gestartet...");
-
-    // 1️⃣ Platzhalter ersetzen und Textobjekte sammeln
-    const updatedTextObjects = [];
-
-    canvas.getObjects().forEach(obj => {
-        if (obj.isType("i-text")) {
-            console.log("🎯 Vorher:", obj.text);
-
-            // Platzhalter durch API-Daten ersetzen
-            let newText = obj.text
-                .replace(/name1/g, apiVariables.name1)
-                .replace(/name2/g, apiVariables.name2)
-                .replace(/weddingDate/g, apiVariables.weddingDate);
-
-            // Falls name3 vorhanden ist
-            if (apiVariables.name3) {
-                newText = newText.replace(/name3/g, apiVariables.name3);
-            }
-
-            obj.set("text", newText);
-            updatedTextObjects.push(obj);
-
-            console.log("✅ Aktualisiert:", newText);
-        }
-    });
-
-    canvas.renderAll();
-    console.log("✅ Canvas wurde neu gezeichnet.");
-
-    // 2️⃣ Texte vollständig neu positionieren (zentriert), indem sie neu aufgebaut werden
-    const layoutId = document.getElementById("layoutSelector").value;
-    const layout = layouts.find(l => l.id == layoutId);
-
-    if (layout) {
-        console.log("🎯 Starte Neuplatzierung der Texte gemäß Layout-Vorgabe...");
-
-        // Alle alten Textobjekte entfernen (werden durch addTextGroups ersetzt)
-        updatedTextObjects.forEach(obj => canvas.remove(obj));
-
-        // Gruppierte Texte neu hinzufügen und korrekt zentrieren
-        addTextGroups(layout);
     }
 }
 
