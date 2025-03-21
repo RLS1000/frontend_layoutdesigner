@@ -878,12 +878,13 @@ function addTextGroups(layout) {
         // Falls kein originY definiert ist, nutze "top" als Standard
         const originY = group.originY || "top"; 
 
-        // 1️⃣ Erstelle die Texte & speichere die exakten Breiten
+        // 1️⃣ Erstelle die Texte & speichere sie in textObjects
         group.texts.forEach((t) => {
             const textObj = new fabric.IText(t.text, {
                 fontSize: t.size,
                 fontFamily: t.fontFamily || "Arial",
                 fontWeight: t.fontWeight || "normal",
+                fontStyle: t.fontStyle || "normal",
                 charSpacing: t.charSpacing || 0,
                 fill: t.fill || "#000000",
                 originX: "left",
@@ -896,8 +897,13 @@ function addTextGroups(layout) {
             textObjects.push(textObj);
         });
 
+        // 🔧 Neu: Erst nach dem Hinzufügen rendern, damit `obj.width` korrekt ist
+        canvas.renderAll();
+
         // 2️⃣ Berechne `totalWidth` der Gruppe
-        let totalWidth = textObjects.reduce((sum, obj, index) => sum + obj.width + (index < textObjects.length - 1 ? group.spacing : 0), 0);
+        let totalWidth = textObjects.reduce((sum, obj, index) => {
+            return sum + obj.width + (index < textObjects.length - 1 ? group.spacing : 0);
+        }, 0);
 
         // 3️⃣ Falls die Gruppe zu breit ist, verkleinere die Schriftgröße
         if (totalWidth > group.maxWidth) {
@@ -906,13 +912,16 @@ function addTextGroups(layout) {
                 obj.set("fontSize", obj.fontSize * scaleFactor);
             });
 
+            // 🔧 Neu: Nach Änderung erneut rendern, damit width aktualisiert wird
             canvas.renderAll();
 
-            // Nach dem Skalieren erneut `totalWidth` berechnen
-            totalWidth = textObjects.reduce((sum, obj, index) => sum + obj.width + (index < textObjects.length - 1 ? group.spacing : 0), 0);
+            // Nochmal `totalWidth` berechnen nach Skalierung
+            totalWidth = textObjects.reduce((sum, obj, index) => {
+                return sum + obj.width + (index < textObjects.length - 1 ? group.spacing : 0);
+            }, 0);
         }
 
-        // 4️⃣ Berechne den Startpunkt für die exakte Zentrierung
+        // 4️⃣ Berechne den Startpunkt für zentrierte Ausrichtung
         let startX = group.groupX - (totalWidth / 2);
 
         // 5️⃣ Positioniere die Texte mit korrekt berechnetem Abstand
