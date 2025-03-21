@@ -831,6 +831,28 @@ function replacePlaceholders(text) {
     return result;
 }
 
+function replaceTextPlaceholders() {
+    console.log("🔄 Ersetze Platzhalter ohne Neu-Positionierung...");
+
+    canvas.getObjects().forEach(obj => {
+        if (obj.isType("i-text")) {
+            let newText = obj.text
+                .replace(/name1/g, apiVariables.name1)
+                .replace(/name2/g, apiVariables.name2)
+                .replace(/weddingDate/g, apiVariables.weddingDate);
+
+            if (apiVariables.name3) {
+                newText = newText.replace(/name3/g, apiVariables.name3);
+            }
+
+            obj.set("text", newText);
+        }
+    });
+
+    canvas.renderAll();
+    console.log("✅ Platzhalter aktualisiert (keine Neupositionierung).");
+}
+
 function changeLayout(layoutId) {
     console.log(`🔄 Wechsle zu Layout ${layoutId}`);
     isProgrammaticLayoutChange = true;
@@ -849,7 +871,7 @@ function changeLayout(layoutId) {
         canvas.clear();
         canvas.loadFromJSON(layoutData, () => {
             canvas.renderAll();
-            updateCanvasText();
+            replaceTextPlaceholders(); // ✅ Nur Text aktualisieren
             isProgrammaticLayoutChange = false;
 
             // ⬇️ Neu: explizit speichern
