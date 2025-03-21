@@ -750,7 +750,7 @@ function populateDropdown() {
             layouts.forEach(layout => {
                 const option = document.createElement("option");
                 option.value = layout.id;
-                option.textContent = `${layout.id}: ${layout.name} (${layout.format})`;
+                option.textContent = `${layout.name} (${layout.format})`;
                 dropdown.appendChild(option);
             });
         }
@@ -1155,9 +1155,9 @@ function updateDropdownStyles() {
             // Prüfe, ob das gespeicherte Layout vom Standard-Layout abweicht
             const originalLayout = layouts.find(l => l.id == layoutId);
             if (originalLayout && JSON.stringify(originalLayout) !== storedLayout) {
-                if (!options[i].textContent.includes("⭐ Dein Style")) {
-                    options[i].textContent = `⭐ Dein Style (${options[i].textContent})`;
-                }
+                if (!options[i].textContent.includes("(Eigene Version)")) {
+                     options[i].textContent += " (Eigene Version)";
+                    }
             }
         } else {
             options[i].textContent = options[i].textContent.replace("⭐ Dein Style ", "");
