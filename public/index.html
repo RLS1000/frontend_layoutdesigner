@@ -1141,20 +1141,6 @@ function showToolbar() {
     }
 }      
 
-function saveTemporaryLayout() {
-    const layoutId = document.getElementById("layoutSelector").value;
-    const currentCanvasData = JSON.stringify(canvas.toJSON());
-    const storedCanvasData = sessionStorage.getItem(`custom_layout_${layoutId}`);
-
-    // Prüfe, ob sich das Canvas geändert hat
-    if (storedCanvasData !== currentCanvasData) {
-        sessionStorage.setItem(`custom_layout_${layoutId}`, currentCanvasData);
-        console.log(`💾 Layout ${layoutId} temporär gespeichert`);
-        updateDropdownStyles();
-    }
-}
-
-        
 function updateDropdownStyles() {
     const dropdown = document.getElementById("layoutSelector");
     const options = dropdown.options;
@@ -1341,6 +1327,19 @@ function checkLayoutID() {
     }
 
     return layoutId;
+}
+
+function saveTemporaryLayout() {
+    const layoutId = document.getElementById("layoutSelector").value;
+    const currentCanvasData = JSON.stringify(canvas.toJSON());
+    const storedCanvasData = sessionStorage.getItem(`custom_layout_${layoutId}`);
+
+    // Prüfe, ob sich das Canvas geändert hat
+    if (storedCanvasData !== currentCanvasData) {
+        sessionStorage.setItem(`custom_layout_${layoutId}`, currentCanvasData);
+        console.log(`💾 Layout ${layoutId} temporär gespeichert`);
+        updateDropdownStyles();
+    }
 }
 
 </script>
