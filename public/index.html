@@ -688,6 +688,20 @@ const apiVariables = {
     name2: "MAX",
     weddingDate: "01. Januar 1978",
 };
+
+function setCanvasSizeByFormat(format) {
+    if (format === "15x10") {
+        canvas.setDimensions({ width: 600, height: 400 });
+    } else if (format === "10x15") {
+        canvas.setDimensions({ width: 400, height: 600 });
+    } else if (format === "15x5") {
+        canvas.setDimensions({ width: 600, height: 200 });
+    } else if (format === "5x15") {
+        canvas.setDimensions({ width: 200, height: 600 });
+    } else {
+        canvas.setDimensions({ width: 600, height: 400 }); // Fallback
+    }
+}
  
 document.addEventListener("DOMContentLoaded", () => {
     populateDropdown();
@@ -811,11 +825,20 @@ function changeLayout(layoutId) {
 
     const savedLayout = sessionStorage.getItem(`custom_layout_${layoutId}`);
     if (savedLayout) {
+        console.log(`🟡 Lade benutzerdefinierten Style für Layout ${layoutId}`);
+        
+        const parsed = JSON.parse(savedLayout);
+        const layoutData = parsed.data || parsed; // Fallback falls altes Format
+        const format = parsed.format || "15x10";  // Default bei alten Speicherungen
+
+        // ⬇️ Neue Hilfsfunktion zum Setzen der Größe (definieren wir unten)
+        setCanvasSizeByFormat(format);
+
         canvas.clear();
-        canvas.loadFromJSON(savedLayout, () => {
+        canvas.loadFromJSON(layoutData, () => {
             canvas.renderAll();
             updateCanvasText();
-            isProgrammaticLayoutChange = false; // ← HIER
+            isProgrammaticLayoutChange = false;
         });
         return;
     }
@@ -840,22 +863,13 @@ function changeLayout(layoutId) {
         });
     }, { crossOrigin: "anonymous" });
 
-    // Canvas-Größe anpassen
-    if (layout.format === "15x10") {
-        canvas.setDimensions({ width: 600, height: 400 });
-    } else if (layout.format === "10x15") {
-        canvas.setDimensions({ width: 400, height: 600 });
-    } else if (layout.format === "15x5") {
-        canvas.setDimensions({ width: 600, height: 200 });
-    } else if (layout.format === "5x15") {
-        canvas.setDimensions({ width: 200, height: 600 });
-    }
+    // ⬇️ Hier ersetzen wir die Format-Logik durch dieselbe Hilfsfunktion
+    setCanvasSizeByFormat(layout.format);
 
     addTextGroups(layout);
     updateCanvasText();
-    isProgrammaticLayoutChange = false; // ← auch hier sicherheitshalber
+    isProgrammaticLayoutChange = false;
 }
-
 
 function addTextGroups(layout) {
     layout.textGroups.forEach(group => {
@@ -1345,12 +1359,22 @@ function saveTemporaryLayout() {
     }
 
     const layoutId = document.getElementById("layoutSelector").value;
-    const canvasData = JSON.stringify(canvas.toJSON());
-    const storedData = sessionStorage.getItem(`custom_layout_${layoutId}`);
+    const layout = layouts.find(l => l.id == layoutId);
+    if (!layout) return;
 
-    if (canvasData !== storedData) {
-        sessionStorage.setItem(`custom_layout_${layoutId}`, canvasData);
-        console.log(`💾 Layout ${layoutId} temporär gespeichert`);
+    const canvasData = canvas.toJSON();
+    const dataToStore = {
+        format: layout.format,
+        data: canvasData
+    };
+
+    const storedRaw = sessionStorage.getItem(`custom_layout_${layoutId}`);
+    const storedParsed = storedRaw ? JSON.parse(storedRaw) : null;
+
+    // Nur speichern, wenn sich etwas verändert hat
+    if (!storedParsed || JSON.stringify(storedParsed.data) !== JSON.stringify(canvasData)) {
+        sessionStorage.setItem(`custom_layout_${layoutId}`, JSON.stringify(dataToStore));
+        console.log(`💾 Layout ${layoutId} temporär gespeichert (mit Format: ${layout.format})`);
         updateDropdownStyles();
     }
 }
