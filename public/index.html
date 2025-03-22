@@ -93,7 +93,6 @@
     <div id="canvas-container">
         <canvas id="canvas" width="800" height="400"></canvas>
     </div>
-    <div><button id="textModeBtn">Textfeld hinzufügen</button></div>
     
     <div id="toolbar">
         <select id="fontFamily" onchange="updateText('fontFamily', this.value)">
@@ -111,6 +110,7 @@
         <button onclick="setAlign('center')">🔳</button>
         <button onclick="setAlign('right')">➡</button>
         <input type="color" id="textColor" onchange="updateText('fill', this.value)">
+        <button id="textModeBtn">Textfeld hinzufügen</button>
         <button onclick="deleteText()">Löschen</button>
     </div>
   
