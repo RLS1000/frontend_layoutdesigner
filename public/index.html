@@ -34,13 +34,35 @@
                 justify-content: center;
             }
             button, select, input { margin: 3px; padding: 5px; }
+
+            select.intro-style {
+                font-weight: bold;
+                color: #444;
+                border: 2px solid #ff9800;
+                background-color: #fff8e1;
+                box-shadow: 0 0 5px rgba(255, 152, 0, 0.6);
+                transition: all 0.3s ease;
+            }
+
+            #layoutSelector.intro-style {
+                border: 2px dashed #999;
+                background-color: #f9f9f9;
+                color: #666;
+            }
+
         </style>
     </head>
     
 <body>
 
     <h2>LAYOUT-DESIGNER</h2>
-    <div><label for="layoutSelector">Wähle Deinen Style:</label><select id="layoutSelector" onchange="changeLayout(this.value)"></select><button id="exportBtn">PNG Export</button></div>
+    <div style="margin-bottom: 5px;">
+        <span id="layoutNotice" style="font-weight: bold; color: #555;">Willkommen! Wähle ein Layout, um zu starten:</span>
+      </div>
+      <div>
+        <select id="layoutSelector" onchange="changeLayout(this.value)" style="font-weight: bold;"></select>
+        <button id="exportBtn">PNG Export</button>
+      </div>
     
     <div id="apiVariableEditor">
         <h3>Variablen bearbeiten</h3>
@@ -702,6 +724,35 @@ function setCanvasSizeByFormat(format) {
         canvas.setDimensions({ width: 600, height: 400 }); // Fallback
     }
 }
+
+function loadWelcomeCanvas() {
+    canvas.clear();
+    setCanvasSizeByFormat("15x10");
+
+    const welcomeText = new fabric.IText(
+        "👋 Willkommen beim Layout-Designer!\n\n➤ Wähle oben ein Layout aus\n➤ Bearbeite Namen und Datum\n➤ Füge eigene Texte hinzu\n\n🎨 Nutze die Werkzeugleiste unter dem Canvas!",
+        {
+            left: 80,
+            top: 80,
+            fontSize: 20,
+            fontFamily: "Raleway",
+            fill: "#333",
+            width: 450,
+            textAlign: "left",
+            editable: false,
+            selectable: false
+        }
+    );
+
+    canvas.add(welcomeText);
+    canvas.renderAll();
+    document.getElementById("layoutSelector").value = "";
+    document.getElementById("layoutSelector").classList.add("intro-style");
+    document.getElementById("layoutSelector").classList.remove("intro-style");
+    // Optional: Dropdown deaktivieren, wenn du es erstmal sperren willst
+    // document.getElementById("layoutSelector").disabled = false; // true = sperren
+
+}
  
 document.addEventListener("DOMContentLoaded", () => {
     populateDropdown();
@@ -798,7 +849,6 @@ async function loadLayoutFromAPI(layoutId) {
 
         console.log("🔹 Aktualisierte API-Werte:", apiVariables);
 
-        // 🔄 Falls gespeichertes `layoutData` existiert, lade es ins Canvas
         if (layoutData.layoutData) {
             console.log("🟢 Lade gespeichertes Layout auf das Canvas...");
             canvas.loadFromJSON(layoutData.layoutData, () => {
@@ -806,9 +856,10 @@ async function loadLayoutFromAPI(layoutId) {
                 canvas.renderAll();
             });
         } else {
-            console.log("🔴 Kein gespeichertes Layout gefunden. Lade Standard-Layout...");
-            changeLayout(1); // Standard-Layout setzen
-        }
+            console.log("👋 Kein gespeichertes Layout vorhanden. Zeige Begrüßung.");
+            loadWelcomeCanvas();
+}
+
 
         return layoutData;
     } catch (error) {
@@ -854,6 +905,9 @@ function replaceTextPlaceholders() {
 }
 
 function changeLayout(layoutId) {
+    document.getElementById("layoutNotice").textContent = "Aktives Layout:";
+    document.getElementById("layoutSelector").classList.remove("intro-style");
+
     console.log(`🔄 Wechsle zu Layout ${layoutId}`);
     isProgrammaticLayoutChange = true;
 
