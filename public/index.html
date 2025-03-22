@@ -11,29 +11,55 @@
         <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet">
 
         <style>
-            body { font-family: Arial, sans-serif; text-align: center; }
-            #canvas-container {
-                 position: relative;
-                 display: inline-block;
-                 border: 2px solid black;
-                 margin-top: 10px;
-            }
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+                }
+            
+            #main {
+                display: flex;
+                flex: 1;
+                overflow: hidden;
+                }
 
-            #toolbar {
-                position: relative;
-                display: none;
-                background: #f0f0f0;
-                padding: 8px;
-                border-radius: 5px;
-                box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-                z-index: 10;
+            #canvasSection {
+                flex: 2;
                 display: flex;
                 align-items: center;
-                gap: 10px;
-                margin-top: 10px;
                 justify-content: center;
-            }
-            button, select, input { margin: 3px; padding: 5px; }
+                background-color: #fafafa;
+                border-right: 2px solid #ddd;
+                padding: 20px;
+                }
+
+            #canvas-container {
+                border: 2px solid black;
+                background: white;
+                }
+
+            #toolPanel {
+                flex: 1;
+                padding: 20px;
+                overflow-y: auto;
+                background-color: #f4f4f4;
+                }
+
+            #toolbar {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                justify-content: flex-start;
+                margin-bottom: 20px;
+                }
+    
+            button, select, input {
+                margin: 4px;
+                padding: 6px;
+                }
 
             select.intro-style {
                 font-weight: bold;
@@ -56,65 +82,78 @@
                 border: 1px solid #28a745;
             }
 
-@keyframes highlightFade {
-    from {
-        background-color: #d4edda;
-    }
-    to {
-        background-color: white;
-    }
+            #apiVariableEditor {
+                margin-top: 20px;
+            }
+
+            @keyframes highlightFade {
+            from {
+                background-color: #d4edda;
+            }
+            to {
+                background-color: white;
+            }
 }
 
         </style>
     </head>
     
 <body>
+    <header style="padding: 10px; text-align: center; background-color: #222; color: white;">
+        <h2>LAYOUT-DESIGNER</h2>
+      </header>
 
-    <h2>LAYOUT-DESIGNER</h2>
-    <div style="margin-bottom: 5px;">
-        <span id="layoutNotice" style="font-weight: bold; color: #555;">Willkommen! Wähle ein Layout, um zu starten:</span>
+      <div id="main">
+        <!-- Canvas Section -->
+        <div id="canvasSection">
+          <div id="canvas-container">
+            <canvas id="canvas" width="800" height="400"></canvas>
+          </div>
+        </div>
+    
+        <!-- Tool Panel -->
+        <div id="toolPanel">
+          <div>
+            <span id="layoutNotice"><strong>Willkommen! Wähle ein Layout, um zu starten:</strong></span><br><br>
+            <select id="layoutSelector" onchange="changeLayout(this.value)"></select>
+            <button id="exportBtn">PNG Export</button>
+          </div>
+    
+          <div id="apiVariableEditor">
+            <h3>Variablen bearbeiten</h3>
+            <label>Name 1: <input type="text" id="varName1" value="SOPHIE"></label><br>
+            <label>Name 2: <input type="text" id="varName2" value="MAX"></label><br>
+            <label>Datum: <input type="text" id="varWeddingDate" value="12. März 2025"></label><br>
+            <button onclick="updateVariables()">Variablen speichern</button>
+          </div>
+    
+          <div style="margin-top: 20px;">
+            <button onclick="saveLayoutToAPI(false)">Speichern</button>
+            <button onclick="saveLayoutToAPI(true)">Speichern & Freigeben</button>
+          </div>
+    
+          <div id="toolbar">
+            <select id="fontFamily" onchange="updateText('fontFamily', this.value)">
+                <option value="Raleway">Raleway</option>
+                <option value="Baskerville">Baskerville</option>
+                <option value="Arial">Arial</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Courier New">Courier</option>
+                <option value="Georgia">Georgia</option>
+            </select>
+            <input type="number" id="fontSize" value="30" min="10" max="100" onchange="updateText('fontSize', this.value)">
+            <button onclick="toggleBold()">B</button>
+            <button onclick="toggleItalic()">I</button>
+            <button onclick="setAlign('left')">⬅</button>
+            <button onclick="setAlign('center')">🔳</button>
+            <button onclick="setAlign('right')">➡</button>
+            <input type="color" id="textColor" onchange="updateText('fill', this.value)">
+            <button id="textModeBtn">Textfeld hinzufügen</button>
+            <button onclick="deleteText()">Löschen</button>
+          </div>
+        </div>
       </div>
-      <div>
-        <select id="layoutSelector" onchange="changeLayout(this.value)" style="font-weight: bold;"></select>
-        <button id="exportBtn">PNG Export</button>
-      </div>
-    
-    <div id="apiVariableEditor">
-        <h3>Variablen bearbeiten</h3>
-        <label>Name 1: <input type="text" id="varName1" value="SOPHIE"></label>
-        <label>Name 2: <input type="text" id="varName2" value="MAX"></label>
-        <label>Datum: <input type="text" id="varWeddingDate" value="12. März 2025"></label>
-        <button onclick="updateVariables()">Variablen speichern</button>
-    </div>
-    <div><button onclick="saveLayoutToAPI(false)">Speichern</button>
-        <button onclick="saveLayoutToAPI(true)">Speichern & Freigeben</button>
-    </div>
-    
-    <div id="canvas-container">
-        <canvas id="canvas" width="800" height="400"></canvas>
-    </div>
-    
-    <div id="toolbar">
-        <select id="fontFamily" onchange="updateText('fontFamily', this.value)">
-            <option value="Raleway">Raleway</option>
-            <option value="Baskerville">Baskerville</option>
-            <option value="Arial">Arial</option>
-            <option value="Verdana">Verdana</option>
-            <option value="Courier New">Courier</option>
-            <option value="Georgia">Georgia</option>
-        </select>
-        <input type="number" id="fontSize" value="30" min="10" max="100" onchange="updateText('fontSize', this.value)">
-        <button onclick="toggleBold()">B</button>
-        <button onclick="toggleItalic()">I</button>
-        <button onclick="setAlign('left')">⬅</button>
-        <button onclick="setAlign('center')">🔳</button>
-        <button onclick="setAlign('right')">➡</button>
-        <input type="color" id="textColor" onchange="updateText('fill', this.value)">
-        <span>Textfeld</span>
-        <button id="textModeBtn">hinzufügen</button>
-        <button onclick="deleteText()">löschen</button>
-    </div>
-  
+
     <script>
         const layouts = [
     { id: 1, name: "Style 1 - 15x10 - 2 Fotos", format: "15x10", background: "https://app.layoutdesigner.einfach-knips.de/public_html/assets/style1.png", textGroups: [
