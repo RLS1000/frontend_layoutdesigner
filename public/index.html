@@ -50,10 +50,44 @@
 
             #toolbar {
                 display: flex;
-                flex-wrap: wrap;
-                gap: 8px;
-                justify-content: flex-start;
-                margin-bottom: 20px;
+                flex-direction: column;
+                align-items: stretch;
+                width: 220px;
+                padding: 12px;
+                background: #f8f8f8;
+                border-left: 2px solid #ccc;
+                box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+                font-family: Raleway, sans-serif;
+                font-size: 14px;
+                }
+
+            .tool-section {
+                margin-bottom: 18px;
+                padding-bottom: 10px;
+                border-bottom: 1px dashed #ddd;
+                }
+
+            .tool-section label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: 600;
+                color: #444;
+                }
+
+            .tool-section button,
+            .tool-section select,
+            .tool-section input[type="number"],
+            .tool-section input[type="color"] {
+                width: 100%;
+                margin: 3px 0;
+                padding: 6px;
+                box-sizing: border-box;
+                }
+
+            .save-actions {
+                margin-top: auto;
+                padding-top: 12px;
+                border-top: 2px solid #999;
                 }
     
             button, select, input {
@@ -116,7 +150,6 @@
           <div>
             <span id="layoutNotice"><strong>Willkommen! Wähle ein Layout, um zu starten:</strong></span><br><br>
             <select id="layoutSelector" onchange="changeLayout(this.value)"></select>
-            <button id="exportBtn">PNG Export</button>
           </div>
     
           <div id="apiVariableEditor">
@@ -127,30 +160,54 @@
             <button onclick="updateVariables()">Variablen speichern</button>
           </div>
     
-          <div style="margin-top: 20px;">
-            <button onclick="saveLayoutToAPI(false)">Speichern</button>
-            <button onclick="saveLayoutToAPI(true)">Speichern & Freigeben</button>
-          </div>
-    
           <div id="toolbar">
-            <select id="fontFamily" onchange="updateText('fontFamily', this.value)">
+            <div class="tool-section">
+              <label for="fontFamily">Schriftart:</label>
+              <select id="fontFamily" onchange="updateText('fontFamily', this.value)">
                 <option value="Raleway">Raleway</option>
                 <option value="Baskerville">Baskerville</option>
                 <option value="Arial">Arial</option>
                 <option value="Verdana">Verdana</option>
                 <option value="Courier New">Courier</option>
                 <option value="Georgia">Georgia</option>
-            </select>
-            <input type="number" id="fontSize" value="30" min="10" max="100" onchange="updateText('fontSize', this.value)">
-            <button onclick="toggleBold()">B</button>
-            <button onclick="toggleItalic()">I</button>
-            <button onclick="setAlign('left')">⬅</button>
-            <button onclick="setAlign('center')">🔳</button>
-            <button onclick="setAlign('right')">➡</button>
-            <input type="color" id="textColor" onchange="updateText('fill', this.value)">
-            <button id="textModeBtn">Textfeld hinzufügen</button>
-            <button onclick="deleteText()">Löschen</button>
+              </select>
+            </div>
+          
+            <div class="tool-section">
+              <label for="fontSize">Größe:</label>
+              <input type="number" id="fontSize" value="30" min="10" max="100" onchange="updateText('fontSize', this.value)">
+            </div>
+          
+            <div class="tool-section">
+              <label for="textColor">Farbe:</label>
+              <input type="color" id="textColor" onchange="updateText('fill', this.value)">
+            </div>
+          
+            <div class="tool-section">
+              <label>Stil:</label>
+              <button onclick="toggleBold()">B</button>
+              <button onclick="toggleItalic()">I</button>
+            </div>
+          
+            <div class="tool-section">
+              <label>Ausrichtung:</label>
+              <button onclick="setAlign('left')">⬅</button>
+              <button onclick="setAlign('center')">🔳</button>
+              <button onclick="setAlign('right')">➡</button>
+            </div>
+          
+            <div class="tool-section">
+              <button id="textModeBtn">➕ Textfeld</button>
+              <button onclick="deleteText()">🗑 Löschen</button>
+            </div>
+          
+            <div class="tool-section save-actions">
+              <button onclick="saveLayoutToAPI(false)">💾 Speichern</button>
+              <button onclick="saveLayoutToAPI(true)">🚀 Freigeben</button>
+              <button id="exportBtn">📤 PNG Export</button>
+            </div>
           </div>
+          
         </div>
       </div>
 
