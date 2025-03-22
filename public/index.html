@@ -50,6 +50,21 @@
                 color: #666;
             }
 
+            input.updated {
+                animation: highlightFade 1s ease;
+                background-color: #d4edda; /* leichtes grün */
+                border: 1px solid #28a745;
+            }
+
+@keyframes highlightFade {
+    from {
+        background-color: #d4edda;
+    }
+    to {
+        background-color: white;
+    }
+}
+
         </style>
     </head>
     
@@ -863,6 +878,9 @@ async function loadLayoutFromAPI(layoutId) {
         apiVariables.name2 = layoutData.name2 || "NAME 2";
         apiVariables.weddingDate = layoutData.eventDate || "DD. MMMM YYYY";
 
+        // 🟢 Inputfelder ebenfalls aktualisieren
+            updateInputFields();
+
         console.log("🔹 Aktualisierte API-Werte:", apiVariables);
 
         if (layoutData.layoutData) {
@@ -1436,6 +1454,24 @@ function updateVariables() {
 
     // 3️⃣ Text direkt im Canvas aktualisieren, ohne das Layout neu zu laden
     updateCanvasText();
+}
+
+function updateInputFields() {
+    const name1Input = document.getElementById("varName1");
+    const name2Input = document.getElementById("varName2");
+    const dateInput = document.getElementById("varWeddingDate");
+
+    name1Input.value = apiVariables.name1 || "";
+    name2Input.value = apiVariables.name2 || "";
+    dateInput.value = apiVariables.weddingDate || "";
+
+    // ✨ CSS-Highlight-Klasse hinzufügen und automatisch wieder entfernen
+    [name1Input, name2Input, dateInput].forEach(input => {
+        input.classList.add("updated");
+        setTimeout(() => {
+            input.classList.remove("updated");
+        }, 1000); // Dauer der Animation
+    });
 }
 
 function lockEditor(message) {
