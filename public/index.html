@@ -746,13 +746,19 @@ function loadWelcomeCanvas() {
 
     canvas.add(welcomeText);
     canvas.renderAll();
-    document.getElementById("layoutSelector").value = "";
-    document.getElementById("layoutSelector").classList.add("intro-style");
-    document.getElementById("layoutSelector").classList.remove("intro-style");
-    // Optional: Dropdown deaktivieren, wenn du es erstmal sperren willst
-    // document.getElementById("layoutSelector").disabled = false; // true = sperren
 
+    const dropdown = document.getElementById("layoutSelector");
+    dropdown.value = "";
+    dropdown.classList.add("intro-style");
+
+    // ⬆️ Optional optische Hervorhebung
+    dropdown.style.border = "2px dashed #888";
+    dropdown.style.backgroundColor = "#f8f8f8";
+
+    // Hinweis über dem Dropdown
+    document.getElementById("layoutNotice").textContent = "Willkommen – bitte wähle ein Layout:";
 }
+
  
 document.addEventListener("DOMContentLoaded", () => {
     populateDropdown();
@@ -814,14 +820,24 @@ document.addEventListener("keydown", function(event) {
 });
 
 function populateDropdown() {
-            const dropdown = document.getElementById("layoutSelector");
-            layouts.forEach(layout => {
-                const option = document.createElement("option");
-                option.value = layout.id;
-                option.textContent = `${layout.name} (${layout.format})`;
-                dropdown.appendChild(option);
-            });
-        }
+    const dropdown = document.getElementById("layoutSelector");
+
+    // 🟡 Willkommensoption ganz oben
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = "🖐 Noch kein Layout ausgewählt";
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    dropdown.appendChild(defaultOption);
+
+    // 🔄 Alle echten Layouts hinzufügen
+    layouts.forEach(layout => {
+        const option = document.createElement("option");
+        option.value = layout.id;
+        option.textContent = `${layout.name} (${layout.format})`;
+        dropdown.appendChild(option);
+    });
+}
 
 // Event-Listener für den T-Button
 document.getElementById("textModeBtn").addEventListener("click", function() {
