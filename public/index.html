@@ -863,6 +863,8 @@
  ]
 
 const canvas = new fabric.Canvas("canvas");
+const DEBUG_MODE = false; // ⬅️ auf true setzen, wenn du testen willst
+
 
 canvas.selection = true; // Mehrfachauswahl durch Auswahlbox aktivieren
         
@@ -1249,7 +1251,7 @@ function addTextGroups(layout) {
             });
 
             canvas.add(textObj);
-            drawDebugBox(textObj); // 🟥 Debug-Rahmen anzeigen
+            if (DEBUG_MODE) drawDebugBox(textObj); // 🟥 Debug-Rahmen anzeigen
             textObjects.push(textObj);
 
             // 📋 Konsole zum Vergleich
@@ -1286,7 +1288,7 @@ function addTextGroups(layout) {
         });
 
         canvas.renderAll();
-        drawGroupCenter(group.groupX * canvasScaleX, group.groupY * canvasScaleY); // 📍 Zielposition zeigen
+        if (DEBUG_MODE) drawGroupCenter(group.groupX * canvasScaleX, group.groupY * canvasScaleY); // 📍 Zielposition zeigen
 
     });
 }
