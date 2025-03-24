@@ -1232,7 +1232,11 @@ function addTextGroups(layout) {
             });
 
             canvas.add(textObj);
+            drawDebugBox(textObj); // 🟥 Debug-Rahmen anzeigen
             textObjects.push(textObj);
+
+            // 📋 Konsole zum Vergleich
+            console.log(`🧪 "${textWithVars}" | fontSize: ${textObj.fontSize} | width: ${textObj.width.toFixed(1)} | left: ${textObj.left?.toFixed(1)} | scaleX: ${canvasScaleX.toFixed(2)} | scaleY: ${canvasScaleY.toFixed(2)}`);
         });
 
         canvas.renderAll();
@@ -1265,6 +1269,8 @@ function addTextGroups(layout) {
         });
 
         canvas.renderAll();
+        drawGroupCenter(group.groupX * canvasScaleX, group.groupY * canvasScaleY); // 📍 Zielposition zeigen
+
     });
 }
 
@@ -1795,6 +1801,35 @@ function loadNextLayout(direction) {
         }
         isProgrammaticLayoutChange = false;
     }, 400); // Nach Swipe-Animation
+}
+
+function drawDebugBox(obj) {
+    const rect = new fabric.Rect({
+        left: obj.left,
+        top: obj.top,
+        width: obj.width,
+        height: obj.height,
+        stroke: 'red',
+        strokeWidth: 1,
+        fill: 'transparent',
+        selectable: false,
+        evented: false
+    });
+    canvas.add(rect);
+}
+
+function drawGroupCenter(x, y) {
+    const circle = new fabric.Circle({
+        left: x - 4,
+        top: y - 4,
+        radius: 4,
+        fill: 'blue',
+        stroke: 'white',
+        strokeWidth: 1,
+        selectable: false,
+        evented: false
+    });
+    canvas.add(circle);
 }
 
 
