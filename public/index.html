@@ -130,52 +130,35 @@
             }
 
             @media (max-width: 768px) {
+                body {
+                    overflow-x: hidden;
+                    }
+
                 #main {
                     flex-direction: column;
                 }
 
-                #canvasSection,
-                #toolPanel {
-                    width: 100%;
+                #canvasSection {
+                    flex: none;
                     border-right: none;
-                    border-left: none;
+                    border-bottom: 2px solid #ddd;
                     padding: 10px;
+                    justify-content: center;
                 }
 
                 #canvas-container {
-                    width: 100%;
-                    max-width: 100%;
+                    width: 300px !important;
+                    height: auto;
+                    margin: 0 auto;
+                    border: 2px solid #000;
                 }
 
-                canvas {
-                    width: 100% !important;
-                    height: auto !important;
-                    display: block;
-                }
-
-                #canvasSection {
+                #toolPanel {
+                    flex: none;
                     padding: 10px;
                 }
-                #toolbar {
-                    flex-direction: row;
-                    flex-wrap: wrap;
-                    gap: 8px;
-                    justify-content: space-between;
                 }
 
-                .tool-section {
-                    flex: 1 1 45%;
-                    min-width: 140px;
-                    margin-bottom: 10px;
-                }
-
-                .save-actions {
-                    flex-basis: 100%;
-                    border-top: 1px solid #999;
-                }
-            }
-
-            
         </style>
     </head>
     
@@ -870,44 +853,61 @@ const apiVariables = {
     weddingDate: "01. Januar 1978",
 };
 
-let canvasScale = 1; // Wird in setCanvasSizeByFormat gesetzt
+let canvasScale = 1; // global definiert
 
 function setCanvasSizeByFormat(format) {
-    const isMobile = window.innerWidth <= 768;
-    canvasScale = isMobile ? 0.5 : 1;
+    const canvasContainer = document.getElementById("canvas-container");
+    const dpr = window.devicePixelRatio || 1;
 
-    let width = 600;
-    let height = 400;
+    // Standardgrößen (Desktop)
+    let displayWidth = 600;
+    let displayHeight = 400;
 
-    if (format === "15x10") {
-        width = 600;
-        height = 400;
-    } else if (format === "10x15") {
-        width = 400;
-        height = 600;
-    } else if (format === "15x5") {
-        width = 600;
-        height = 200;
-    } else if (format === "5x15") {
-        width = 200;
-        height = 600;
+    switch (format) {
+        case "15x10":
+            displayWidth = 600;
+            displayHeight = 400;
+            break;
+        case "10x15":
+            displayWidth = 400;
+            displayHeight = 600;
+            break;
+        case "15x5":
+            displayWidth = 600;
+            displayHeight = 200;
+            break;
+        case "5x15":
+            displayWidth = 200;
+            displayHeight = 600;
+            break;
     }
 
-    const scaledWidth = width * canvasScale;
-    const scaledHeight = height * canvasScale;
+    // ⏬ Mobile? Dann runterskalieren
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) {
+        displayWidth *= 0.5;
+        displayHeight *= 0.5;
+    }
 
-    // Setze Rendergröße UND Darstellungsgröße korrekt
-    canvas.setDimensions({ width: scaledWidth, height: scaledHeight });
-    canvas.setWidth(scaledWidth);   // für das Canvas-Element selbst
-    canvas.setHeight(scaledHeight);
+    // 📐 Rendering-Größe in Pixel (für Retina / high-DPI)
+    const renderWidth = displayWidth * dpr;
+    const renderHeight = displayHeight * dpr;
 
-    // Falls nötig, zusätzlich Canvas-Element manuell setzen:
-    const canvasElement = document.getElementById("canvas");
-    canvasElement.width = scaledWidth;
-    canvasElement.height = scaledHeight;
+    // 🖼️ Canvas Größe setzen
+    canvas.setWidth(renderWidth);
+    canvas.setHeight(renderHeight);
+    canvas.setDimensions({ width: displayWidth, height: displayHeight });
 
-    console.log(`🎯 Canvas angepasst: ${scaledWidth}x${scaledHeight} (Scale: ${canvasScale})`);
+    // 📦 Container anpassen
+    canvasContainer.style.width = `${displayWidth}px`;
+    canvasContainer.style.height = `${displayHeight}px`;
+
+    // 📏 Skalierungsfaktor für Positionierung merken
+    canvasScale = displayWidth / 600; // 600 ist unser „logisches Originalmaß“
+
+    console.log(`🎯 Canvas-Größe: ${displayWidth}x${displayHeight} (Format: ${format}, Mobile: ${isMobile})`);
 }
+
 
 function loadWelcomeCanvas() {
     canvas.clear();
