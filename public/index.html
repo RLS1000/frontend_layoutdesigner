@@ -874,22 +874,39 @@ let canvasScale = 1; // Wird in setCanvasSizeByFormat gesetzt
 
 function setCanvasSizeByFormat(format) {
     const isMobile = window.innerWidth <= 768;
-    const sizes = {
-        "15x10": { width: 600, height: 400 },
-        "10x15": { width: 400, height: 600 },
-        "15x5":  { width: 600, height: 200 },
-        "5x15":  { width: 200, height: 600 },
-    };
-
-    const baseSize = sizes[format] || sizes["15x10"];
     canvasScale = isMobile ? 0.5 : 1;
 
-    canvas.setDimensions({
-        width: baseSize.width * canvasScale,
-        height: baseSize.height * canvasScale
-    });
+    let width = 600;
+    let height = 400;
 
-    console.log(`🎯 Canvas-Größe: ${canvas.width}x${canvas.height} (Format: ${format}, Mobile: ${isMobile})`);
+    if (format === "15x10") {
+        width = 600;
+        height = 400;
+    } else if (format === "10x15") {
+        width = 400;
+        height = 600;
+    } else if (format === "15x5") {
+        width = 600;
+        height = 200;
+    } else if (format === "5x15") {
+        width = 200;
+        height = 600;
+    }
+
+    const scaledWidth = width * canvasScale;
+    const scaledHeight = height * canvasScale;
+
+    // Setze Rendergröße UND Darstellungsgröße korrekt
+    canvas.setDimensions({ width: scaledWidth, height: scaledHeight });
+    canvas.setWidth(scaledWidth);   // für das Canvas-Element selbst
+    canvas.setHeight(scaledHeight);
+
+    // Falls nötig, zusätzlich Canvas-Element manuell setzen:
+    const canvasElement = document.getElementById("canvas");
+    canvasElement.width = scaledWidth;
+    canvasElement.height = scaledHeight;
+
+    console.log(`🎯 Canvas angepasst: ${scaledWidth}x${scaledHeight} (Scale: ${canvasScale})`);
 }
 
 function loadWelcomeCanvas() {
