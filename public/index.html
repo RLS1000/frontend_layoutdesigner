@@ -871,18 +871,33 @@ const apiVariables = {
 };
 
 function setCanvasSizeByFormat(format) {
-    if (format === "15x10") {
-        canvas.setDimensions({ width: 600, height: 400 });
-    } else if (format === "10x15") {
-        canvas.setDimensions({ width: 400, height: 600 });
-    } else if (format === "15x5") {
-        canvas.setDimensions({ width: 600, height: 200 });
-    } else if (format === "5x15") {
-        canvas.setDimensions({ width: 200, height: 600 });
-    } else {
-        canvas.setDimensions({ width: 600, height: 400 }); // Fallback
-    }
+    const isMobile = window.innerWidth <= 768;
+
+    // Desktop-Standardgrößen
+    const sizes = {
+        "15x10": { width: 600, height: 400 },
+        "10x15": { width: 400, height: 600 },
+        "15x5":  { width: 600, height: 200 },
+        "5x15":  { width: 200, height: 600 }
+    };
+
+    const fallback = { width: 600, height: 400 };
+    const baseSize = sizes[format] || fallback;
+
+    // Für mobile Ansicht skalieren (z. B. 50 %)
+    const scaleFactor = isMobile ? 0.5 : 1;
+    const width = baseSize.width * scaleFactor;
+    const height = baseSize.height * scaleFactor;
+
+    // Canvas korrekt skalieren
+    canvas.setDimensions({ width, height }, { backstoreOnly: false });
+
+    // Optional: Retina-Optimierung
+    canvas.setZoom(window.devicePixelRatio || 1);
+
+    console.log(`🎯 Canvas-Größe: ${width}x${height} (Format: ${format}, Mobile: ${isMobile})`);
 }
+
 
 function loadWelcomeCanvas() {
     canvas.clear();
