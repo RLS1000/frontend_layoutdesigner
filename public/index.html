@@ -1764,23 +1764,27 @@ function animateCanvasSlide(direction) {
     isSwipeInProgress = true;
 
     const container = document.getElementById("canvas-container");
+    const wrapper = document.getElementById("canvasSwipeWrapper");
     const offset = direction === "next" ? -100 : 100;
 
+    // 1️⃣ Slide raus
     container.style.transition = "transform 0.3s ease";
     container.style.transform = `translateX(${offset}%)`;
 
+    // 2️⃣ Nach Layoutwechsel Slide rückwärts rein
     setTimeout(() => {
         container.style.transition = "none";
         container.style.transform = `translateX(${offset * -1}%)`;
 
+        // 3️⃣ Layoutwechsel + kurzer Delay für DOM ready
         requestAnimationFrame(() => {
             loadNextLayout(direction);
 
             requestAnimationFrame(() => {
                 container.style.transition = "transform 0.3s ease";
-                container.style.transform = "translateX(0)";
+                container.style.transform = "translateX(0%)";
 
-                // 🔓 Unlock Swipe nach kompletter Rückbewegung
+                // 4️⃣ Sperre lösen nach kompletter Rückfahrt
                 setTimeout(() => {
                     isSwipeInProgress = false;
                 }, 350);
@@ -1788,6 +1792,7 @@ function animateCanvasSlide(direction) {
         });
     }, 300);
 }
+
 
 
 function loadNextLayout(direction) {
