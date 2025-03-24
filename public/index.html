@@ -1738,29 +1738,38 @@ function enableMobileSwipeWithAnimation() {
     });
 }
 
-function animateCanvasSlide(direction) {
-    const container = document.getElementById("canvas-container");
+let isSwipeInProgress = false;
 
+function animateCanvasSlide(direction) {
+    if (isSwipeInProgress) return;
+    isSwipeInProgress = true;
+
+    const container = document.getElementById("canvas-container");
     const offset = direction === "next" ? -100 : 100;
 
-    // Animation raus
+    container.style.transition = "transform 0.3s ease";
     container.style.transform = `translateX(${offset}%)`;
 
-    // Nach kurzer Pause zurücksetzen und neues Layout laden
     setTimeout(() => {
-        loadNextLayout(direction);
-
-        // Sofort Canvas-Container auf andere Seite setzen
         container.style.transition = "none";
         container.style.transform = `translateX(${offset * -1}%)`;
 
-        // Dann Animation zur Mitte
         requestAnimationFrame(() => {
-            container.style.transition = "transform 0.3s ease";
-            container.style.transform = "translateX(0)";
+            loadNextLayout(direction);
+
+            requestAnimationFrame(() => {
+                container.style.transition = "transform 0.3s ease";
+                container.style.transform = "translateX(0)";
+
+                // 🔓 Unlock Swipe nach kompletter Rückbewegung
+                setTimeout(() => {
+                    isSwipeInProgress = false;
+                }, 350);
+            });
         });
     }, 300);
 }
+
 
 function loadNextLayout(direction) {
     isProgrammaticLayoutChange = true;
