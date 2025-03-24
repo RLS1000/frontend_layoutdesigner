@@ -859,13 +859,13 @@ const apiVariables = {
     weddingDate: "01. Januar 1978",
 };
 
-let canvasScale = 1; // global definiert
+let canvasScaleX = 1;
+let canvasScaleY = 1;
 
 function setCanvasSizeByFormat(format) {
     const canvasContainer = document.getElementById("canvas-container");
     const dpr = window.devicePixelRatio || 1;
 
-    // Standardgrößen (Desktop)
     let displayWidth = 600;
     let displayHeight = 400;
 
@@ -888,34 +888,24 @@ function setCanvasSizeByFormat(format) {
             break;
     }
 
-    // ⏬ Mobile? Dann runterskalieren
     const isMobile = window.innerWidth < 768;
     if (isMobile) {
         displayWidth *= 0.5;
         displayHeight *= 0.5;
     }
 
-    // 📐 Rendering-Größe in Pixel (für Retina / high-DPI)
     const renderWidth = displayWidth * dpr;
     const renderHeight = displayHeight * dpr;
 
-    // 🖼️ Canvas Größe setzen
     canvas.setWidth(renderWidth);
     canvas.setHeight(renderHeight);
     canvas.setDimensions({ width: displayWidth, height: displayHeight });
 
-    // 📦 Container anpassen
-    Object.assign(canvasContainer.style, {
-        width: `${displayWidth}px`,
-        height: `${displayHeight}px`,
-        maxWidth: `${displayWidth}px`,
-        maxHeight: `${displayHeight}px`,
-        minWidth: `${displayWidth}px`,
-        minHeight: `${displayHeight}px`,
-        });
+    canvasContainer.style.width = `${displayWidth}px`;
+    canvasContainer.style.height = `${displayHeight}px`;
 
-    // 📏 Skalierungsfaktor für Positionierung merken
-    canvasScale = displayWidth / 600; // 600 ist unser „logisches Originalmaß“
+    canvasScaleX = displayWidth / 600;
+    canvasScaleY = displayHeight / 400;
 
     console.log(`🎯 Canvas-Größe: ${displayWidth}x${displayHeight} (Format: ${format}, Mobile: ${isMobile})`);
 }
@@ -1206,14 +1196,13 @@ function updateCanvasText() {
 function addTextGroups(layout) {
     layout.textGroups.forEach(group => {
         let textObjects = [];
-
         const originY = group.originY || "top"; 
 
         group.texts.forEach((t) => {
             const textWithVars = replacePlaceholders(t.text || "");
 
             const textObj = new fabric.IText(textWithVars, {
-                fontSize: t.size * canvasScale,
+                fontSize: t.size * canvasScaleY,
                 fontFamily: t.fontFamily || "Arial",
                 fontWeight: t.fontWeight || "normal",
                 fontStyle: t.fontStyle || "normal",
@@ -1221,8 +1210,8 @@ function addTextGroups(layout) {
                 fill: t.fill || "#000000",
                 originX: "left",
                 originY: originY,
-                selectable: canvasScale === 1,
-                editable: canvasScale === 1
+                selectable: canvasScaleX === 1 && canvasScaleY === 1,
+                editable: canvasScaleX === 1 && canvasScaleY === 1
             });
 
             canvas.add(textObj);
@@ -1231,18 +1220,18 @@ function addTextGroups(layout) {
 
         canvas.renderAll();
 
-        // Skaliere X-Positionen
-        const spacing = group.spacing * canvasScale;
+        const spacing = group.spacing * canvasScaleX;
         let totalWidth = textObjects.reduce((sum, obj, index) => {
             return sum + obj.width + (index < textObjects.length - 1 ? spacing : 0);
         }, 0);
 
-        const maxWidth = group.maxWidth * canvasScale;
+        const maxWidth = group.maxWidth * canvasScaleX;
         if (totalWidth > maxWidth) {
-            let scaleFactor = maxWidth / totalWidth;
+            const scaleFactor = maxWidth / totalWidth;
             textObjects.forEach(obj => {
                 obj.set("fontSize", obj.fontSize * scaleFactor);
             });
+
             canvas.renderAll();
 
             totalWidth = textObjects.reduce((sum, obj, index) => {
@@ -1250,8 +1239,8 @@ function addTextGroups(layout) {
             }, 0);
         }
 
-        let startX = group.groupX * canvasScale - (totalWidth / 2);
-        let top = group.groupY * canvasScale;
+        let startX = group.groupX * canvasScaleX - (totalWidth / 2);
+        let top = group.groupY * canvasScaleY;
 
         textObjects.forEach((obj, index) => {
             obj.set({ left: startX, top: top });
@@ -1262,7 +1251,6 @@ function addTextGroups(layout) {
         canvas.renderAll();
     });
 }
-
 
 function addText(x, y) {
     const text = new fabric.IText("Hier Text eingeben", {
