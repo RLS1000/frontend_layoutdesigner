@@ -1123,7 +1123,7 @@ function replaceTextPlaceholders() {
     console.log("✅ Platzhalter aktualisiert (keine Neupositionierung).");
 }
 
-function changeLayout(layoutId, skipTextRender = false) {
+function changeLayout(layoutId, skipTextRender = false, callback = null) {
     document.getElementById("layoutNotice").textContent = "Aktives Layout:";
     document.getElementById("layoutSelector").classList.remove("intro-style");
 
@@ -1142,9 +1142,12 @@ function changeLayout(layoutId, skipTextRender = false) {
         canvas.loadFromJSON(layoutData, () => {
             canvas.renderAll();
             replaceTextPlaceholders();
-
             isProgrammaticLayoutChange = false;
             saveTemporaryLayout();
+
+            if (typeof callback === "function") {
+                callback(layoutData);
+            }
         });
 
         return;
@@ -1154,6 +1157,7 @@ function changeLayout(layoutId, skipTextRender = false) {
     if (!layout) return;
 
     canvas.clear();
+    setCanvasSizeByFormat(layout.format);
 
     fabric.Image.fromURL(layout.background, function(img) {
         img.set({
@@ -1167,19 +1171,16 @@ function changeLayout(layoutId, skipTextRender = false) {
 
         canvas.setBackgroundImage(img, () => {
             canvas.renderAll();
+
+            if (!skipTextRender && typeof callback === "function") {
+                callback(layout);
+            } else {
+                isProgrammaticLayoutChange = false;
+            }
         });
     }, { crossOrigin: "anonymous" });
-
-    setCanvasSizeByFormat(layout.format);
-
-    if (!skipTextRender) {
-        setTimeout(() => {
-            addTextGroups(layout);
-            updateCanvasText();
-            isProgrammaticLayoutChange = false;
-        }, 200);
-    }
 }
+
 
 function updateCanvasText() {
     console.log("🔄 Update Canvas Text gestartet...");
@@ -1789,19 +1790,13 @@ function loadNextLayout(direction) {
     const nextLayoutId = options[newIndex].value;
     dropdown.selectedIndex = newIndex;
 
-    // ➤ Nur vorbereiten, Texte erst nach Animation einfügen
-    changeLayout(nextLayoutId, true);
-
-    // ⏱ Später Texte rendern
-    setTimeout(() => {
-        const layout = layouts.find(l => l.id == nextLayoutId);
-        if (layout) {
-            addTextGroups(layout);
-            updateCanvasText(); // Speichert automatisch
-        }
+    changeLayout(nextLayoutId, true, (layout) => {
+        addTextGroups(layout);
+        updateCanvasText();
         isProgrammaticLayoutChange = false;
-    }, 400); // Nach Swipe-Animation
+    });
 }
+
 
 function drawDebugBox(obj) {
     const rect = new fabric.Rect({
