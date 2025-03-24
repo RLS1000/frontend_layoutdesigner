@@ -1169,16 +1169,16 @@ function changeLayout(layoutId, skipTextRender = false, callback = null) {
             originY: "top"
         });
 
-        canvas.setBackgroundImage(img, () => {
-        canvas.renderAll();
+    canvas.setBackgroundImage(img, () => {
+    canvas.renderAll();
 
-        if (typeof callback === "function") {
-            callback(layout);
-        }
+    updateCanvasText(); // 🧠 Immer ausführen, damit auch Swipe die Texte rendert
 
-        // 🛠 Text neu aufbauen – nur nötig, wenn kein gespeichertes Layout geladen wurde
-        updateCanvasText(); // <--- HINZUFÜGEN!
-        isProgrammaticLayoutChange = false;
+    if (typeof callback === "function") {
+        callback(layout);
+    }
+
+    isProgrammaticLayoutChange = false;
 });
 
     }, { crossOrigin: "anonymous" });
@@ -1189,6 +1189,11 @@ function updateCanvasText() {
     console.log("🔄 Update Canvas Text gestartet...");
 
     const layoutId = document.getElementById("layoutSelector").value;
+    if (!layoutId) {
+        console.warn("⚠️ Kein Layout ausgewählt für updateCanvasText()");
+        return;
+    }
+
     const layout = layouts.find(l => l.id == layoutId);
     if (!layout) return;
 
@@ -1792,6 +1797,8 @@ function loadNextLayout(direction) {
 
     const nextLayoutId = options[newIndex].value;
     dropdown.selectedIndex = newIndex;
+    dropdown.value = nextLayoutId; // 🧠 Explizit setzen!
+
 
     changeLayout(nextLayoutId, false, () => {
         updateCanvasText(); // ⬅️ NICHT addTextGroups()
