@@ -1782,8 +1782,10 @@ function loadNextLayout(direction) {
 
     changeLayout(nextLayoutId);
 
-    // 🧠 WICHTIG: Nur wenn du sicherstellen willst, dass nach Wechsel sofort alles neu gerendert wird
-    canvas.renderAll();
+    // 🧠 Stelle sicher, dass Texte korrekt ersetzt & neu positioniert werden
+        setTimeout(() => {
+            updateCanvasText(); // Platzhalter ersetzen & Texte sauber positionieren
+        }, 100); // kleiner Delay, um auf Background & CanvasScale zu warten
 }
 
 </script>
