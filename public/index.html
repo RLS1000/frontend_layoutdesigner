@@ -144,14 +144,19 @@
                     border-bottom: 2px solid #ddd;
                     padding: 10px;
                     justify-content: center;
+                    align-items: center;
+                    justify-content: center;
+                    display: flex;
                 }
 
                 #canvas-container {
-                    width: 300px !important;
-                    height: auto;
-                    margin: 0 auto;
+                    width: auto !important;
+                    height: auto !important;
+                    max-width: 100%;
+                    max-height: 100%;
+                    display: inline-block;
                     border: 2px solid #000;
-                    background-color: rgba(255, 0, 0, 0.1); /* nur zur Visualisierung */
+                    background-color: rgba(255, 0, 0, 0.1); /* nur zum Testen */
                 }
 
                 #toolPanel {
@@ -900,8 +905,14 @@ function setCanvasSizeByFormat(format) {
     canvas.setDimensions({ width: displayWidth, height: displayHeight });
 
     // 📦 Container anpassen
-    canvasContainer.style.width = `${displayWidth}px`;
-    canvasContainer.style.height = `${displayHeight}px`;
+    Object.assign(canvasContainer.style, {
+        width: `${displayWidth}px`,
+        height: `${displayHeight}px`,
+        maxWidth: `${displayWidth}px`,
+        maxHeight: `${displayHeight}px`,
+        minWidth: `${displayWidth}px`,
+        minHeight: `${displayHeight}px`,
+        });
 
     // 📏 Skalierungsfaktor für Positionierung merken
     canvasScale = displayWidth / 600; // 600 ist unser „logisches Originalmaß“
