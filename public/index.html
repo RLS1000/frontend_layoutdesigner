@@ -1791,12 +1791,13 @@ function loadNextLayout(direction) {
     const nextLayoutId = options[newIndex].value;
     dropdown.selectedIndex = newIndex;
 
-    // ⛔️ NICHT skipTextRender verwenden – wir wollen den vollständigen Aufbau
+    // 👉 SkipTextRender: false → vollständiger Aufbau
     changeLayout(nextLayoutId, false, () => {
-        updateCanvasText(); // textGroups laden & positionieren
+        updateCanvasText(); // erzeugt neue Texte mit echten Variablen
         isProgrammaticLayoutChange = false;
     });
 }
+
 
 
 
