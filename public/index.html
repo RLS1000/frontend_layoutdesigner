@@ -1180,9 +1180,8 @@ function changeLayout(layoutId) {
             setTimeout(() => {
             addTextGroups(layout);
             updateCanvasText(); // Aktualisiert Texte & speichert temporär
-        }, 0);
-
-    isProgrammaticLayoutChange = false;
+            isProgrammaticLayoutChange = false;
+        }, 100);
 }
 
 function updateCanvasText() {
@@ -1764,6 +1763,7 @@ function animateCanvasSlide(direction) {
 }
 
 function loadNextLayout(direction) {
+    isProgrammaticLayoutChange = true;
     const dropdown = document.getElementById("layoutSelector");
     const currentIndex = dropdown.selectedIndex;
 
@@ -1785,6 +1785,7 @@ function loadNextLayout(direction) {
     // 🧠 Stelle sicher, dass Texte korrekt ersetzt & neu positioniert werden
         setTimeout(() => {
             updateCanvasText(); // Platzhalter ersetzen & Texte sauber positionieren
+            isProgrammaticLayoutChange = false;
         }, 100); // kleiner Delay, um auf Background & CanvasScale zu warten
 }
 
