@@ -1145,10 +1145,10 @@ function changeLayout(layoutId) {
         canvas.loadFromJSON(layoutData, () => {
             canvas.renderAll();
             replaceTextPlaceholders(); // ✅ Nur Text aktualisieren
-            isProgrammaticLayoutChange = false;
 
             // ⬇️ Neu: explizit speichern
             saveTemporaryLayout(); // damit es sicher im SessionStorage landet
+           isProgrammaticLayoutChange = false;
         });
         return;
     }
@@ -1177,11 +1177,11 @@ function changeLayout(layoutId) {
     setCanvasSizeByFormat(layout.format);
 
     // 👇 Text erst nach kleiner Pause einfügen, damit Scale-Werte stimmen
-            setTimeout(() => {
+        setTimeout(() => {
             addTextGroups(layout);
             updateCanvasText(); // Aktualisiert Texte & speichert temporär
             isProgrammaticLayoutChange = false;
-        }, 100);
+        }, 200);
 }
 
 function updateCanvasText() {
@@ -1764,6 +1764,7 @@ function animateCanvasSlide(direction) {
 
 function loadNextLayout(direction) {
     isProgrammaticLayoutChange = true;
+    
     const dropdown = document.getElementById("layoutSelector");
     const currentIndex = dropdown.selectedIndex;
 
@@ -1781,12 +1782,6 @@ function loadNextLayout(direction) {
     dropdown.selectedIndex = newIndex;
 
     changeLayout(nextLayoutId);
-
-    // 🧠 Stelle sicher, dass Texte korrekt ersetzt & neu positioniert werden
-        setTimeout(() => {
-            updateCanvasText(); // Platzhalter ersetzen & Texte sauber positionieren
-            isProgrammaticLayoutChange = false;
-        }, 100); // kleiner Delay, um auf Background & CanvasScale zu warten
 }
 
 </script>
