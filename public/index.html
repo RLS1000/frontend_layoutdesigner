@@ -1172,11 +1172,12 @@ function changeLayout(layoutId, skipTextRender = false, callback = null) {
         canvas.setBackgroundImage(img, () => {
             canvas.renderAll();
 
-            if (!skipTextRender && typeof callback === "function") {
+            if (typeof callback === "function") {
                 callback(layout);
             } else {
                 isProgrammaticLayoutChange = false;
             }
+
         });
     }, { crossOrigin: "anonymous" });
 }
