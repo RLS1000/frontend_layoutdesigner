@@ -872,32 +872,25 @@ const apiVariables = {
 
 function setCanvasSizeByFormat(format) {
     const isMobile = window.innerWidth <= 768;
-
-    // Desktop-Standardgrößen
     const sizes = {
         "15x10": { width: 600, height: 400 },
         "10x15": { width: 400, height: 600 },
         "15x5":  { width: 600, height: 200 },
-        "5x15":  { width: 200, height: 600 }
+        "5x15":  { width: 200, height: 600 },
     };
 
-    const fallback = { width: 600, height: 400 };
-    const baseSize = sizes[format] || fallback;
+    const baseSize = sizes[format] || sizes["15x10"];
+    canvasScale = isMobile ? 0.5 : 1;
 
-    // Für mobile Ansicht skalieren (z. B. 50 %)
-    const scaleFactor = isMobile ? 0.5 : 1;
-    const width = baseSize.width * scaleFactor;
-    const height = baseSize.height * scaleFactor;
+    canvas.setDimensions({
+        width: baseSize.width * canvasScale,
+        height: baseSize.height * canvasScale
+    });
 
-    // Canvas korrekt skalieren
-    canvas.setDimensions({ width, height }, { backstoreOnly: false });
-
-    // Optional: Retina-Optimierung
-    canvas.setZoom(window.devicePixelRatio || 1);
-
-    console.log(`🎯 Canvas-Größe: ${width}x${height} (Format: ${format}, Mobile: ${isMobile})`);
+    console.log(`🎯 Canvas-Größe: ${canvas.width}x${canvas.height} (Format: ${format}, Mobile: ${isMobile})`);
 }
 
+let canvasScale = 1; // Wird in setCanvasSizeByFormat gesetzt
 
 function loadWelcomeCanvas() {
     canvas.clear();
@@ -906,12 +899,12 @@ function loadWelcomeCanvas() {
     const welcomeText = new fabric.IText(
         "👋 Willkommen beim Layout-Designer!\n\n➤ Wähle oben ein Layout aus\n➤ Bearbeite Namen und Datum\n➤ Füge eigene Texte hinzu\n\n🎨 Nutze die Werkzeugleiste unter dem Canvas!",
         {
-            left: 80,
-            top: 80,
-            fontSize: 20,
+            left: 80 * canvasScale,
+            top: 80 * canvasScale,
+            fontSize: 20 * canvasScale,
             fontFamily: "Raleway",
             fill: "#333",
-            width: 450,
+            width: 450 * canvasScale,
             textAlign: "left",
             editable: false,
             selectable: false
@@ -925,11 +918,9 @@ function loadWelcomeCanvas() {
     dropdown.value = "";
     dropdown.classList.add("intro-style");
 
-    // ⬆️ Optional optische Hervorhebung
     dropdown.style.border = "2px dashed #888";
     dropdown.style.backgroundColor = "#f8f8f8";
 
-    // Hinweis über dem Dropdown
     document.getElementById("layoutNotice").textContent = "Willkommen – bitte wähle ein Layout:";
 }
 
@@ -1183,20 +1174,19 @@ function updateCanvasText() {
     }
 }
 
+let canvasScale = 1; // Wird in setCanvasSizeByFormat gesetzt
 
 function addTextGroups(layout) {
     layout.textGroups.forEach(group => {
         let textObjects = [];
 
-        // Falls kein originY definiert ist, nutze "top" als Standard
         const originY = group.originY || "top"; 
 
-        // 1️⃣ Erstelle die Texte & ersetze Platzhalter direkt beim Anlegen
         group.texts.forEach((t) => {
             const textWithVars = replacePlaceholders(t.text || "");
 
             const textObj = new fabric.IText(textWithVars, {
-                fontSize: t.size,
+                fontSize: t.size * canvasScale,
                 fontFamily: t.fontFamily || "Arial",
                 fontWeight: t.fontWeight || "normal",
                 fontStyle: t.fontStyle || "normal",
@@ -1204,46 +1194,42 @@ function addTextGroups(layout) {
                 fill: t.fill || "#000000",
                 originX: "left",
                 originY: originY,
-                selectable: true,
-                editable: true
+                selectable: canvasScale === 1,
+                editable: canvasScale === 1
             });
 
             canvas.add(textObj);
             textObjects.push(textObj);
         });
 
-        // 🔧 Nach dem Hinzufügen rendern, damit Breiten korrekt berechnet werden
         canvas.renderAll();
 
-        // 2️⃣ Berechne die Gesamtbreite der Gruppe inkl. Spacing
+        // Skaliere X-Positionen
+        const spacing = group.spacing * canvasScale;
         let totalWidth = textObjects.reduce((sum, obj, index) => {
-            return sum + obj.width + (index < textObjects.length - 1 ? group.spacing : 0);
+            return sum + obj.width + (index < textObjects.length - 1 ? spacing : 0);
         }, 0);
 
-        // 3️⃣ Falls zu breit, verkleinere proportional
-        if (totalWidth > group.maxWidth) {
-            let scaleFactor = group.maxWidth / totalWidth;
+        const maxWidth = group.maxWidth * canvasScale;
+        if (totalWidth > maxWidth) {
+            let scaleFactor = maxWidth / totalWidth;
             textObjects.forEach(obj => {
                 obj.set("fontSize", obj.fontSize * scaleFactor);
             });
-
-            canvas.renderAll(); // 🔄 Width nach Update neu berechnen
+            canvas.renderAll();
 
             totalWidth = textObjects.reduce((sum, obj, index) => {
-                return sum + obj.width + (index < textObjects.length - 1 ? group.spacing : 0);
+                return sum + obj.width + (index < textObjects.length - 1 ? spacing : 0);
             }, 0);
         }
 
-        // 4️⃣ Starte bei zentriertem X-Offset
-        let startX = group.groupX - (totalWidth / 2);
+        let startX = group.groupX * canvasScale - (totalWidth / 2);
+        let top = group.groupY * canvasScale;
 
-        // 5️⃣ Positioniere alle Texte mit Abstand
-        console.log("Größencheck:");
         textObjects.forEach((obj, index) => {
-            console.log(`🔹 ${obj.text} → width: ${obj.width}, scaleX: ${obj.scaleX}, getScaledWidth: ${obj.getScaledWidth?.()}`);
-            obj.set({ left: startX, top: group.groupY });
+            obj.set({ left: startX, top: top });
             obj.setCoords();
-            startX += obj.width + (index < textObjects.length - 1 ? group.spacing : 0);
+            startX += obj.width + (index < textObjects.length - 1 ? spacing : 0);
         });
 
         canvas.renderAll();
