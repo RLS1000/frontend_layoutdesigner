@@ -1759,6 +1759,28 @@ function animateCanvasSlide(direction) {
     }, 300);
 }
 
+function loadNextLayout(direction) {
+    const dropdown = document.getElementById("layoutSelector");
+    const currentIndex = dropdown.selectedIndex;
+
+    // Filtere nur echte Layout-Optionen (erste ist die Intro-Auswahl)
+    const options = Array.from(dropdown.options).filter(opt => !opt.disabled);
+
+    let newIndex;
+    if (direction === "next") {
+        newIndex = (currentIndex + 1) % options.length;
+    } else if (direction === "prev") {
+        newIndex = (currentIndex - 1 + options.length) % options.length;
+    }
+
+    const nextLayoutId = options[newIndex].value;
+    dropdown.selectedIndex = newIndex;
+
+    changeLayout(nextLayoutId);
+
+    // 🧠 WICHTIG: Nur wenn du sicherstellen willst, dass nach Wechsel sofort alles neu gerendert wird
+    canvas.renderAll();
+}
 
 </script>
 </body>
