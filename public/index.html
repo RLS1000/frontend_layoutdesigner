@@ -1033,7 +1033,7 @@ function populateDropdown() {
     const defaultOption = document.createElement("option");
     defaultOption.value = "";
     defaultOption.textContent = "🖐 Noch kein Layout ausgewählt";
-    defaultOption.disabled = true;
+    defaultOption.disabled = false;
     defaultOption.selected = true;
     dropdown.appendChild(defaultOption);
 
@@ -1793,12 +1793,10 @@ function animateCanvasSlide(direction) {
 function loadNextLayout(direction) {
     const dropdown = document.getElementById("layoutSelector");
     const allOptions = Array.from(dropdown.options);
-    const enabledOptions = allOptions.filter(opt => !opt.disabled);
+    const enabledOptions = allOptions; // Begrüßung ist jetzt swipe-bar
 
-    const currentValue = dropdown.value;
-    const currentIndex = enabledOptions.findIndex(opt => opt.value === currentValue);
-
-    if (currentIndex === -1) return;
+    let currentIndex = enabledOptions.findIndex(opt => opt.value === dropdown.value);
+    if (currentIndex === -1) currentIndex = 0;
 
     let newIndex;
     if (direction === "next") {
@@ -1808,13 +1806,25 @@ function loadNextLayout(direction) {
     }
 
     const nextOption = enabledOptions[newIndex];
+    dropdown.selectedIndex = newIndex;
     dropdown.value = nextOption.value;
 
+    // 💡 Begrüßung erkannt
+    if (nextOption.value === "") {
+        console.log("👋 Swipe zur Begrüßung erkannt");
+        loadWelcomeCanvas();
+        document.getElementById("layoutNotice").textContent = "Willkommen – bitte wähle ein Layout:";
+        return;
+    }
+
+    // 🔄 Normales Layout laden
+    document.getElementById("layoutNotice").textContent = "Aktives Layout:";
     changeLayout(nextOption.value, false, () => {
-        updateCanvasText(); // ⬅️ NICHT addTextGroups()
+        updateCanvasText();
         isProgrammaticLayoutChange = false;
     });
 }
+
 
 
 function drawDebugBox(obj) {
