@@ -1196,13 +1196,14 @@ function updateCanvasText() {
 function addTextGroups(layout) {
     layout.textGroups.forEach(group => {
         let textObjects = [];
-        const originY = group.originY || "top"; 
+        const originY = group.originY || "top";
 
+        // Texte erzeugen
         group.texts.forEach((t) => {
             const textWithVars = replacePlaceholders(t.text || "");
 
             const textObj = new fabric.IText(textWithVars, {
-                fontSize: t.size * canvasScaleY,
+                fontSize: t.size * canvasScaleY, // vertikale Skalierung
                 fontFamily: t.fontFamily || "Arial",
                 fontWeight: t.fontWeight || "normal",
                 fontStyle: t.fontStyle || "normal",
@@ -1231,7 +1232,6 @@ function addTextGroups(layout) {
             textObjects.forEach(obj => {
                 obj.set("fontSize", obj.fontSize * scaleFactor);
             });
-
             canvas.renderAll();
 
             totalWidth = textObjects.reduce((sum, obj, index) => {
@@ -1240,7 +1240,7 @@ function addTextGroups(layout) {
         }
 
         let startX = group.groupX * canvasScaleX - (totalWidth / 2);
-        let top = group.groupY * canvasScaleY;
+        const top = group.groupY * canvasScaleY;
 
         textObjects.forEach((obj, index) => {
             obj.set({ left: startX, top: top });
