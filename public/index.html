@@ -1170,15 +1170,17 @@ function changeLayout(layoutId, skipTextRender = false, callback = null) {
         });
 
         canvas.setBackgroundImage(img, () => {
-            canvas.renderAll();
+        canvas.renderAll();
 
-            if (typeof callback === "function") {
-                callback(layout);
-            } else {
-                isProgrammaticLayoutChange = false;
-            }
+        if (typeof callback === "function") {
+            callback(layout);
+        }
 
-        });
+        // 🛠 Text neu aufbauen – nur nötig, wenn kein gespeichertes Layout geladen wurde
+        updateCanvasText(); // <--- HINZUFÜGEN!
+        isProgrammaticLayoutChange = false;
+});
+
     }, { crossOrigin: "anonymous" });
 }
 
@@ -1791,12 +1793,12 @@ function loadNextLayout(direction) {
     const nextLayoutId = options[newIndex].value;
     dropdown.selectedIndex = newIndex;
 
-    // 👉 SkipTextRender: false → vollständiger Aufbau
     changeLayout(nextLayoutId, false, () => {
-        updateCanvasText(); // erzeugt neue Texte mit echten Variablen
+        updateCanvasText(); // ⬅️ NICHT addTextGroups()
         isProgrammaticLayoutChange = false;
     });
 }
+
 
 
 
