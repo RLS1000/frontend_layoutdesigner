@@ -1792,29 +1792,29 @@ function animateCanvasSlide(direction) {
 
 function loadNextLayout(direction) {
     const dropdown = document.getElementById("layoutSelector");
-    const currentIndex = dropdown.selectedIndex;
-    const options = Array.from(dropdown.options).filter(opt => !opt.disabled);
+    const allOptions = Array.from(dropdown.options);
+    const enabledOptions = allOptions.filter(opt => !opt.disabled);
+
+    const currentValue = dropdown.value;
+    const currentIndex = enabledOptions.findIndex(opt => opt.value === currentValue);
+
+    if (currentIndex === -1) return;
 
     let newIndex;
     if (direction === "next") {
-        newIndex = (currentIndex + 1) % options.length;
+        newIndex = (currentIndex + 1) % enabledOptions.length;
     } else {
-        newIndex = (currentIndex - 1 + options.length) % options.length;
+        newIndex = (currentIndex - 1 + enabledOptions.length) % enabledOptions.length;
     }
 
-    const nextLayoutId = options[newIndex].value;
-    dropdown.selectedIndex = newIndex;
-    dropdown.value = nextLayoutId; // 🧠 Explizit setzen!
+    const nextOption = enabledOptions[newIndex];
+    dropdown.value = nextOption.value;
 
-
-    changeLayout(nextLayoutId, false, () => {
+    changeLayout(nextOption.value, false, () => {
         updateCanvasText(); // ⬅️ NICHT addTextGroups()
         isProgrammaticLayoutChange = false;
     });
 }
-
-
-
 
 
 function drawDebugBox(obj) {
