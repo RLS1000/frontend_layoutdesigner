@@ -138,6 +138,13 @@
                     flex-direction: column;
                 }
 
+                #canvasSwipeWrapper {
+                    position: relative;
+                    overflow: hidden;
+                    width: 100%;
+                    max-width: 100%;
+                    }
+
                 #canvasSection {
                     flex: none;
                     border-right: none;
@@ -157,6 +164,8 @@
                     display: inline-block;
                     border: 2px solid #000;
                     background-color: rgba(255, 0, 0, 0.1); /* nur zum Testen */
+                    transition: transform 0.3s ease;
+                    will-change: transform;
                 }
 
                 #toolPanel {
@@ -176,9 +185,11 @@
       <div id="main">
         <!-- Canvas Section -->
         <div id="canvasSection">
-          <div id="canvas-container">
-            <canvas id="canvas" width="800" height="400"></canvas>
-          </div>
+            <div id="canvasSwipeWrapper">
+                <div id="canvas-container">
+                    <canvas id="canvas" width="800" height="400"></canvas>
+                </div>
+            </div>
         </div>
     
         <!-- Tool Panel -->
@@ -951,6 +962,7 @@ function loadWelcomeCanvas() {
  
 document.addEventListener("DOMContentLoaded", () => {
     populateDropdown();
+    enableMobileSwipeWithAnimation();
 
     const layoutId = checkLayoutID();
     if (layoutId) {
@@ -1700,6 +1712,54 @@ function saveTemporaryLayout() {
         updateDropdownStyles();
     }
 }
+
+function enableMobileSwipeWithAnimation() {
+    if (window.innerWidth >= 768) return;
+
+    const wrapper = document.getElementById("canvasSwipeWrapper");
+    const container = document.getElementById("canvas-container");
+
+    let startX = 0;
+
+    wrapper.addEventListener("touchstart", (e) => {
+        startX = e.touches[0].clientX;
+    });
+
+    wrapper.addEventListener("touchend", (e) => {
+        const endX = e.changedTouches[0].clientX;
+        const deltaX = endX - startX;
+
+        if (Math.abs(deltaX) > 50) {
+            const direction = deltaX < 0 ? "next" : "prev";
+            animateCanvasSlide(direction);
+        }
+    });
+}
+
+function animateCanvasSlide(direction) {
+    const container = document.getElementById("canvas-container");
+
+    const offset = direction === "next" ? -100 : 100;
+
+    // Animation raus
+    container.style.transform = `translateX(${offset}%)`;
+
+    // Nach kurzer Pause zurücksetzen und neues Layout laden
+    setTimeout(() => {
+        loadNextLayout(direction);
+
+        // Sofort Canvas-Container auf andere Seite setzen
+        container.style.transition = "none";
+        container.style.transform = `translateX(${offset * -1}%)`;
+
+        // Dann Animation zur Mitte
+        requestAnimationFrame(() => {
+            container.style.transition = "transform 0.3s ease";
+            container.style.transform = "translateX(0)";
+        });
+    }, 300);
+}
+
 
 </script>
 </body>
