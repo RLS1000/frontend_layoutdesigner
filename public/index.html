@@ -132,46 +132,53 @@
             @media (max-width: 768px) {
                 body {
                     overflow-x: hidden;
-                    }
-
+                }
+            
                 #main {
                     flex-direction: column;
                 }
-
+            
+                #canvasSection {
+                    flex: none;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 10px;
+                    height: 60vh; /* Gleichmäßiger Raum für Canvas */
+                    min-height: 300px; /* verhindert zu kleine Flächen */
+                    border-right: none;
+                    border-bottom: 2px solid #ddd;
+                }
+            
                 #canvasSwipeWrapper {
                     position: relative;
                     overflow: hidden;
                     width: 100%;
                     max-width: 100%;
-                    }
-
-                #canvasSection {
-                    flex: none;
-                    border-right: none;
-                    border-bottom: 2px solid #ddd;
-                    padding: 10px;
+                    height: 100%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center; /* vertikal zentriert */
+                }
+            
+                #canvas-container {
+                    display: flex;
                     justify-content: center;
                     align-items: center;
-                    display: flex;
-                }
-
-                #canvas-container {
-                    width: auto !important;
-                    height: auto !important;
                     max-width: 100%;
                     max-height: 100%;
-                    display: inline-block;
                     border: 2px solid #000;
-                    background-color: rgba(255, 0, 0, 0.1); /* nur zum Testen */
+                    background-color: rgba(255, 0, 0, 0.05); /* leicht rot für Test */
                     transition: transform 0.3s ease;
                     will-change: transform;
                 }
-
+            
                 #toolPanel {
                     flex: none;
                     padding: 10px;
                 }
-                }
+            }
+
 
         </style>
     </head>
