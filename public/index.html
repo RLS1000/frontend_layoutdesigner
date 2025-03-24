@@ -1176,8 +1176,12 @@ function changeLayout(layoutId) {
     // ⬇️ Hier ersetzen wir die Format-Logik durch dieselbe Hilfsfunktion
     setCanvasSizeByFormat(layout.format);
 
-    addTextGroups(layout);
-    updateCanvasText();
+    // 👇 Text erst nach kleiner Pause einfügen, damit Scale-Werte stimmen
+            setTimeout(() => {
+            addTextGroups(layout);
+            updateCanvasText(); // Aktualisiert Texte & speichert temporär
+        }, 0);
+
     isProgrammaticLayoutChange = false;
 }
 
