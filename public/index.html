@@ -870,6 +870,8 @@ const apiVariables = {
     weddingDate: "01. Januar 1978",
 };
 
+let canvasScale = 1; // Wird in setCanvasSizeByFormat gesetzt
+
 function setCanvasSizeByFormat(format) {
     const isMobile = window.innerWidth <= 768;
     const sizes = {
@@ -889,8 +891,6 @@ function setCanvasSizeByFormat(format) {
 
     console.log(`🎯 Canvas-Größe: ${canvas.width}x${canvas.height} (Format: ${format}, Mobile: ${isMobile})`);
 }
-
-let canvasScale = 1; // Wird in setCanvasSizeByFormat gesetzt
 
 function loadWelcomeCanvas() {
     canvas.clear();
@@ -1173,8 +1173,6 @@ function updateCanvasText() {
         saveTemporaryLayout();
     }
 }
-
-let canvasScale = 1; // Wird in setCanvasSizeByFormat gesetzt
 
 function addTextGroups(layout) {
     layout.textGroups.forEach(group => {
