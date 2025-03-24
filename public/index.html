@@ -1123,7 +1123,7 @@ function replaceTextPlaceholders() {
     console.log("✅ Platzhalter aktualisiert (keine Neupositionierung).");
 }
 
-function changeLayout(layoutId) {
+function changeLayout(layoutId, skipTextRender = false) {
     document.getElementById("layoutNotice").textContent = "Aktives Layout:";
     document.getElementById("layoutSelector").classList.remove("intro-style");
 
@@ -1132,24 +1132,21 @@ function changeLayout(layoutId) {
 
     const savedLayout = sessionStorage.getItem(`custom_layout_${layoutId}`);
     if (savedLayout) {
-        console.log(`🟡 Lade benutzerdefinierten Style für Layout ${layoutId}`);
-        
         const parsed = JSON.parse(savedLayout);
-        const layoutData = parsed.data || parsed; // Fallback falls altes Format
-        const format = parsed.format || "15x10";  // Default bei alten Speicherungen
+        const layoutData = parsed.data || parsed;
+        const format = parsed.format || "15x10";
 
-        // ⬇️ Neue Hilfsfunktion zum Setzen der Größe (definieren wir unten)
         setCanvasSizeByFormat(format);
-
         canvas.clear();
+
         canvas.loadFromJSON(layoutData, () => {
             canvas.renderAll();
-            replaceTextPlaceholders(); // ✅ Nur Text aktualisieren
+            replaceTextPlaceholders();
 
-            // ⬇️ Neu: explizit speichern
-            saveTemporaryLayout(); // damit es sicher im SessionStorage landet
-           isProgrammaticLayoutChange = false;
+            isProgrammaticLayoutChange = false;
+            saveTemporaryLayout();
         });
+
         return;
     }
 
@@ -1173,15 +1170,15 @@ function changeLayout(layoutId) {
         });
     }, { crossOrigin: "anonymous" });
 
-    // ⬇️ Hier ersetzen wir die Format-Logik durch dieselbe Hilfsfunktion
     setCanvasSizeByFormat(layout.format);
 
-    // 👇 Text erst nach kleiner Pause einfügen, damit Scale-Werte stimmen
+    if (!skipTextRender) {
         setTimeout(() => {
             addTextGroups(layout);
-            updateCanvasText(); // Aktualisiert Texte & speichert temporär
+            updateCanvasText();
             isProgrammaticLayoutChange = false;
         }, 200);
+    }
 }
 
 function updateCanvasText() {
@@ -1772,26 +1769,34 @@ function animateCanvasSlide(direction) {
 
 
 function loadNextLayout(direction) {
-    isProgrammaticLayoutChange = true;
-    
     const dropdown = document.getElementById("layoutSelector");
     const currentIndex = dropdown.selectedIndex;
-
-    // Filtere nur echte Layout-Optionen (erste ist die Intro-Auswahl)
     const options = Array.from(dropdown.options).filter(opt => !opt.disabled);
 
     let newIndex;
     if (direction === "next") {
         newIndex = (currentIndex + 1) % options.length;
-    } else if (direction === "prev") {
+    } else {
         newIndex = (currentIndex - 1 + options.length) % options.length;
     }
 
     const nextLayoutId = options[newIndex].value;
     dropdown.selectedIndex = newIndex;
 
-    changeLayout(nextLayoutId);
+    // ➤ Nur vorbereiten, Texte erst nach Animation einfügen
+    changeLayout(nextLayoutId, true);
+
+    // ⏱ Später Texte rendern
+    setTimeout(() => {
+        const layout = layouts.find(l => l.id == nextLayoutId);
+        if (layout) {
+            addTextGroups(layout);
+            updateCanvasText(); // Speichert automatisch
+        }
+        isProgrammaticLayoutChange = false;
+    }, 400); // Nach Swipe-Animation
 }
+
 
 </script>
 </body>
