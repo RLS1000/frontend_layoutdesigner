@@ -918,12 +918,12 @@ function loadWelcomeCanvas() {
     const welcomeText = new fabric.IText(
         "👋 Willkommen beim Layout-Designer!\n\n➤ Wähle oben ein Layout aus\n➤ Bearbeite Namen und Datum\n➤ Füge eigene Texte hinzu\n\n🎨 Nutze die Werkzeugleiste unter dem Canvas!",
         {
-            left: 80 * canvasScale,
-            top: 80 * canvasScale,
-            fontSize: 20 * canvasScale,
+            left: 80 * canvasScaleX,
+            top: 80 * canvasScaleY,
+            fontSize: 20 * canvasScaleY,
             fontFamily: "Raleway",
             fill: "#333",
-            width: 450 * canvasScale,
+            width: 450 * canvasScaleX,
             textAlign: "left",
             editable: false,
             selectable: false
