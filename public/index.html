@@ -861,6 +861,8 @@ const apiVariables = {
 
 let canvasScaleX = 1;
 let canvasScaleY = 1;
+let logicalWidth = 600;  // neue Variable
+let logicalHeight = 400; // neue Variable
 
 function setCanvasSizeByFormat(format) {
     const canvasContainer = document.getElementById("canvas-container");
@@ -869,27 +871,30 @@ function setCanvasSizeByFormat(format) {
     let displayWidth = 600;
     let displayHeight = 400;
 
+    // 🧠 Definiere „logische Größe“ abhängig vom Format
     switch (format) {
         case "15x10":
-            displayWidth = 600;
-            displayHeight = 400;
+            logicalWidth = 600;
+            logicalHeight = 400;
             break;
         case "10x15":
-            displayWidth = 400;
-            displayHeight = 600;
+            logicalWidth = 400;
+            logicalHeight = 600;
             break;
         case "15x5":
-            displayWidth = 600;
-            displayHeight = 200;
+            logicalWidth = 600;
+            logicalHeight = 200;
             break;
         case "5x15":
-            displayWidth = 200;
-            displayHeight = 600;
+            logicalWidth = 200;
+            logicalHeight = 600;
             break;
     }
 
-    const isMobile = window.innerWidth < 768;
-    if (isMobile) {
+    displayWidth = logicalWidth;
+    displayHeight = logicalHeight;
+
+    if (window.innerWidth < 768) {
         displayWidth *= 0.5;
         displayHeight *= 0.5;
     }
@@ -904,12 +909,12 @@ function setCanvasSizeByFormat(format) {
     canvasContainer.style.width = `${displayWidth}px`;
     canvasContainer.style.height = `${displayHeight}px`;
 
-    canvasScaleX = displayWidth / 600;
-    canvasScaleY = displayHeight / 400;
+    // ⬅️ Jetzt korrekt auf Basis der "echten" Formatgröße
+    canvasScaleX = displayWidth / logicalWidth;
+    canvasScaleY = displayHeight / logicalHeight;
 
-    console.log(`🎯 Canvas-Größe: ${displayWidth}x${displayHeight} (Format: ${format}, Mobile: ${isMobile})`);
+    console.log(`🎯 Canvas-Größe: ${displayWidth}x${displayHeight} (Format: ${format})`);
 }
-
 
 function loadWelcomeCanvas() {
     canvas.clear();
