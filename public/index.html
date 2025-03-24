@@ -130,46 +130,50 @@
             }
 
             @media (max-width: 768px) {
-  #main {
-    flex-direction: column;
-  }
+                #main {
+                    flex-direction: column;
+                }
 
-  #canvasSection,
-  #toolPanel {
-    width: 100%;
-    border-right: none;
-    border-left: none;
-    padding: 10px;
-  }
+                #canvasSection,
+                #toolPanel {
+                    width: 100%;
+                    border-right: none;
+                    border-left: none;
+                    padding: 10px;
+                }
 
-  #canvas-container {
-    width: 100% !important;
-    max-width: 100%;
-  }
+                #canvas-container {
+                    width: 100%;
+                    max-width: 100%;
+                }
 
-  canvas {
-    width: 100% !important;
-    height: auto !important;
-  }
+                canvas {
+                    width: 100% !important;
+                    height: auto !important;
+                    display: block;
+                }
 
-  #toolbar {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: space-between;
-  }
+                #canvasSection {
+                    padding: 10px;
+                }
+                #toolbar {
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                    justify-content: space-between;
+                }
 
-  .tool-section {
-    flex: 1 1 45%;
-    min-width: 140px;
-    margin-bottom: 10px;
-  }
+                .tool-section {
+                    flex: 1 1 45%;
+                    min-width: 140px;
+                    margin-bottom: 10px;
+                }
 
-  .save-actions {
-    flex-basis: 100%;
-    border-top: 1px solid #999;
-  }
-}
+                .save-actions {
+                    flex-basis: 100%;
+                    border-top: 1px solid #999;
+                }
+            }
 
             
         </style>
