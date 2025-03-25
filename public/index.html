@@ -133,7 +133,6 @@
                 body {
                     overflow-x: hidden;
                     height: 100%;
-                    touch-action: none;
                 }
             
                 #main {
@@ -168,6 +167,7 @@
                     display: flex;
                     justify-content: center;
                     align-items: center; /* vertikal zentriert */
+                    touch-action: pan-y; /* erlaubt vertikalen Scroll/Wisch, blockiert horizontal (optional) */
                 }
             
                 #canvas-container {
