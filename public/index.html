@@ -132,6 +132,8 @@
             @media (max-width: 768px) {
                 body {
                     overflow-x: hidden;
+                    height: 100%;
+                    touch-action: none;
                 }
             
                 #main {
@@ -186,7 +188,7 @@
                     left: 0;
                     right: 0;
                     height: auto;
-                    max-height: 70px; /* Sichtbar wie angedockt */
+                    max-height: 60px; /* Sichtbar wie angedockt */
                     background-color: #fff;
                     border-top: 2px solid #ccc;
                     box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
@@ -197,7 +199,9 @@
 
                 #bottomSheet.expanded {
                     max-height: 75vh; /* Geöffnet: 75 % vom Bildschirm */
+                    overscroll-behavior: contain; /* darf für sich selbst scrollen */
                     overflow-y: auto;
+                    touch-action: auto; /* erlaubt Scrollen im Sheet */
                     }
 
                 #bottomSheetHandle {
@@ -241,8 +245,6 @@
               <label>Name 2: <input type="text" id="mobileName2"></label><br>
               <label>Datum: <input type="text" id="mobileDate"></label><br>
               <button onclick="applyMobileVars()">💾 Übernehmen</button>
-                <!-- Test-Content für Höhe -->
-              <div style="height: 500px; background: #f9f9f9;">Dummy-Füllinhalt</div>
             </div>
           </div>
         <!-- Tool Panel -->
@@ -1050,6 +1052,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // ✅ NEU: Aktualisiere Dropdown-Stile beim Start
         updateDropdownStyles();
 });
+
+document.addEventListener('touchmove', function(e) {
+  if (window.innerWidth < 768) {
+    e.preventDefault();
+  }
+}, { passive: false });
 
 document.addEventListener("keydown", function(event) {
     const activeObject = canvas.getActiveObject();
