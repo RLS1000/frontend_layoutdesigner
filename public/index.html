@@ -907,27 +907,32 @@
     },
  ]
 
-const canvas = new fabric.Canvas("canvas");
-const DEBUG_MODE = false; // ⬅️ auf true setzen, wenn du testen willst
-
-
 canvas.selection = true; // Mehrfachauswahl durch Auswahlbox aktivieren
         
-let textModeActive = false; // Standard: Kein neues Textfeld erstellen
-let isProgrammaticLayoutChange = false; // Temporäre Sperre beim Initialaufbau des Layouts
-let isSwipeInProgress = false;
-
- // 🔹 Globale API-Variablen
+// 🔹 Globale API-Variablen
 const apiVariables = {
     name1: "ERIKA",
     name2: "MAX",
     weddingDate: "01. Januar 1978",
 };
+const canvas = new fabric.Canvas("canvas");
+const DEBUG_MODE = false; // ⬅️ auf true setzen, wenn du testen willst
+
+// 📱 Bottom Sheet Handling
+const bottomSheet = document.getElementById("bottomSheet");
+const sheetHandle = document.getElementById("bottomSheetHandle");
+
+let textModeActive = false; // Standard: Kein neues Textfeld erstellen
+let isProgrammaticLayoutChange = false; // Temporäre Sperre beim Initialaufbau des Layouts
+let isSwipeInProgress = false;
 
 let canvasScaleX = 1;
 let canvasScaleY = 1;
 let logicalWidth = 600;  // neue Variable
 let logicalHeight = 400; // neue Variable
+let startY = 0;
+let isDragging = false;
+
 
 function setCanvasSizeByFormat(format) {
     const canvasContainer = document.getElementById("canvas-container");
@@ -1906,65 +1911,40 @@ function drawGroupCenter(x, y) {
     canvas.add(circle);
 }
 
-// 📱 Bottom Sheet Handling
-const bottomSheet = document.getElementById("bottomSheet");
-const sheetHandle = document.getElementById("sheetHandle");
-
+// Toggle bei Klick auf Handle (z. B. Desktop)
 sheetHandle.addEventListener("click", () => {
   bottomSheet.classList.toggle("expanded");
   document.body.classList.toggle("sheet-open");
 });
 
-// 👉 Canvas-Klick schließt Sheet wieder (nur Mobile)
-canvas.on("mouse:down", () => {
-  if (window.innerWidth < 768) {
+// Drag (touch) fürs Mobilgerät
+sheetHandle.addEventListener("touchstart", (e) => {
+  startY = e.touches[0].clientY;
+  isDragging = true;
+});
+
+sheetHandle.addEventListener("touchmove", (e) => {
+  if (!isDragging) return;
+  const deltaY = e.touches[0].clientY - startY;
+
+  if (deltaY < -30) {
+    bottomSheet.classList.add("expanded");
+    document.body.classList.add("sheet-open");
+  } else if (deltaY > 30) {
     bottomSheet.classList.remove("expanded");
     document.body.classList.remove("sheet-open");
   }
 });
 
-// 🧠 Daten übernehmen von Mobile Toolbar
-function applyMobileVars() {
-  apiVariables.name1 = document.getElementById("mobileName1").value;
-  apiVariables.name2 = document.getElementById("mobileName2").value;
-  apiVariables.weddingDate = document.getElementById("mobileDate").value;
-
-  updateCanvasText();
-  console.log("📲 Mobile Variablen übernommen:", apiVariables);
-}
-
-// 🟢 Bottom Sheet Drag / Toggle Code
-
-const bottomSheet = document.getElementById("bottomSheet");
-const handle = document.getElementById("bottomSheetHandle");
-
-let startY = 0;
-let isDragging = false;
-
-handle.addEventListener("touchstart", e => {
-  startY = e.touches[0].clientY;
-  isDragging = true;
-});
-
-handle.addEventListener("touchmove", e => {
-  if (!isDragging) return;
-  const deltaY = e.touches[0].clientY - startY;
-  if (deltaY < -30) {
-    bottomSheet.classList.add("expanded");
-  } else if (deltaY > 30) {
-    bottomSheet.classList.remove("expanded");
-  }
-});
-
-handle.addEventListener("touchend", () => {
+sheetHandle.addEventListener("touchend", () => {
   isDragging = false;
 });
 
-// 📱 Tap aufs Canvas → Sheet einklappen
+// 🧹 Bei Touch auf Canvas: Sheet schließen
 document.getElementById("canvas-container").addEventListener("touchstart", () => {
   bottomSheet.classList.remove("expanded");
+  document.body.classList.remove("sheet-open");
 });
-
 
 </script>
 </body>
