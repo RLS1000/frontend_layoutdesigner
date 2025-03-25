@@ -177,41 +177,36 @@
                     flex: none;
                     padding: 10px;
                 }
-                
+
                 /* 📦 Bottom Sheet nur für Mobile */
-                    #bottomSheet {
+                    
+                #bottomSheet {
                     position: fixed;
+                    bottom: 0;
                     left: 0;
                     right: 0;
-                    bottom: 0;
                     height: auto;
-                    max-height: 0;
-                    background-color: white;
-                    overflow-y: auto;
+                    max-height: 60px; /* Sichtbar wie angedockt */
+                    background-color: #fff;
+                    border-top: 2px solid #ccc;
+                    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+                    overflow: hidden;
                     transition: max-height 0.3s ease;
-                    border-top-left-radius: 16px;
-                    border-top-right-radius: 16px;
-                    box-shadow: 0 -4px 8px rgba(0,0,0,0.2);
-                    z-index: 999;
-                }
+                    z-index: 1000;
+                    }
 
                 #bottomSheet.expanded {
-                    max-height: 75vh; /* ⬅️ Nur 3/4 vom Bildschirm */
-                }
-
-                #sheetHandle {
-                    width: 50px;
-                    height: 6px;
-                    background-color: #999;
-                    border-radius: 3px;
-                    margin: 8px auto;
-                }
-
-                #sheetContent {
+                    max-height: 75vh; /* Geöffnet: 75 % vom Bildschirm */
                     overflow-y: auto;
-                    height: calc(100% - 20px);
-                    padding: 10px;
-                }
+                    }
+
+                #bottomSheetHandle {
+                    width: 40px;
+                    height: 5px;
+                    background: #ccc;
+                    border-radius: 5px;
+                    margin: 8px auto;
+                    }
 
                 /* Optional: Verhindere Scrollen im Hintergrund */
                 body.sheet-open {
@@ -238,8 +233,8 @@
             </div>
         </div>
         <div id="bottomSheet">
-            <div id="sheetHandle"></div>
-            <div id="sheetContent">
+            <div id="bottomSheetHandle"></div>
+            <div id="bottom-content">
               <!-- 👇 Hier deine mobile Toolbar-Light rein -->
               <h4>🛠 Toolbar Light</h4>
               <label>Name 1: <input type="text" id="mobileName1"></label><br>
@@ -1937,6 +1932,39 @@ function applyMobileVars() {
   updateCanvasText();
   console.log("📲 Mobile Variablen übernommen:", apiVariables);
 }
+
+// 🟢 Bottom Sheet Drag / Toggle Code
+
+const bottomSheet = document.getElementById("bottomSheet");
+const handle = document.getElementById("bottomSheetHandle");
+
+let startY = 0;
+let isDragging = false;
+
+handle.addEventListener("touchstart", e => {
+  startY = e.touches[0].clientY;
+  isDragging = true;
+});
+
+handle.addEventListener("touchmove", e => {
+  if (!isDragging) return;
+  const deltaY = e.touches[0].clientY - startY;
+  if (deltaY < -30) {
+    bottomSheet.classList.add("expanded");
+  } else if (deltaY > 30) {
+    bottomSheet.classList.remove("expanded");
+  }
+});
+
+handle.addEventListener("touchend", () => {
+  isDragging = false;
+});
+
+// 📱 Tap aufs Canvas → Sheet einklappen
+document.getElementById("canvas-container").addEventListener("touchstart", () => {
+  bottomSheet.classList.remove("expanded");
+});
+
 
 </script>
 </body>
