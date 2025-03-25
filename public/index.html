@@ -177,33 +177,30 @@
                     flex: none;
                     padding: 10px;
                 }
-                }
+                
                 /* 📦 Bottom Sheet nur für Mobile */
-                @media (max-width: 768px) {
-                #bottomSheet {
+                    #bottomSheet {
                     position: fixed;
-                    bottom: 0;
                     left: 0;
                     right: 0;
-                    height: 60px;
-                    background: #ffffff;
-                    border-top: 2px solid #ccc;
-                    border-radius: 12px 12px 0 0;
-                    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-                    transform: translateY(0);
-                    transition: transform 0.3s ease, height 0.3s ease;
-                    z-index: 1000;
-                    overflow: hidden;
-                    touch-action: pan-y;
+                    bottom: 0;
+                    height: auto;
+                    max-height: 0;
+                    background-color: white;
+                    overflow-y: auto;
+                    transition: max-height 0.3s ease;
+                    border-top-left-radius: 16px;
+                    border-top-right-radius: 16px;
+                    box-shadow: 0 -4px 8px rgba(0,0,0,0.2);
+                    z-index: 999;
                 }
 
                 #bottomSheet.expanded {
-                    height: 65vh;
-                    transform: translateY(-65vh);
+                    max-height: 75vh; /* ⬅️ Nur 3/4 vom Bildschirm */
                 }
 
                 #sheetHandle {
-                    width: 40px;
+                    width: 50px;
                     height: 6px;
                     background-color: #999;
                     border-radius: 3px;
