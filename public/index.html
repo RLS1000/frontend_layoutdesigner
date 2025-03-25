@@ -907,14 +907,6 @@
     },
  ]
 
-canvas.selection = true; // Mehrfachauswahl durch Auswahlbox aktivieren
-        
-// 🔹 Globale API-Variablen
-const apiVariables = {
-    name1: "ERIKA",
-    name2: "MAX",
-    weddingDate: "01. Januar 1978",
-};
 const canvas = new fabric.Canvas("canvas");
 const DEBUG_MODE = false; // ⬅️ auf true setzen, wenn du testen willst
 
@@ -922,17 +914,26 @@ const DEBUG_MODE = false; // ⬅️ auf true setzen, wenn du testen willst
 const bottomSheet = document.getElementById("bottomSheet");
 const sheetHandle = document.getElementById("bottomSheetHandle");
 
+canvas.selection = true; // Mehrfachauswahl durch Auswahlbox aktivieren
+        
 let textModeActive = false; // Standard: Kein neues Textfeld erstellen
 let isProgrammaticLayoutChange = false; // Temporäre Sperre beim Initialaufbau des Layouts
 let isSwipeInProgress = false;
+
+ // 🔹 Globale API-Variablen
+const apiVariables = {
+    name1: "ERIKA",
+    name2: "MAX",
+    weddingDate: "01. Januar 1978",
+};
 
 let canvasScaleX = 1;
 let canvasScaleY = 1;
 let logicalWidth = 600;  // neue Variable
 let logicalHeight = 400; // neue Variable
+
 let startY = 0;
 let isDragging = false;
-
 
 function setCanvasSizeByFormat(format) {
     const canvasContainer = document.getElementById("canvas-container");
@@ -1945,6 +1946,7 @@ document.getElementById("canvas-container").addEventListener("touchstart", () =>
   bottomSheet.classList.remove("expanded");
   document.body.classList.remove("sheet-open");
 });
+
 
 </script>
 </body>
