@@ -173,9 +173,9 @@
                     will-change: transform;
                 }
             
-                #toolPanel {
-                    flex: none;
-                    padding: 10px;
+                #toolPanel,
+                #toolbar {
+                    display: none !important;
                 }
 
                 /* 📦 Bottom Sheet nur für Mobile */
@@ -935,6 +935,10 @@ let logicalHeight = 400; // neue Variable
 let startY = 0;
 let isDragging = false;
 
+function isMobileView() {
+  return window.innerWidth < 768;
+}
+
 function setCanvasSizeByFormat(format) {
     const canvasContainer = document.getElementById("canvas-container");
     const dpr = window.devicePixelRatio || 1;
@@ -1023,6 +1027,12 @@ function loadWelcomeCanvas() {
 document.addEventListener("DOMContentLoaded", () => {
     populateDropdown();
     enableMobileSwipeWithAnimation();
+
+    // ⬇️ NEU: Desktop-Toolbar bei Mobile ausblenden
+    if (isMobileView()) {
+        document.getElementById("toolPanel").style.display = "none";
+        document.getElementById("toolbar").style.display = "none";
+    }
 
     const layoutId = checkLayoutID();
     if (layoutId) {
