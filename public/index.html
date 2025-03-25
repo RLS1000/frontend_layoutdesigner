@@ -979,9 +979,7 @@ let canvasScaleY = 1;
 let logicalWidth = 600;  // neue Variable
 let logicalHeight = 400; // neue Variable
 
-let startY = 0;
-let endY = 0;
-let isDragging = false;
+let swipeStartY = null;
 
 function isMobileView() {
   return window.innerWidth < 768;
@@ -1976,38 +1974,26 @@ function drawGroupCenter(x, y) {
     canvas.add(circle);
 }
 
-// ✅ Toggle bei Klick (z. B. Desktop)
-sheetHandle.addEventListener("click", () => {
-  bottomSheet.classList.toggle("expanded");
-  document.body.classList.toggle("sheet-open");
-});
-
-// ✅ Touch-Drag fürs Mobile (optimiert)
 sheetHandle.addEventListener("touchstart", (e) => {
-  startY = e.touches[0].clientY;
-  isDragging = true;
+  if (e.touches.length > 1) return;
+  swipeStartY = e.touches[0].clientY;
 });
 
-sheetHandle.addEventListener("touchmove", (e) => {
-  if (!isDragging) return;
-  endY = e.touches[0].clientY;
-});
+sheetHandle.addEventListener("touchend", (e) => {
+  if (swipeStartY === null) return;
 
-sheetHandle.addEventListener("touchend", () => {
-  if (!isDragging) return;
-  const deltaY = endY - startY;
+  const swipeEndY = e.changedTouches[0].clientY;
+  const deltaY = swipeEndY - swipeStartY;
 
-  if (deltaY < -50) {
-    // 👆 Hochgezogen → expandieren
+  if (deltaY < -40) {
     bottomSheet.classList.add("expanded");
     document.body.classList.add("sheet-open");
-  } else if (deltaY > 50) {
-    // 👇 Runtergezogen → einklappen
+  } else if (deltaY > 40) {
     bottomSheet.classList.remove("expanded");
     document.body.classList.remove("sheet-open");
   }
 
-  isDragging = false;
+  swipeStartY = null;
 });
 
 // 🧹 Bei Touch auf Canvas: Sheet schließen
