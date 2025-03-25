@@ -980,6 +980,7 @@ let logicalWidth = 600;  // neue Variable
 let logicalHeight = 400; // neue Variable
 
 let startY = 0;
+let endY = 0;
 let isDragging = false;
 
 function isMobileView() {
@@ -1975,13 +1976,13 @@ function drawGroupCenter(x, y) {
     canvas.add(circle);
 }
 
-// Toggle bei Klick auf Handle (z. B. Desktop)
+// ✅ Toggle bei Klick (z. B. Desktop)
 sheetHandle.addEventListener("click", () => {
   bottomSheet.classList.toggle("expanded");
   document.body.classList.toggle("sheet-open");
 });
 
-// Drag (touch) fürs Mobilgerät
+// ✅ Touch-Drag fürs Mobile (optimiert)
 sheetHandle.addEventListener("touchstart", (e) => {
   startY = e.touches[0].clientY;
   isDragging = true;
@@ -1989,18 +1990,23 @@ sheetHandle.addEventListener("touchstart", (e) => {
 
 sheetHandle.addEventListener("touchmove", (e) => {
   if (!isDragging) return;
-  const deltaY = e.touches[0].clientY - startY;
-
-  if (deltaY < -30) {
-    bottomSheet.classList.add("expanded");
-    document.body.classList.add("sheet-open");
-  } else if (deltaY > 30) {
-    bottomSheet.classList.remove("expanded");
-    document.body.classList.remove("sheet-open");
-  }
+  endY = e.touches[0].clientY;
 });
 
 sheetHandle.addEventListener("touchend", () => {
+  if (!isDragging) return;
+  const deltaY = endY - startY;
+
+  if (deltaY < -50) {
+    // 👆 Hochgezogen → expandieren
+    bottomSheet.classList.add("expanded");
+    document.body.classList.add("sheet-open");
+  } else if (deltaY > 50) {
+    // 👇 Runtergezogen → einklappen
+    bottomSheet.classList.remove("expanded");
+    document.body.classList.remove("sheet-open");
+  }
+
   isDragging = false;
 });
 
