@@ -295,24 +295,28 @@
 
                     
                 #action-buttons {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    gap: 6px;
-                    margin-top: 8px;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  gap: 6px;
+                  flex-wrap: nowrap;
+                  overflow-x: auto; /* Falls mal mehr Buttons kommen */
+                  padding: 0 8px;
                     }
 
                 #action-buttons button {
-                    padding: 4px 10px;
-                    font-size: 13px;
-                    border-radius: 20px;
-                    border: 1px solid #ccc;
-                    background-color: #f1f1f1;
-                    color: #333;
-                    font-weight: 500;
-                    white-space: nowrap;
-                    flex: none;
-                    transition: background-color 0.2s ease;
+                  padding: 4px 10px;
+                  font-size: 13px;
+                  border-radius: 20px;
+                  border: 1px solid #ccc;
+                  background-color: #f1f1f1;
+                  color: #333;
+                  font-weight: 500;
+                  white-space: nowrap;
+                  flex: 0 0 auto;     /* Wichtig: verhindert Strecken */
+                  min-width: 80px;
+                  max-width: 100px;
+                  transition: background-color 0.2s ease;
                     }
 
                 #style-summary {
