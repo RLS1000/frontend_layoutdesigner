@@ -287,7 +287,7 @@
             </div>
         </div>
         <div id="bottomSheet">
-            <div id="bottomSheetHandle"></div>
+            <div id="bottomSheetHandle" ontouchstart="console.log('✅ touchstart inline');"></div>
             <div id="bottom-content">
               <!-- 👇 Hier deine mobile Toolbar-Light rein -->
               <h4>- Layout bearbeiten -</h4>
@@ -2023,6 +2023,11 @@ function closeBottomSheet() {
   document.body.classList.remove("sheet-open");
 }
 
+["touchstart", "touchmove", "touchend"].forEach(evt =>
+  document.getElementById("bottomSheetHandle").addEventListener(evt, (e) => {
+    console.log(`📣 Event: ${evt} on #bottomSheetHandle`);
+  }, { passive: false })
+);
 
 </script>
 </body>
