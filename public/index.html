@@ -2113,6 +2113,10 @@ function changeSnap(level) {
   currentSnap = level;
   setSheetTranslate(snapMap[currentSnap], true);
   document.body.classList.toggle("sheet-open", currentSnap > 1);
+
+  // ✅ Snap-Klassen setzen
+  bottomSheet.classList.remove("snap-1", "snap-2", "snap-3");
+  bottomSheet.classList.add(`snap-${currentSnap}`);
 }
 
 // 🟡 Touch Events
