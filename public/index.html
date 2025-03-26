@@ -1183,6 +1183,7 @@ document.addEventListener("DOMContentLoaded", () => {
     populateDropdown();
     enableMobileSwipeWithAnimation();
     setSheetTranslate(snapMap[currentSnap]); // wichtig!
+    changeSnap(currentSnap);
 
     // ⬇️ NEU: Desktop-Toolbar bei Mobile ausblenden
     if (isMobileView()) {
@@ -2115,13 +2116,18 @@ function changeSnap(level) {
 }
 
 // 🟡 Touch Events
-sheetHandle.addEventListener("touchstart", (e) => {
+sheetHandle.addEventListener("click", () => {
+  currentSnap = currentSnap === 1 ? 2 : currentSnap === 2 ? 3 : 1;
+  changeSnap(currentSnap);
+});
+
+bottomSheet.addEventListener("touchstart", (e) => {
   dragStartY = e.touches[0].clientY;
   isDraggingSheet = true;
   bottomSheet.style.transition = 'none';
 });
 
-sheetHandle.addEventListener("touchmove", (e) => {
+bottomSheet.addEventListener("touchmove", (e) => {
   if (!isDraggingSheet) return;
   const deltaY = e.touches[0].clientY - dragStartY;
   const percentY = snapMap[currentSnap] + (deltaY / window.innerHeight) * 100;
@@ -2130,10 +2136,9 @@ sheetHandle.addEventListener("touchmove", (e) => {
   setSheetTranslate(currentY);
 });
 
-sheetHandle.addEventListener("touchend", () => {
+bottomSheet.addEventListener("touchend", () => {
   isDraggingSheet = false;
 
-  // Snap zurück oder weiter
   if (currentY < 20) {
     changeSnap(3);
   } else if (currentY < 60) {
@@ -2143,10 +2148,6 @@ sheetHandle.addEventListener("touchend", () => {
   }
 });
 
-sheetHandle.addEventListener("click", () => {
-  currentSnap = currentSnap === 1 ? 2 : currentSnap === 2 ? 3 : 1;
-  changeSnap(currentSnap);
-});
 
 function openBottomSheet() {
   bottomSheet.classList.add("expanded");
