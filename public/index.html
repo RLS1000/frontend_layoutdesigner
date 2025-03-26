@@ -204,12 +204,28 @@
                     z-index: 1000;
                     }
 
-                #bottomSheet.expanded {
-                    max-height: 75vh; /* Geöffnet: 75 % vom Bildschirm */
-                    overscroll-behavior: contain; /* darf für sich selbst scrollen */
-                    overflow: hidden;
-                    touch-action: auto; /* erlaubt Scrollen im Sheet */
+                #bottomSheet.snap-1 {
+                    max-height: 120px;
                     }
+                #bottomSheet.snap-2 {
+                    max-height: 40vh;
+                    }
+                #bottomSheet.snap-3 {
+                    max-height: 75vh;
+                    }
+                    #edit-names,
+                #edit-presets {
+                    display: none;
+                    }
+
+                #bottomSheet.snap-2 #edit-names {
+                    display: block;
+                    }
+
+                #bottomSheet.snap-3 #edit-names,
+                #bottomSheet.snap-3 #edit-presets {
+                    display: block;
+                    }        
 
                 #bottomSheetHandle {
                     user-select: none;
@@ -294,13 +310,27 @@
         <div id="bottomSheet">
             <div id="bottomSheetHandle"></div>
             <div id="bottom-content">
-              <!-- 👇 Hier deine mobile Toolbar-Light rein -->
-              <h4>- Layout bearbeiten -</h4>
-              <label>Name 1: <input type="text" id="mobileName1"></label><br>
-              <label>Name 2: <input type="text" id="mobileName2"></label><br>
-              <label>Datum: <input type="text" id="mobileDate"></label><br>
-              <button onclick="applyMobileVars()">💾 Übernehmen</button>
-            </div>
+                <div id="bottom-info">
+                  <div id="style-summary">🎨 Style: <span id="styleName">Unbekannt</span> | Format: <span id="formatInfo">–</span></div>
+                  <div id="action-buttons">
+                    <button onclick="saveLayoutToAPI(false)">💾 Speichern</button>
+                    <button onclick="saveLayoutToAPI(true)">🚀 Speichern + Freigeben</button>
+                    <button onclick="changeSnap(3)">✏️ Bearbeiten</button>
+                  </div>
+                </div>
+              
+                <div id="edit-names">
+                  <label>Name 1: <input type="text" id="mobileName1"></label>
+                  <label>Name 2: <input type="text" id="mobileName2"></label>
+                  <label>Datum: <input type="text" id="mobileDate"></label>
+                  <button onclick="applyMobileVars()">💾 Übernehmen</button>
+                </div>
+              
+                <div id="edit-presets">
+                  <!-- hier kannst du später deine Presets reinbauen -->
+                  <p style="opacity: 0.5; font-style: italic;">Presets kommen hier hin… 🎨</p>
+                </div>
+              </div>
           </div>
         <!-- Tool Panel -->
         <div id="toolPanel">
@@ -978,6 +1008,14 @@ canvas.selection = true; // Mehrfachauswahl durch Auswahlbox aktivieren
 let textModeActive = false; // Standard: Kein neues Textfeld erstellen
 let isProgrammaticLayoutChange = false; // Temporäre Sperre beim Initialaufbau des Layouts
 let isSwipeInProgress = false;
+let currentSnap = 1; // 👈 NEU: Initiale Snap-Stufe
+
+function changeSnap(to) {
+  currentSnap = to;
+  bottomSheet.classList.remove("snap-1", "snap-2", "snap-3");
+  bottomSheet.classList.add("snap-" + currentSnap);
+  document.body.classList.toggle("sheet-open", currentSnap > 1);
+}
 
  // 🔹 Globale API-Variablen
 const apiVariables = {
@@ -1316,6 +1354,9 @@ function changeLayout(layoutId, skipTextRender = false, callback = null) {
 });
 
     }, { crossOrigin: "anonymous" });
+    document.getElementById("styleName").textContent = layout.name || "Unbekannt";
+    document.getElementById("formatInfo").textContent = layout.format || "–";
+
 }
 
 
@@ -2013,8 +2054,8 @@ bottomSheet.addEventListener("touchstart", handleTouchStart);
 bottomSheet.addEventListener("touchend", handleTouchEnd);
 
 sheetHandle.addEventListener("click", () => {
-  bottomSheet.classList.toggle("expanded");
-  document.body.classList.toggle("sheet-open");
+  currentSnap = currentSnap === 1 ? 2 : currentSnap === 2 ? 3 : 1;
+  changeSnap(currentSnap);
 });
 
 function openBottomSheet() {
