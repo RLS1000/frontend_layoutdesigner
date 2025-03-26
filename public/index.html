@@ -217,6 +217,9 @@
                     background: #ccc;
                     border-radius: 5px;
                     margin: 8px auto;
+                    cursor: pointer;
+                    touch-action: none; /* verhindert Browser-eigenes Verhalten */
+                    pointer-events: auto; /* explizit interaktiv */
                     }
 
                 #bottom-content {
@@ -1974,16 +1977,14 @@ function drawGroupCenter(x, y) {
     canvas.add(circle);
 }
 
-sheetHandle.addEventListener("touchstart", (e) => {
-  if (e.touches.length > 1) return;
-  swipeStartY = e.touches[0].clientY;
+sheetHandle.addEventListener("pointerdown", (e) => {
+  swipeStartY = e.clientY;
 });
 
-sheetHandle.addEventListener("touchend", (e) => {
+sheetHandle.addEventListener("pointerup", (e) => {
   if (swipeStartY === null) return;
 
-  const swipeEndY = e.changedTouches[0].clientY;
-  const deltaY = swipeEndY - swipeStartY;
+  const deltaY = e.clientY - swipeStartY;
 
   if (deltaY < -40) {
     bottomSheet.classList.add("expanded");
@@ -1994,6 +1995,11 @@ sheetHandle.addEventListener("touchend", (e) => {
   }
 
   swipeStartY = null;
+});
+
+sheetHandle.addEventListener("click", () => {
+  bottomSheet.classList.toggle("expanded");
+  document.body.classList.toggle("sheet-open");
 });
 
 // 🧹 Bei Touch auf Canvas: Sheet schließen
