@@ -216,6 +216,7 @@
                     height: 5px;
                     background: #ccc;
                     border-radius: 5px;
+                    border: 2px dashed red; /* nur temporär */
                     margin: 8px auto;
                     cursor: pointer;
                     pointer-events: auto; /* explizit interaktiv */
@@ -1097,7 +1098,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.addEventListener('touchmove', function(e) {
-  if (window.innerWidth < 768) {
+  const isHandle = e.target.closest("#bottomSheetHandle");
+  if (window.innerWidth < 768 && !isHandle) {
     e.preventDefault();
   }
 }, { passive: false });
@@ -1981,6 +1983,7 @@ const swipeThreshold = 40; // px
 sheetHandle.addEventListener("touchstart", (e) => {
   if (e.touches.length === 1) {
     touchStartY = e.touches[0].clientY;
+    console.log("👉 touchstart Y:", touchStartY); // DEBUG
   }
 });
 
@@ -1989,10 +1992,13 @@ sheetHandle.addEventListener("touchend", (e) => {
 
   const touchEndY = e.changedTouches[0].clientY;
   const deltaY = touchEndY - touchStartY;
+  console.log("👉 touchend Y:", touchEndY, "| deltaY:", deltaY); // DEBUG
 
   if (deltaY < -swipeThreshold) {
+    console.log("✅ Swipe detected: UP");
     openBottomSheet();
   } else if (deltaY > swipeThreshold) {
+    console.log("✅ Swipe detected: DOWN");
     closeBottomSheet();
   }
 
