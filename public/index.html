@@ -327,15 +327,21 @@
                   transition: background-color 0.2s ease;
                     }
                 
-                .icon-button {
+                #action-buttons .icon-button {
+                  min-width: auto;
+                  max-width: none;
+                  width: 40px;              /* feste Breite */
+                  height: 40px;             /* feste Höhe */
+                  padding: 0;
+                  font-size: 20px;
                   border-radius: 50%;
-                  aspect-ratio: 1 / 1;
                   display: inline-flex;
                   align-items: center;
                   justify-content: center;
-                  }
-
-
+                  background: transparent;
+                  margin: 2px;
+                }
+                
                 #style-summary {
                     text-align: center;
                     font-weight: 600;
