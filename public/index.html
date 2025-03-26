@@ -218,8 +218,8 @@
                     border-radius: 5px;
                     margin: 8px auto;
                     cursor: pointer;
-                    touch-action: none; /* verhindert Browser-eigenes Verhalten */
                     pointer-events: auto; /* explizit interaktiv */
+                    touch-action: pan-y; /* erlaubt vertikales Wischen */
                     }
 
                 #bottom-content {
@@ -981,8 +981,6 @@ let canvasScaleX = 1;
 let canvasScaleY = 1;
 let logicalWidth = 600;  // neue Variable
 let logicalHeight = 400; // neue Variable
-
-let swipeStartY = null;
 
 function isMobileView() {
   return window.innerWidth < 768;
@@ -1977,24 +1975,28 @@ function drawGroupCenter(x, y) {
     canvas.add(circle);
 }
 
-sheetHandle.addEventListener("pointerdown", (e) => {
-  swipeStartY = e.clientY;
+let touchStartY = null;
+const swipeThreshold = 40; // px
+
+sheetHandle.addEventListener("touchstart", (e) => {
+  if (e.touches.length === 1) {
+    touchStartY = e.touches[0].clientY;
+  }
 });
 
-sheetHandle.addEventListener("pointerup", (e) => {
-  if (swipeStartY === null) return;
+sheetHandle.addEventListener("touchend", (e) => {
+  if (touchStartY === null) return;
 
-  const deltaY = e.clientY - swipeStartY;
+  const touchEndY = e.changedTouches[0].clientY;
+  const deltaY = touchEndY - touchStartY;
 
-  if (deltaY < -40) {
-    bottomSheet.classList.add("expanded");
-    document.body.classList.add("sheet-open");
-  } else if (deltaY > 40) {
-    bottomSheet.classList.remove("expanded");
-    document.body.classList.remove("sheet-open");
+  if (deltaY < -swipeThreshold) {
+    openBottomSheet();
+  } else if (deltaY > swipeThreshold) {
+    closeBottomSheet();
   }
 
-  swipeStartY = null;
+  touchStartY = null;
 });
 
 sheetHandle.addEventListener("click", () => {
@@ -2002,11 +2004,15 @@ sheetHandle.addEventListener("click", () => {
   document.body.classList.toggle("sheet-open");
 });
 
-// 🧹 Bei Touch auf Canvas: Sheet schließen
-document.getElementById("canvas-container").addEventListener("touchstart", () => {
+function openBottomSheet() {
+  bottomSheet.classList.add("expanded");
+  document.body.classList.add("sheet-open");
+}
+
+function closeBottomSheet() {
   bottomSheet.classList.remove("expanded");
   document.body.classList.remove("sheet-open");
-});
+}
 
 
 </script>
