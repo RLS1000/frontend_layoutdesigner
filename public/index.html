@@ -205,9 +205,9 @@
                     }
 
                 #bottomSheet.expanded {
-                    max-height: 55vh; /* Geöffnet: 75 % vom Bildschirm */
+                    max-height: 80vh; /* Geöffnet: 75 % vom Bildschirm */
                     overscroll-behavior: contain; /* darf für sich selbst scrollen */
-                    overflow-y: auto;
+                    overflow: hidden;
                     touch-action: auto; /* erlaubt Scrollen im Sheet */
                     }
 
@@ -218,7 +218,6 @@
                     height: 5px;
                     background: #ccc;
                     border-radius: 5px;
-                    border: 2px dashed red; /* nur temporär */
                     margin: 8px auto;
                     cursor: pointer;
                     pointer-events: auto; /* explizit interaktiv */
@@ -230,22 +229,28 @@
                     padding: 16px;
                     font-family: Raleway, sans-serif;
                     font-size: 16px;
+                    max-height: calc(80vh - 40px); /* minus handle + padding */
+                    overflow-y: auto;
+                    overscroll-behavior: contain;  /* schützt vor Body-Scroll bei schnellem Wischen */
                     }
 
                 #bottom-content label {
                     display: block;
-                    margin-bottom: 10px;
+                    margin-bottom: 4px;
                     color: #444;
                     font-weight: 500;
+                    font-size: 14px;       /* etwas kleiner, aber noch gut lesbar */
                     }
 
                 #bottom-content input[type="text"] {
                     width: 100%;
-                    padding: 10px 12px;
-                    margin-top: 4px;
+                    padding: 8px 10px;
+                    margin-top: 2px;
+                    margin-bottom: 6px;    /* neu: für saubere Trennung */
                     font-size: 16px;
                     border: 1px solid #ccc;
-                    border-radius: 8px;
+                    border-radius: 6px;
+                    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
                     box-sizing: border-box;
                     }
 
