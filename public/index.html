@@ -223,7 +223,7 @@
                     cursor: pointer;
                     pointer-events: auto; /* explizit interaktiv */
                     overscroll-behavior: contain; /* 👈 neu */
-                    touch-action: none;            /* 👈 wichtig für zuverlässige touchstart/touchend */
+                    touch-action: auto;    
                     }
 
                 #bottom-content {
@@ -287,7 +287,7 @@
             </div>
         </div>
         <div id="bottomSheet">
-            <div id="bottomSheetHandle" ontouchstart="console.log('✅ touchstart inline');"></div>
+            <div id="bottomSheetHandle"></div>
             <div id="bottom-content">
               <!-- 👇 Hier deine mobile Toolbar-Light rein -->
               <h4>- Layout bearbeiten -</h4>
@@ -1981,32 +1981,31 @@ function drawGroupCenter(x, y) {
 }
 
 let touchStartY = null;
-const swipeThreshold = 40; // px
+const swipeThreshold = 40;
 
-sheetHandle.addEventListener("touchstart", (e) => {
+function handleTouchStart(e) {
   if (e.touches.length === 1) {
     touchStartY = e.touches[0].clientY;
-    console.log("👉 touchstart Y:", touchStartY); // DEBUG
   }
-});
+}
 
-sheetHandle.addEventListener("touchend", (e) => {
+function handleTouchEnd(e) {
   if (touchStartY === null) return;
 
   const touchEndY = e.changedTouches[0].clientY;
   const deltaY = touchEndY - touchStartY;
-  console.log("👉 touchend Y:", touchEndY, "| deltaY:", deltaY); // DEBUG
 
   if (deltaY < -swipeThreshold) {
-    console.log("✅ Swipe detected: UP");
     openBottomSheet();
   } else if (deltaY > swipeThreshold) {
-    console.log("✅ Swipe detected: DOWN");
     closeBottomSheet();
   }
 
   touchStartY = null;
-});
+}
+
+bottomSheet.addEventListener("touchstart", handleTouchStart);
+bottomSheet.addEventListener("touchend", handleTouchEnd);
 
 sheetHandle.addEventListener("click", () => {
   bottomSheet.classList.toggle("expanded");
@@ -2022,12 +2021,6 @@ function closeBottomSheet() {
   bottomSheet.classList.remove("expanded");
   document.body.classList.remove("sheet-open");
 }
-
-["touchstart", "touchmove", "touchend"].forEach(evt =>
-  document.getElementById("bottomSheetHandle").addEventListener(evt, (e) => {
-    console.log(`📣 Event: ${evt} on #bottomSheetHandle`);
-  }, { passive: false })
-);
 
 </script>
 </body>
