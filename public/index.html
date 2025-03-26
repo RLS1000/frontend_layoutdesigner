@@ -205,14 +205,13 @@
                     }
 
                 #bottomSheet.expanded {
-                    max-height: 45vh; /* Geöffnet: 75 % vom Bildschirm */
+                    max-height: 75vh; /* Geöffnet: 75 % vom Bildschirm */
                     overscroll-behavior: contain; /* darf für sich selbst scrollen */
                     overflow: hidden;
                     touch-action: auto; /* erlaubt Scrollen im Sheet */
                     }
 
                 #bottomSheetHandle {
-                    -webkit-user-select: none;
                     user-select: none;
                     width: 40px;
                     height: 5px;
@@ -229,9 +228,10 @@
                     padding: 16px;
                     font-family: Raleway, sans-serif;
                     font-size: 16px;
-                    max-height: calc(45vh - 40px); /* minus handle + padding */
+                    max-height: calc(75vh - 40px); /* minus handle + padding */
                     overflow-y: auto;
                     overscroll-behavior: contain;  /* schützt vor Body-Scroll bei schnellem Wischen */
+                    -webkit-user-select: none;
                     }
 
                 #bottom-content label {
