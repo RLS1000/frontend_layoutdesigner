@@ -242,10 +242,14 @@
                     }
 
                 #bottom-content {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: flex-start;
+                    height: 100%;
                     padding: 16px;
                     font-family: Raleway, sans-serif;
                     font-size: 16px;
-                    max-height: calc(75vh - 40px); /* minus handle + padding */
+                    max-height: calc(75vh - 40px); /* bleibt */
                     overflow-y: auto;
                     overscroll-behavior: contain;  /* schützt vor Body-Scroll bei schnellem Wischen */
                     -webkit-user-select: none;
@@ -283,17 +287,15 @@
                     font-size: 16px;
                     }
 
-                #bottom-info {
-                    padding: 12px;
-                    min-height: 100px; /* genug Platz für Style-Zeile + Buttons */
+                    #bottom-info {
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
                     align-items: center;
                     box-sizing: border-box;
+                    margin-bottom: auto; /* wichtig für Flex-Wachstum */
                     }
-
-                    
+                   
                 #action-buttons {
                   display: flex;
                   justify-content: center;
@@ -359,14 +361,10 @@
         </div>
         <div id="bottomSheet">
             <div id="bottomSheetHandle"></div>
+
             <div id="bottom-content">
                 <div id="bottom-info">
                   <div id="style-summary"><span id="styleLabel">Style X | X Fotos | Format</span></div>
-                  <div id="action-buttons">
-                    <button onclick="changeSnap(3)">Bearbeiten</button>
-                    <button onclick="saveLayoutToAPI(false)">Speichern</button>
-                    <button onclick="saveLayoutToAPI(true)">Freigeben</button>
-                  </div>
                 </div>
               
                 <div id="edit-names">
@@ -377,10 +375,16 @@
                 </div>
               
                 <div id="edit-presets">
-                  <!-- hier kannst du später deine Presets reinbauen -->
                   <p style="opacity: 0.5; font-style: italic;">Presets kommen hier hin… 🎨</p>
                 </div>
-              </div>
+              
+                <!-- ✅ Action Buttons ganz unten! -->
+                <div id="action-buttons">
+                  <button onclick="changeSnap(3)">Bearbeiten</button>
+                  <button onclick="saveLayoutToAPI(false)">Speichern</button>
+                  <button onclick="saveLayoutToAPI(true)">Freigeben</button>
+                </div>
+            </div>
           </div>
         <!-- Tool Panel -->
         <div id="toolPanel">
