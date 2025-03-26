@@ -212,6 +212,8 @@
                     }
 
                 #bottomSheetHandle {
+                    -webkit-user-select: none;
+                    user-select: none;
                     width: 40px;
                     height: 5px;
                     background: #ccc;
@@ -220,7 +222,8 @@
                     margin: 8px auto;
                     cursor: pointer;
                     pointer-events: auto; /* explizit interaktiv */
-                    touch-action: pan-y; /* erlaubt vertikales Wischen */
+                    overscroll-behavior: contain; /* 👈 neu */
+                    touch-action: none;            /* 👈 wichtig für zuverlässige touchstart/touchend */
                     }
 
                 #bottom-content {
