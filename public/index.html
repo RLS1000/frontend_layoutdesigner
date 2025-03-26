@@ -195,7 +195,6 @@
                     left: 0;
                     right: 0;
                     height: auto;
-                    max-height: 120px; /* Sichtbar wie angedockt */
                     background-color: #fff;
                     border-top: 2px solid #ccc;
                     box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
@@ -203,7 +202,9 @@
                     transform: translateY(75%);
                     transition: transform 0.3s ease;
                     z-index: 1000;
-                    }
+                    touch-action: none;
+                }
+
                 
                 /* In Snap 3 ausblenden */
                 #bottomSheet.snap-3 #editBtn {
@@ -1075,13 +1076,6 @@ let isProgrammaticLayoutChange = false; // Temporäre Sperre beim Initialaufbau 
 let isSwipeInProgress = false;
 let currentSnap = 1; // 👈 NEU: Initiale Snap-Stufe
 
-function changeSnap(to) {
-  currentSnap = to;
-  bottomSheet.classList.remove("snap-1", "snap-2", "snap-3");
-  bottomSheet.classList.add("snap-" + currentSnap);
-  document.body.classList.toggle("sheet-open", currentSnap > 1);
-}
-
  // 🔹 Globale API-Variablen
 const apiVariables = {
     name1: "ERIKA",
@@ -1188,6 +1182,7 @@ function loadWelcomeCanvas() {
 document.addEventListener("DOMContentLoaded", () => {
     populateDropdown();
     enableMobileSwipeWithAnimation();
+    setSheetTranslate(snapMap[currentSnap]); // wichtig!
 
     // ⬇️ NEU: Desktop-Toolbar bei Mobile ausblenden
     if (isMobileView()) {
@@ -2099,65 +2094,54 @@ function drawGroupCenter(x, y) {
 }
 
 let dragStartY = 0;
-let dragCurrentY = 0;
-let isDragging = false;
-let sheetStartY = 0;
+let currentY = 0;
+let isDraggingSheet = false;
 
-const sheetHeightMap = {
-  1: 75, // ausgeblendet (max-height 75%)
+const snapMap = {
+  1: 75, // eingeklappt
   2: 40, // halb
-  3: 0   // voll sichtbar (translateY = 0)
+  3: 0   // voll sichtbar
 };
 
-function getTranslateYForSnap(snapLevel) {
-  return sheetHeightMap[snapLevel];
-}
-
-function setBottomSheetPosition(percent, smooth = false) {
+function setSheetTranslate(percent, smooth = false) {
   bottomSheet.style.transition = smooth ? 'transform 0.3s ease' : 'none';
   bottomSheet.style.transform = `translateY(${percent}%)`;
 }
 
-sheetHandle.addEventListener('touchstart', (e) => {
+function changeSnap(level) {
+  currentSnap = level;
+  setSheetTranslate(snapMap[currentSnap], true);
+  document.body.classList.toggle("sheet-open", currentSnap > 1);
+}
+
+// 🟡 Touch Events
+sheetHandle.addEventListener("touchstart", (e) => {
   dragStartY = e.touches[0].clientY;
-  isDragging = true;
-  sheetStartY = getTranslateYForSnap(currentSnap);
+  isDraggingSheet = true;
   bottomSheet.style.transition = 'none';
 });
 
-sheetHandle.addEventListener('touchmove', (e) => {
-  if (!isDragging) return;
-  dragCurrentY = e.touches[0].clientY;
-  const deltaY = dragCurrentY - dragStartY;
-  const newY = sheetStartY + (deltaY / window.innerHeight * 100);
+sheetHandle.addEventListener("touchmove", (e) => {
+  if (!isDraggingSheet) return;
+  const deltaY = e.touches[0].clientY - dragStartY;
+  const percentY = snapMap[currentSnap] + (deltaY / window.innerHeight) * 100;
 
-  // Begrenzen: 0% (ganz oben) bis 75% (ganz unten)
-  const clampedY = Math.max(0, Math.min(75, newY));
-  setBottomSheetPosition(clampedY);
+  currentY = Math.max(0, Math.min(75, percentY));
+  setSheetTranslate(currentY);
 });
 
-sheetHandle.addEventListener('touchend', () => {
-  if (!isDragging) return;
-  isDragging = false;
+sheetHandle.addEventListener("touchend", () => {
+  isDraggingSheet = false;
 
-  const deltaY = dragCurrentY - dragStartY;
-
-  // Snap-Entscheidung: abhängig von Richtung & Schwellwert
-  if (deltaY > 40 && currentSnap > 1) {
-    changeSnap(currentSnap - 1); // runter
-  } else if (deltaY < -40 && currentSnap < 3) {
-    changeSnap(currentSnap + 1); // hoch
+  // Snap zurück oder weiter
+  if (currentY < 20) {
+    changeSnap(3);
+  } else if (currentY < 60) {
+    changeSnap(2);
   } else {
-    changeSnap(currentSnap); // zurück zur aktuellen Position
+    changeSnap(1);
   }
 });
-
-function changeSnap(level) {
-  currentSnap = level;
-  setBottomSheetPosition(getTranslateYForSnap(level), true);
-  document.body.classList.toggle("sheet-open", level > 1);
-}
-
 
 sheetHandle.addEventListener("click", () => {
   currentSnap = currentSnap === 1 ? 2 : currentSnap === 2 ? 3 : 1;
