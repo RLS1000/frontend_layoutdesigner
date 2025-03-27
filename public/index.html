@@ -1954,6 +1954,12 @@ function updateInputFields() {
     name2Input.value = apiVariables.name2 || "";
     dateInput.value = apiVariables.weddingDate || "";
 
+    // ✨ Auch mobile Input-Felder füllen
+    document.getElementById("mobileName1").value = apiVariables.name1 || "";
+    document.getElementById("mobileName2").value = apiVariables.name2 || "";
+    document.getElementById("mobileDate").value = apiVariables.weddingDate || "";
+
+
     // ✨ CSS-Highlight-Klasse hinzufügen und automatisch wieder entfernen
     [name1Input, name2Input, dateInput].forEach(input => {
         input.classList.add("updated");
@@ -2250,6 +2256,32 @@ function logInitDebug() {
 
     console.groupEnd();
 }
+function applyMobileVars() {
+    apiVariables.name1 = document.getElementById("mobileName1").value;
+    apiVariables.name2 = document.getElementById("mobileName2").value;
+    apiVariables.weddingDate = document.getElementById("mobileDate").value;
+
+    console.log("📱 Neue mobile Werte:", apiVariables);
+
+    // Alle Layouts updaten
+    layouts.forEach(layout => {
+        layout.textGroups.forEach(group => {
+            group.texts.forEach(t => {
+                if (t.text.includes("name1")) t.text = t.text.replace(/name1/g, apiVariables.name1);
+                if (t.text.includes("name2")) t.text = t.text.replace(/name2/g, apiVariables.name2);
+                if (t.text.includes("weddingDate")) t.text = t.text.replace(/weddingDate/g, apiVariables.weddingDate);
+            });
+        });
+    });
+
+    // Auch die Desktop-Felder aktualisieren (optional)
+    updateInputFields();
+
+    // Canvas aktualisieren
+    updateCanvasText();
+    changeSnap(0); // oder 1 – je nachdem, was du lieber willst
+}
+
 
 </script>
 </body>
