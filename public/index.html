@@ -199,11 +199,10 @@
                     border-top: 2px solid #ccc;
                     box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
                     overflow: hidden;
-                    /* transform: translateY(75%); */
+                    transform: translateY(88%);
                     transition: transform 0.3s ease;
                     z-index: 1000;
                     touch-action: none;
-                    transform: none; /* verhindert animiertes „Wegziehen“ */
                 }
 
                 
@@ -1202,6 +1201,10 @@ document.addEventListener("DOMContentLoaded", () => {
         updateCanvasText();
     }, 300);
     
+    setTimeout(() => {
+        changeSnap(0); // statt vorher 1 oder 2
+    }, 10); // kleiner delay, um DOM/Styles laden zu lassen
+
     // ✅ NEU: Aktualisiere Dropdown-Stile beim Start
         updateDropdownStyles();
 });
@@ -2099,10 +2102,9 @@ let currentY = 0;
 let isDraggingSheet = false;
 
 const snapMap = {
-  0: 88,
-  1: 75, // eingeklappt
-  2: 40, // halb
-  3: 0   // voll sichtbar
+  0: 88, // initial nur Buttons sichtbar
+  1: 40, // mittelstellung presets
+  2: 0, // ganz offen
 };
 
 function setSheetTranslate(percent, smooth = false) {
