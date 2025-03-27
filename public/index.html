@@ -267,55 +267,39 @@
                     #bottom-info {
                     display: flex;
                     flex-direction: column;
-                    justify-content: center;
+                    justify-content: space-between;
                     align-items: center;
                     box-sizing: border-box;
+                    gap: 8px;
 
                     margin-bottom: 12px;        /* ❌ statt "auto" */
-                    padding-bottom: 8px;
-                    border-bottom: 1px dashed #ddd; /* zarte optische Trennung */
+                    padding: 0 8px;
+                    border-bottom: 1px solid #eee; /* zarte optische Trennung */
                 }
                
-                #action-buttons {
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                  gap: 6px;
-                  flex-wrap: nowrap;
-                  overflow-x: auto; /* Falls mal mehr Buttons kommen */
-                  padding: 0 8px;
-                    }
-
-                #action-buttons button {
-                  padding: 4px 10px;
-                  font-size: 13px;
-                  border-radius: 20px;
-                  border: 1px solid #ccc;
-                  background-color: #f1f1f1;
-                  color: #333;
-                  font-weight: 500;
-                  white-space: nowrap;
-                  flex: 0 0 auto;     /* Wichtig: verhindert Strecken */
-                  min-width: 80px;
-                  max-width: 130px;
-                  transition: background-color 0.2s ease;
-                    }
-                
-            #action-buttons .icon-button {
-                padding: 4px 10px;
-                font-size: 13px;
-                border-radius: 20px;
-                border: 1px solid #ccc;
-                background-color: #e3e3e3;
-                color: #333;
-                font-weight: 500;
-                white-space: nowrap;
-                flex: 0 0 auto;     /* Wichtig: verhindert Strecken */
-                min-width: 40px;
-                max-width: 40px;
-                transition: background-color 0.2s ease;
+                #fixed-action-bar {
+                    position: fixed;
+                    bottom: 20px;
+                    left: 0;
+                    width: 100%;
+                    padding: 12px 16px;
+                    display: flex;
+                    justify-content: center;
+                    gap: 10px;
+                    background: white;
+                    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+                    z-index: 1001;
                 }
 
+                #fixed-action-bar button {
+                    flex: 1;
+                    max-width: 160px;
+                    padding: 12px;
+                    font-size: 16px;
+                    border: none;
+                    border-radius: 8px;
+                    font-weight: bold;
+                }
                 
                 #style-summary {
                     text-align: center;
@@ -335,9 +319,7 @@
                 #bottomSheet.snap-0 #editBtn {
                     display: block;
                 }
-                #bottomSheet.snap-0 #action-buttons {
-                    display: flex;
-                }
+
                 #bottomSheet.snap-0 #edit-presets,
                 #bottomSheet.snap-0 #edit-names {
                     display: none;
@@ -444,7 +426,10 @@
 
             <div id="bottom-content">
                 <div id="bottom-info">
-                  <div id="style-summary"><span id="styleLabel">Wähle ein Layout aus</span></div>
+                    <div id="style-summary">
+                        <span id="styleLabel">Wähle ein Layout aus</span>
+                        <button id="editBtn" class="icon-button" onclick="changeSnap(2)">⚙️</button>
+                    </div>
                 </div>
                 
                 <div id="edit-presets">
@@ -457,15 +442,15 @@
                   <label><span>Datum:</span><input type="text" id="mobileDate"></label>
                   <button onclick="applyMobileVars()">Übernehmen</button>
                 </div>
-                
-                <!-- ✅ Action Buttons ganz unten! -->
-                <div id="action-buttons">
-                  <button id="editBtn" class="icon-button" onclick="changeSnap(2)">🔧</button>
-                  <button onclick="saveLayoutToAPI(false)">💾 Speichern</button>
-                  <button onclick="saveLayoutToAPI(true)">✅ Freigeben</button>
-                </div>
+
             </div>
           </div>
+        <!-- ✅ Action Buttons ganz unten! -->
+        <div id="fixed-action-bar">
+            <button onclick="saveLayoutToAPI(false)">💾 Speichern</button>
+            <button onclick="saveLayoutToAPI(true)">✅ Freigeben</button>
+        </div>
+
         <!-- Tool Panel -->
         <div id="toolPanel">
           <div>
