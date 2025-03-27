@@ -206,8 +206,20 @@
                 }
 
                 
-                /* In Snap 3 ausblenden */
-                #bottomSheet.snap-3 #editBtn {
+                /* SNAPs */
+                #bottomSheet.snap-1 #edit-presets {
+                    display: block;
+                }
+                #bottomSheet.snap-1 #edit-names {
+                    display: none;
+                }
+                #bottomSheet.snap-2 #edit-presets {
+                    display: block;
+                }
+                #bottomSheet.snap-2 #edit-names {
+                    display: block;
+                }
+                #bottomSheet.snap-2 #editBtn {
                     display: none;
                     }
                 
@@ -215,15 +227,6 @@
                 #edit-presets {
                     display: none;
                     }
-
-                #bottomSheet.snap-2 #edit-names {
-                    display: block;
-                    }
-
-                #bottomSheet.snap-3 #edit-names,
-                #bottomSheet.snap-3 #edit-presets {
-                    display: block;
-                    }        
 
                 #bottomSheetHandle {
                     user-select: none;
@@ -2105,7 +2108,7 @@ let isDraggingSheet = false;
 
 const snapMap = {
   0: 50, // initial nur Buttons sichtbar
-  1: 20, // mittelstellung presets
+  1: 30, // mittelstellung presets
   2: 0, // ganz offen
 };
 
