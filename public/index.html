@@ -205,29 +205,6 @@
                     touch-action: none;
                 }
 
-                
-                /* SNAPs */
-                #bottomSheet.snap-1 #edit-presets {
-                    display: block;
-                }
-                #bottomSheet.snap-1 #edit-names {
-                    display: none;
-                }
-                #bottomSheet.snap-2 #edit-presets {
-                    display: block;
-                }
-                #bottomSheet.snap-2 #edit-names {
-                    display: block;
-                }
-                #bottomSheet.snap-2 #editBtn {
-                    display: none;
-                    }
-                
-                    #edit-names,
-                #edit-presets {
-                    display: none;
-                    }
-
                 #bottomSheetHandle {
                     user-select: none;
                     width: 40px;
@@ -344,6 +321,39 @@
                     color: #333;
                     margin-bottom: 12px;
                     }
+                
+                /* Default: alles versteckt */
+                #edit-names,
+                #edit-presets {
+                display: none;
+                }
+
+                /* Snap 1: nur Presets */
+                #bottomSheet.snap-1 #edit-presets {
+                display: block;
+                }
+                #bottomSheet.snap-1 #edit-names {
+                display: none;
+                }
+                #bottomSheet.snap-1 #editBtn {
+                display: block;
+                }
+
+                /* Snap 2: Presets + Namen, Edit-Button ausblenden */
+                #bottomSheet.snap-2 #edit-presets {
+                display: block;
+                }
+                #bottomSheet.snap-2 #edit-names {
+                display: block;
+                }
+                #bottomSheet.snap-2 #editBtn {
+                display: none;
+                }
+
+                /* Snap 0: nur Buttons + Style */
+                #bottomSheet.snap-0 #editBtn {
+                display: block;
+                }
 
                 /* Optional: Verhindere Scrollen im Hintergrund */
                 body.sheet-open {
