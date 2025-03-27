@@ -1111,6 +1111,18 @@
     },
  ]
 
+ // 🧠 Speichere Original-Platzhaltertexte für alle Layouts
+layouts.forEach(layout => {
+    layout.textGroups.forEach(group => {
+        group.texts.forEach(t => {
+            if (!t.originalText) {
+                t.originalText = t.text;
+            }
+        });
+    });
+});
+
+
 const canvas = new fabric.Canvas("canvas");
 const DEBUG_MODE = false; // ⬅️ auf true setzen, wenn du testen willst
 
@@ -2263,24 +2275,24 @@ function applyMobileVars() {
 
     console.log("📱 Neue mobile Werte:", apiVariables);
 
-    // Alle Layouts updaten
+    // Alle Layouts mit originalText aktualisieren
     layouts.forEach(layout => {
         layout.textGroups.forEach(group => {
             group.texts.forEach(t => {
-                if (t.text.includes("name1")) t.text = t.text.replace(/name1/g, apiVariables.name1);
-                if (t.text.includes("name2")) t.text = t.text.replace(/name2/g, apiVariables.name2);
-                if (t.text.includes("weddingDate")) t.text = t.text.replace(/weddingDate/g, apiVariables.weddingDate);
+                const base = t.originalText || t.text;
+                t.text = base
+                    .replace(/name1/g, apiVariables.name1)
+                    .replace(/name2/g, apiVariables.name2)
+                    .replace(/weddingDate/g, apiVariables.weddingDate);
             });
         });
     });
 
-    // Auch die Desktop-Felder aktualisieren (optional)
-    updateInputFields();
-
-    // Canvas aktualisieren
+    updateInputFields(); // auch Desktop-Felder aktualisieren
     updateCanvasText();
-    changeSnap(0); // oder 1 – je nachdem, was du lieber willst
+    changeSnap(0);
 }
+
 
 
 </script>
