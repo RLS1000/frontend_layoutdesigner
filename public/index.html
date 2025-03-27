@@ -1182,7 +1182,6 @@ function loadWelcomeCanvas() {
 document.addEventListener("DOMContentLoaded", () => {
     populateDropdown();
     enableMobileSwipeWithAnimation();
-    changeSnap(currentSnap);
 
     // ⬇️ NEU: Desktop-Toolbar bei Mobile ausblenden
     if (isMobileView()) {
@@ -1201,10 +1200,13 @@ document.addEventListener("DOMContentLoaded", () => {
         updateCanvasText();
     }, 300);
     
-    setTimeout(() => {
-        changeSnap(0); // statt vorher 1 oder 2
-    }, 10); // kleiner delay, um DOM/Styles laden zu lassen
-
+    // ⏳ WARTE, bis alles gerendert ist, bevor Snap gesetzt wird
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            console.log("📦 Initialer Snap (sichtbar mit Buttons)");
+            changeSnap(0); // Snap 0 = 88%
+        }, 50); // Minimaler Delay
+    });
     // ✅ NEU: Aktualisiere Dropdown-Stile beim Start
         updateDropdownStyles();
 });
