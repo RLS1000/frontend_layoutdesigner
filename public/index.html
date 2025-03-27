@@ -405,7 +405,7 @@
                 
                 <!-- ✅ Action Buttons ganz unten! -->
                 <div id="action-buttons">
-                  <button id="editBtn" class="icon-button" onclick="changeSnap(3)">🔧</button>
+                  <button id="editBtn" class="icon-button" onclick="changeSnap(2)">🔧</button>
                   <button onclick="saveLayoutToAPI(false)">💾 Speichern</button>
                   <button onclick="saveLayoutToAPI(true)">✅ Freigeben</button>
                 </div>
@@ -2129,6 +2129,11 @@ function setSheetTranslate(percent, smooth = false) {
 }
 
 function changeSnap(level) {
+    if (!(level in snapMap)) {
+    console.warn(`❌ Ungültiger Snap-Level: ${level}`);
+    return;
+  }
+
   currentSnap = level;
   setSheetTranslate(snapMap[currentSnap], true);
   
@@ -2140,10 +2145,10 @@ function changeSnap(level) {
     console.log(" • #edit-names:", isVisible('#edit-names'));
     console.groupEnd();
   
-  document.body.classList.toggle("sheet-open", currentSnap > 1);
+  document.body.classList.toggle("sheet-open", currentSnap > 2);
 
   // ✅ Snap-Klassen setzen
-  bottomSheet.classList.remove("snap-1", "snap-2", "snap-3");
+  bottomSheet.classList.remove("snap-0", "snap-1", "snap-2");
   bottomSheet.classList.add(`snap-${currentSnap}`);
 }
 
@@ -2156,7 +2161,7 @@ getComputedStyle(document.querySelector("#edit-names")).display
 
 // 🟡 Touch Events
 sheetHandle.addEventListener("click", () => {
-  currentSnap = currentSnap === 1 ? 2 : currentSnap === 2 ? 3 : 1;
+  currentSnap = currentSnap === 1 ? 2 : 1;
   changeSnap(currentSnap);
 });
 
@@ -2179,11 +2184,11 @@ bottomSheet.addEventListener("touchend", () => {
   isDraggingSheet = false;
 
   if (currentY < 20) {
-    changeSnap(3);
-  } else if (currentY < 60) {
     changeSnap(2);
-  } else {
+  } else if (currentY < 60) {
     changeSnap(1);
+  } else {
+    changeSnap(0);
   }
 });
 
