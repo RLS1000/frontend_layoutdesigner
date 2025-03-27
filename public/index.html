@@ -270,9 +270,12 @@
                     justify-content: center;
                     align-items: center;
                     box-sizing: border-box;
-                    margin-bottom: auto; /* wichtig für Flex-Wachstum */
-                    }
-                   
+
+                    margin-bottom: 12px;        /* ❌ statt "auto" */
+                    padding-bottom: 8px;
+                    border-bottom: 1px dashed #ddd; /* zarte optische Trennung */
+                }
+               
                 #action-buttons {
                   display: flex;
                   justify-content: center;
@@ -360,6 +363,46 @@
                     overflow: hidden;
                 }
                 }
+
+                #edit-names {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                }
+
+                /* Einzelne Zeile: Label + Input nebeneinander */
+                #edit-names label {
+                    display: flex;
+                    align-items: center;
+                    font-size: 15px;
+                    color: #444;
+                }
+
+                /* Label-Text bekommt fixe Breite */
+                #edit-names label span {
+                    display: inline-block;
+                    width: 80px; /* 👈 Breite anpassen je nach Textlänge */
+                    font-weight: 500;
+                }
+
+                /* Input passt sich an, rechtsbündig */
+                #edit-names input[type="text"] {
+                    flex: 1;
+                    padding: 8px 10px;
+                    font-size: 16px;
+                    border: 1px solid #ccc;
+                    border-radius: 6px;
+                    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                    box-sizing: border-box;
+                    text-align: right; /* 👈 optional für klare Ausrichtung */
+                }
+
+                #edit-presets {
+                font-size: 15px;
+                margin-top: 12px;
+                padding: 4px 0;
+                background-color: rgba(0, 0, 0, 0.01); /* optional: super dezenter Kontrast */
+                }
                 @media (min-width: 768px) {
             #bottomSheet {
                    display: none !important;
@@ -397,9 +440,9 @@
                 </div>
 
                 <div id="edit-names">
-                  <label>Name 1: <input type="text" id="mobileName1"></label>
-                  <label>Name 2: <input type="text" id="mobileName2"></label>
-                  <label>Datum: <input type="text" id="mobileDate"></label>
+                  <label><span>Name 1:</span><input type="text" id="mobileName1"></label>
+                  <label><span>Name 2:</span><input type="text" id="mobileName2"></label>
+                  <label><span>Datum:</span><input type="text" id="mobileDate"></label>
                   <button onclick="applyMobileVars()">Übernehmen</button>
                 </div>
                 
