@@ -1193,6 +1193,7 @@ function loadWelcomeCanvas() {
 
  
 document.addEventListener("DOMContentLoaded", () => {
+    logInitDebug(); // ⬅️ oben definierte Gruppe
     populateDropdown();
     enableMobileSwipeWithAnimation();
 
@@ -2130,12 +2131,28 @@ function setSheetTranslate(percent, smooth = false) {
 function changeSnap(level) {
   currentSnap = level;
   setSheetTranslate(snapMap[currentSnap], true);
+  
+    console.groupCollapsed(`📦 Snap-Wechsel: ${level} ➤ translateY(${snapMap[currentSnap]}%)`);
+    console.log("🟢 Sichtbar:");
+    console.log(" • #style-summary:", isVisible('#style-summary'));
+    console.log(" • #editBtn:", isVisible('#editBtn'));
+    console.log(" • #edit-presets:", isVisible('#edit-presets'));
+    console.log(" • #edit-names:", isVisible('#edit-names'));
+    console.groupEnd();
+  
   document.body.classList.toggle("sheet-open", currentSnap > 1);
 
   // ✅ Snap-Klassen setzen
   bottomSheet.classList.remove("snap-1", "snap-2", "snap-3");
   bottomSheet.classList.add(`snap-${currentSnap}`);
 }
+
+function isVisible(selector) {
+    const el = document.querySelector(selector);
+    return el ? window.getComputedStyle(el).display !== 'none' : '⛔ not found';
+}
+
+getComputedStyle(document.querySelector("#edit-names")).display
 
 // 🟡 Touch Events
 sheetHandle.addEventListener("click", () => {
@@ -2179,6 +2196,18 @@ function openBottomSheet() {
 function closeBottomSheet() {
   bottomSheet.classList.remove("expanded");
   document.body.classList.remove("sheet-open");
+}
+
+function logInitDebug() {
+    console.group('%c🔍 Layout-Init & Snap', 'color: #1976d2; font-weight: bold;');
+
+    const layoutId = checkLayoutID();
+    console.log('🔗 Layout ID aus URL:', layoutId);
+
+    console.log('%c📦 Starte initiale Snap-Stufe (nur Buttons sichtbar)', 'color: #ff9800;');
+    changeSnap(0);
+
+    console.groupEnd();
 }
 
 </script>
