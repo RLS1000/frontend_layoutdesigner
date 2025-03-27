@@ -267,15 +267,10 @@
                     #bottom-info {
                     display: flex;
                     flex-direction: column;
-                    justify-content: space-between;
-                    align-items: center;
-                    box-sizing: border-box;
-                    gap: 8px;
-
-                    margin-bottom: 12px;        /* ❌ statt "auto" */
-                    padding: 0 8px;
-                    border-bottom: 1px solid #eee; /* zarte optische Trennung */
-                }
+                    padding: 0 12px;
+                    margin-bottom: 12px;
+                    border-bottom: 1px solid #eee; /* feine Trennlinie */
+                    }
                
                  #fixed-action-bar {
                     position: fixed;
@@ -301,12 +296,13 @@
                     font-weight: bold;
                 }
                 
-                #style-summary {
-                    text-align: center;
+                #style-summary-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
                     font-weight: 600;
                     font-size: 15px;
                     color: #333;
-                    margin-bottom: 12px;
                     }
                 
                 /* Default: alles versteckt */
@@ -426,11 +422,11 @@
 
             <div id="bottom-content">
                 <div id="bottom-info">
-                    <div id="style-summary">
-                        <span id="styleLabel">Wähle ein Layout aus</span>
-                        <button id="editBtn" class="icon-button" onclick="changeSnap(2)">⚙️</button>
+                    <div id="style-summary-row">
+                      <span id="styleLabel">Wähle ein Layout aus</span>
+                      <span id="editIcon" onclick="changeSnap(2)" style="cursor: pointer;" title="Bearbeiten">⚙️</span>
                     </div>
-                </div>
+                  </div>
                 
                 <div id="edit-presets">
                   <p style="opacity: 0.5; font-style: italic;">Presets kommen hier hin… 🎨</p>
@@ -2179,7 +2175,7 @@ function changeSnap(level) {
   
     console.groupCollapsed(`📦 Snap-Wechsel: ${level} ➤ translateY(${snapMap[currentSnap]}%)`);
     console.log("🟢 Sichtbar:");
-    console.log(" • #style-summary:", isVisible('#style-summary'));
+    console.log(" • #style-summary-row:", isVisible('#style-summary-row'));
     console.log(" • #editBtn:", isVisible('#editBtn'));
     console.log(" • #edit-presets:", isVisible('#edit-presets'));
     console.log(" • #edit-names:", isVisible('#edit-names'));
