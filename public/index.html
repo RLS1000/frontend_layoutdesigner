@@ -268,7 +268,6 @@
                     flex-direction: column;
                     padding: 0 12px;
                     margin-bottom: 12px;
-                    /* border-bottom: 1px solid #eee; /* feine Trennlinie */*/
                     }
                
                  #fixed-action-bar {
@@ -404,6 +403,26 @@
                     font-weight: bold;
                 }
 
+                .color-presets {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 10px;
+                    margin: 10px 0;
+                    }
+
+                    .color-presets .color-swatch {
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    border: 2px solid #ccc;
+                    cursor: pointer;
+                    transition: transform 0.2s ease;
+                    }
+
+                    .color-presets .color-swatch:active {
+                    transform: scale(0.95);
+                    }
+
                 @media (min-width: 768px) {
             #bottomSheet {
                    display: none !important;
@@ -440,7 +459,9 @@
                   </div>
                 
                 <div id="edit-presets">
-                  <p style="opacity: 0.5; font-style: italic;">Presets kommen hier hin… 🎨</p>
+                    <div class="color-presets">
+                        <!-- Farben generieren wir später per JS -->
+                    </div>
                 </div>
 
                 <div id="edit-names">
@@ -1271,6 +1292,7 @@ document.addEventListener("DOMContentLoaded", () => {
     logInitDebug(); // ⬅️ oben definierte Gruppe
     populateDropdown();
     enableMobileSwipeWithAnimation();
+    createColorPresets(); // 🎨
 
     // ⬇️ NEU: Desktop-Toolbar bei Mobile ausblenden
     if (isMobileView()) {
@@ -1299,6 +1321,39 @@ document.addEventListener("DOMContentLoaded", () => {
     // ✅ NEU: Aktualisiere Dropdown-Stile beim Start
         updateDropdownStyles();
 });
+
+const colorPresets = [
+  "#000000", "#d54291", "#4bb1a6", "#cc4e4e", "#006ba6",
+  "#ef9f3c", "#1d3557", "#009688", "#f44336"
+];
+
+function createColorPresets() {
+  const container = document.querySelector(".color-presets");
+  container.innerHTML = ""; // alte Farben löschen
+
+  colorPresets.forEach(color => {
+    const swatch = document.createElement("div");
+    swatch.className = "color-swatch";
+    swatch.style.backgroundColor = color;
+
+    swatch.addEventListener("click", () => {
+      applyColorToEditableTexts(color);
+    });
+
+    container.appendChild(swatch);
+  });
+}
+
+function applyColorToEditableTexts(color) {
+  canvas.getObjects().forEach(obj => {
+    if (obj.isType("i-text") && obj.isColorEditable !== false) {
+      obj.set("fill", color);
+    }
+  });
+
+  canvas.renderAll();
+  saveTemporaryLayout();
+}
 
 document.addEventListener('touchmove', function(e) {
   const isHandle = e.target.closest("#bottomSheetHandle");
