@@ -429,25 +429,23 @@
 
                 .preset-buttons {
                     display: flex;
-                    flex-wrap: wrap;
-                    gap: 6px;
-                    margin-top: 12px;
+                    flex-wrap: nowrap;         /* ❗ Alle in eine Zeile */
+                    overflow-x: auto;          /* Falls nicht genug Platz */
+                    gap: 4px;
                     justify-content: center;
+                    margin-top: 8px;
                     }
 
                 .preset-buttons button {
-                    padding: 6px 12px;
-                    font-size: 14px;
+                    padding: 4px 8px;
+                    font-size: 12px;           /* 👈 kleiner! */
                     border: 1px solid #ccc;
-                    border-radius: 6px;
+                    border-radius: 4px;
                     background-color: #fff;
-                    cursor: pointer;
-                    transition: background-color 0.3s ease;
+                    white-space: nowrap;
+                    flex-shrink: 0;            /* ❗ nicht schrumpfen */
                     }
 
-                .preset-buttons button:hover {
-                    background-color: #eee;
-                    }
 
 
                 @media (min-width: 768px) {
@@ -1496,17 +1494,24 @@ function applyTextPreset(presetKey) {
 
       if (!style) return;
 
-      obj.set({
-        fontFamily: style.fontFamily,
-        fontSize: style.fontSize * canvasScaleY,
-        fontStyle: style.fontStyle,
-        fontWeight: style.fontWeight
-      });
+    const originalFontSize = obj.fontSize / canvasScaleY; // entskaliert
+    const presetBaseSize = style.fontSize;
+
+    const scaleFactor = presetBaseSize / originalFontSize;
+
+    obj.set({
+    fontFamily: style.fontFamily,
+    fontSize: obj.fontSize * scaleFactor,
+    fontStyle: style.fontStyle,
+    fontWeight: style.fontWeight
+    });
+
     }
   });
 
   canvas.renderAll();
   saveTemporaryLayout();
+  updateCanvasText(); // 🧠 Neuzentrierung der Texte nach Stil-Update
 }
 
 document.addEventListener('touchmove', function(e) {
