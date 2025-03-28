@@ -1364,11 +1364,17 @@ function createColorPresets() {
 }
 
 function applyColorToEditableTexts(color) {
-  sessionStorage.setItem("selectedColor", color); // 💾 Farbe merken
+  console.log(`🎨 Versuche, Farbe anzuwenden: ${color}`);
+  sessionStorage.setItem("selectedColor", color);
 
   canvas.getObjects().forEach(obj => {
+    if (obj.isType("i-text")) {
+      console.log(`🧪 Text: "${obj.text}" | Editable:`, obj.isColorEditable);
+    }
+
     if (obj.isType("i-text") && obj.isColorEditable === true) {
       obj.set("fill", color);
+      console.log(`✅ Farbe gesetzt für: "${obj.text}"`);
     }
   });
 
@@ -1557,15 +1563,24 @@ function changeLayout(layoutId, skipTextRender = false, callback = null) {
     updateStyleSummary(layout); // ✅ WICHTIG: hier aufrufen!
 
     canvas.loadFromJSON(layoutData, () => {
-        canvas.renderAll();
-        replaceTextPlaceholders();
-        isProgrammaticLayoutChange = false;
-        saveTemporaryLayout();
+    canvas.renderAll();
 
-        if (typeof callback === "function") {
-            callback(layoutData);
+    // 🧪 DEBUG: Nach dem Laden prüfen, ob isColorEditable korrekt gesetzt wurde
+    canvas.getObjects().forEach(obj => {
+        if (obj.isType("i-text")) {
+            console.log(`🧪 Geladen: "${obj.text}" | isColorEditable:`, obj.isColorEditable);
         }
     });
+
+    replaceTextPlaceholders();
+    isProgrammaticLayoutChange = false;
+    saveTemporaryLayout();
+
+    if (typeof callback === "function") {
+        callback(layoutData);
+    }
+});
+
 
     return;
 }
@@ -1667,7 +1682,9 @@ function addTextGroups(layout) {
                 editable: canvasScaleX === 1 && canvasScaleY === 1,
                 isColorEditable: t.isColorEditable === true
             });
-            textObj.isColorEditable = t.isColorEditable === true; // ✅ explizit setzen!
+            textObj.isColorEditable = t.isColorEditable === true;
+            console.log(`🧪 Neues TextObjekt "${textWithVars}" | Editable: ${textObj.isColorEditable}`);
+
             canvas.add(textObj);
             if (DEBUG_MODE) drawDebugBox(textObj); // 🟥 Debug-Rahmen anzeigen
             textObjects.push(textObj);
