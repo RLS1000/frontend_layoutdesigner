@@ -435,7 +435,7 @@
                 <div id="bottom-info">
                     <div id="style-summary-row">
                       <span id="styleLabel">Wähle ein Layout aus</span>
-                      <span id="editIcon" onclick="changeSnap(2)" style="cursor: pointer;" title="Bearbeiten">[ bearbeiten ]</span>
+                      <span id="editIcon" onclick="openEditSheet()" style="cursor: pointer;" title="Bearbeiten">[ bearbeiten ]</span>
                     </div>
                   </div>
                 
@@ -1159,6 +1159,8 @@ let canvasScaleX = 1;
 let canvasScaleY = 1;
 let logicalWidth = 600;  // neue Variable
 let logicalHeight = 400; // neue Variable
+
+let preventNextSheetDrag = false; // ⛔ blockiert versehentlichen Touch nach Snap-Wechsel
 
 function isMobileView() {
   return window.innerWidth < 768;
@@ -2231,6 +2233,16 @@ function changeSnap(level) {
   bottomSheet.classList.add(`snap-${currentSnap}`);
 }
 
+function openEditSheet() {
+  preventNextSheetDrag = true; // 🛑 temporär Swipe blockieren
+  changeSnap(2); // Sheet öffnen
+
+  // Nach 500ms wieder freigeben
+  setTimeout(() => {
+    preventNextSheetDrag = false;
+  }, 500);
+}
+
 function isVisible(selector) {
     const el = document.querySelector(selector);
     return el ? window.getComputedStyle(el).display !== 'none' : '⛔ not found';
@@ -2245,10 +2257,12 @@ sheetHandle.addEventListener("click", () => {
 });
 
 bottomSheet.addEventListener("touchstart", (e) => {
+  if (preventNextSheetDrag) return; // ❌ blockiere Touch-Gesten direkt nach Button-Klick
   dragStartY = e.touches[0].clientY;
   isDraggingSheet = true;
   bottomSheet.style.transition = 'none';
 });
+
 
 bottomSheet.addEventListener("touchmove", (e) => {
   if (!isDraggingSheet) return;
