@@ -1174,6 +1174,15 @@ console.log("🧪 Check Layout Text Presets:", layouts.map(l => l.textGroups.map
 
 
 const canvas = new fabric.Canvas("canvas");
+// 🔧 Erweiterung: Eigene Property beim Speichern/Laden berücksichtigen
+fabric.IText.prototype.toObject = (function(toObject) {
+  return function(...args) {
+    return fabric.util.object.extend(toObject.call(this, ...args), {
+      isColorEditable: this.isColorEditable || false
+    });
+  };
+})(fabric.IText.prototype.toObject);
+
 const DEBUG_MODE = false; // ⬅️ auf true setzen, wenn du testen willst
 
 // 📱 Bottom Sheet Handling
