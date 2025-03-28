@@ -1434,6 +1434,14 @@ function replaceTextPlaceholders() {
     console.log("✅ Platzhalter aktualisiert (keine Neupositionierung).");
 }
 
+function updateStyleSummary(layout) {
+    const photoCountMatch = layout.name.match(/(\d+)\s*Fotos?/i);
+    const photoInfo = photoCountMatch ? `${photoCountMatch[1]} Fotos` : "–";
+    const styleText = `${layout.name.split(" - ")[0]} | ${photoInfo} | ${layout.format}`;
+
+    document.getElementById("styleLabel").textContent = styleText;
+}
+
 function changeLayout(layoutId, skipTextRender = false, callback = null) {
     document.getElementById("layoutNotice").textContent = "Aktives Layout:";
     document.getElementById("layoutSelector").classList.remove("intro-style");
@@ -1465,6 +1473,7 @@ function changeLayout(layoutId, skipTextRender = false, callback = null) {
     }
 
     const layout = layouts.find(l => l.id == layoutId);
+    updateStyleSummary(layout); // ✅ hier ergänzen
     if (!layout) return;
 
     canvas.clear();
@@ -1480,6 +1489,7 @@ function changeLayout(layoutId, skipTextRender = false, callback = null) {
             originY: "top"
         });
 
+    updateStyleSummary(layout); // ✅ hier ergänzen
     canvas.setBackgroundImage(img, () => {
     canvas.renderAll();
 
