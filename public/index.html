@@ -1205,13 +1205,19 @@ console.log("🧪 Check Layout Text Presets:", layouts.map(l => l.textGroups.map
 
 const canvas = new fabric.Canvas("canvas");
 
-// ✅ Custom Property korrekt ergänzen (ohne Endlosrekursion)
-const originalToObject = fabric.IText.prototype.toObject;
-fabric.IText.prototype.toObject = function (propertiesToInclude = []) {
-  const obj = originalToObject.call(this, propertiesToInclude);
-  obj.isColorEditable = this.isColorEditable ?? false;
-  return obj;
-};
+// ✅ Korrekte Erweiterung ohne endlose Rekursion
+if (!fabric.IText.prototype._originalToObject) {
+  fabric.IText.prototype._originalToObject = fabric.IText.prototype.toObject;
+
+  fabric.IText.prototype.toObject = function (propertiesToInclude = []) {
+    const base = this._originalToObject.call(this, propertiesToInclude);
+    return {
+      ...base,
+      isColorEditable: this.isColorEditable ?? false,
+      fontGroup: this.fontGroup || "primary" // optional
+    };
+  };
+}
 
 
 const DEBUG_MODE = false; // ⬅️ auf true setzen, wenn du testen willst
