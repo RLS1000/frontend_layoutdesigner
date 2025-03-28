@@ -1226,6 +1226,8 @@ let textModeActive = false; // Standard: Kein neues Textfeld erstellen
 let isProgrammaticLayoutChange = false; // Temporäre Sperre beim Initialaufbau des Layouts
 let isSwipeInProgress = false;
 let currentSnap = 0; // 👈 NEU: Initiale Snap-Stufe
+let isApplyingPreset = false;
+
 
  // 🔹 Globale API-Variablen
 const apiVariables = {
@@ -1478,9 +1480,15 @@ function applyColorToEditableTexts(color) {
 }
 
 function applyTextPreset(presetKey) {
-  sessionStorage.setItem("selectedTextPreset", presetKey); // 💾 speichern
+  if (isApplyingPreset) return;
+  isApplyingPreset = true;
+
+  sessionStorage.setItem("selectedTextPreset", presetKey);
   const preset = textPresets[presetKey];
-  if (!preset) return;
+  if (!preset) {
+    isApplyingPreset = false;
+    return;
+  }
 
   console.log(`🎨 Text-Preset angewendet: ${preset.name}`);
 
@@ -1488,27 +1496,30 @@ function applyTextPreset(presetKey) {
     if (obj.isType("i-text") && obj.isColorEditable === true) {
       const group = obj.fontGroup || "primary";
       const style = preset[group];
-
       if (!style) return;
 
-    const originalFontSize = obj.fontSize / canvasScaleY; // entskaliert
-    const presetBaseSize = style.fontSize;
+      const originalFontSize = obj.fontSize / canvasScaleY;
+      const presetBaseSize = style.fontSize;
+      const scaleFactor = presetBaseSize / originalFontSize;
 
-    const scaleFactor = presetBaseSize / originalFontSize;
-
-    obj.set({
-    fontFamily: style.fontFamily,
-    fontSize: obj.fontSize * scaleFactor,
-    fontStyle: style.fontStyle,
-    fontWeight: style.fontWeight
-    });
-
+      obj.set({
+        fontFamily: style.fontFamily,
+        fontSize: obj.fontSize * scaleFactor,
+        fontStyle: style.fontStyle,
+        fontWeight: style.fontWeight
+      });
     }
   });
 
   canvas.renderAll();
   saveTemporaryLayout();
-  updateCanvasText(); // 🧠 Neuzentrierung der Texte nach Stil-Update
+
+  isApplyingPreset = false; // 🟢 wieder freigeben
+
+  // ❗ Nur repositionieren, wenn nicht aus updateCanvasText() heraus
+  if (!isProgrammaticLayoutChange) {
+    updateCanvasText(); 
+  }
 }
 
 document.addEventListener('touchmove', function(e) {
@@ -1802,9 +1813,9 @@ function updateCanvasText() {
     }
     // 🟢 NEU: Textstil erneut anwenden, falls vorhanden!
     const storedPreset = sessionStorage.getItem("selectedTextPreset");
-    if (storedPreset) {
-        console.log("🎨 Re-appliere gespeichertes Textpreset:", storedPreset);
-        applyTextPreset(storedPreset);
+    if (storedPreset && !isApplyingPreset) {
+    console.log("🎨 Re-appliere gespeichertes Textpreset:", storedPreset);
+    applyTextPreset(storedPreset);
     }
 }
 
