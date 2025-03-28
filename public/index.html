@@ -1672,6 +1672,12 @@ function updateCanvasText() {
         console.log("💾 Änderungen durch updateCanvasText() speichern...");
         saveTemporaryLayout();
     }
+    // 🟢 NEU: Farbe erneut anwenden, falls vorhanden!
+        const storedColor = sessionStorage.getItem("selectedColor");
+    if (storedColor) {
+        console.log("🎨 Re-appliere gespeicherte Farbe:", storedColor);
+        applyColorToEditableTexts(storedColor);
+    }
 }
 
 function addTextGroups(layout) {
