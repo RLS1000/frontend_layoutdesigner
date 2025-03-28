@@ -405,10 +405,13 @@
 
                 .color-presets {
                     display: flex;
-                    flex-wrap: wrap;
+                    flex-wrap: nowrap;
                     gap: 6px;
                     margin: 4px 0;
-                    }
+                    justify-content: center;
+                    white-space: nowrap;
+                    overflow-x: auto;
+                }
 
                 .color-presets .color-swatch {
                     width: 24px;
@@ -1295,6 +1298,12 @@ document.addEventListener("DOMContentLoaded", () => {
     enableMobileSwipeWithAnimation();
     createColorPresets(); // 🎨
 
+    const storedColor = sessionStorage.getItem("selectedColor");
+    if (storedColor) {
+        applyColorToEditableTexts(storedColor);
+    }
+
+
     // ⬇️ NEU: Desktop-Toolbar bei Mobile ausblenden
     if (isMobileView()) {
         document.getElementById("toolPanel").style.display = "none";
@@ -1346,6 +1355,8 @@ function createColorPresets() {
 }
 
 function applyColorToEditableTexts(color) {
+  sessionStorage.setItem("selectedColor", color); // 💾 Farbe merken
+
   canvas.getObjects().forEach(obj => {
     if (obj.isType("i-text") && obj.isColorEditable === true) {
       obj.set("fill", color);
@@ -1647,7 +1658,7 @@ function addTextGroups(layout) {
                 editable: canvasScaleX === 1 && canvasScaleY === 1,
                 isColorEditable: t.isColorEditable === true
             });
-
+            textObj.isColorEditable = t.isColorEditable === true; // ✅ explizit setzen!
             canvas.add(textObj);
             if (DEBUG_MODE) drawDebugBox(textObj); // 🟥 Debug-Rahmen anzeigen
             textObjects.push(textObj);
