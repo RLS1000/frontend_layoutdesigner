@@ -427,14 +427,17 @@
                     transform: scale(0.95);
                     }
 
-                .preset-buttons {
+                    .preset-buttons {
                     display: flex;
-                    flex-wrap: nowrap;         /* ❗ Alle in eine Zeile */
-                    overflow-x: auto;          /* Falls nicht genug Platz */
+                    flex-wrap: nowrap;
+                    overflow-x: auto;
                     gap: 4px;
-                    justify-content: center;
+                    justify-content: flex-start; /* 🔄 lieber linksbündig statt zentriert beim Scrollen */
                     margin-top: 8px;
+                    width: 100%; /* ⬅️ Wichtig! */
+                    padding-bottom: 4px; /* Platz für Scrollbar */
                     }
+
 
                 .preset-buttons button {
                     padding: 4px 8px;
@@ -1202,20 +1205,13 @@ console.log("🧪 Check Layout Text Presets:", layouts.map(l => l.textGroups.map
 
 const canvas = new fabric.Canvas("canvas");
 
-// ⬇️ Nach canvas = new fabric.Canvas(...) einfügen:
-const origToObject = fabric.IText.prototype.toObject;
-fabric.IText.prototype.toObject = function (propertiesToInclude) {
-  return origToObject.call(this, [...(propertiesToInclude || []), 'isColorEditable']);
+// ✅ Custom Property korrekt ergänzen (ohne Endlosrekursion)
+const originalToObject = fabric.IText.prototype.toObject;
+fabric.IText.prototype.toObject = function (propertiesToInclude = []) {
+  const props = [...propertiesToInclude, 'isColorEditable'];
+  const baseObject = originalToObject.call(this, props);
+  return baseObject;
 };
-
-// 🔧 Erweiterung: Eigene Property beim Speichern/Laden berücksichtigen
-fabric.IText.prototype.toObject = (function(toObject) {
-  return function(...args) {
-    return fabric.util.object.extend(toObject.call(this, ...args), {
-      isColorEditable: this.isColorEditable || false
-    });
-  };
-})(fabric.IText.prototype.toObject);
 
 const DEBUG_MODE = false; // ⬅️ auf true setzen, wenn du testen willst
 
