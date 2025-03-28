@@ -427,6 +427,29 @@
                     transform: scale(0.95);
                     }
 
+                .preset-buttons {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 6px;
+                    margin-top: 12px;
+                    justify-content: center;
+                    }
+
+                .preset-buttons button {
+                    padding: 6px 12px;
+                    font-size: 14px;
+                    border: 1px solid #ccc;
+                    border-radius: 6px;
+                    background-color: #fff;
+                    cursor: pointer;
+                    transition: background-color 0.3s ease;
+                    }
+
+                .preset-buttons button:hover {
+                    background-color: #eee;
+                    }
+
+
                 @media (min-width: 768px) {
             #bottomSheet {
                    display: none !important;
@@ -466,6 +489,12 @@
                     <div class="color-presets">
                         <!-- Farben generieren wir später per JS -->
                     </div>
+                </div>
+                <div class="preset-buttons">
+                    <button onclick="applyTextPreset('elegant')" style="font-family: Raleway">Elegant</button>
+                    <button onclick="applyTextPreset('modern')" style="font-family: Arial">Modern</button>
+                    <button onclick="applyTextPreset('playful')" style="font-family: 'Comic Sans MS'">Verspielt</button>
+                    <button onclick="applyTextPreset('classic')" style="font-family: Georgia">Klassisch</button>
                 </div>
 
                 <div id="edit-names">
@@ -1353,6 +1382,70 @@ const colorPresets = [
   "#ef9f3c", "#1d3557", "#009688", "#f44336"
 ];
 
+const textPresets = {
+  elegant: {
+    name: "Elegant",
+    primary: {
+      fontFamily: "Raleway",
+      fontSize: 28,
+      fontStyle: "normal",
+      fontWeight: "normal"
+    },
+    secondary: {
+      fontFamily: "Baskerville",
+      fontSize: 24,
+      fontStyle: "italic",
+      fontWeight: "normal"
+    }
+  },
+  modern: {
+    name: "Modern",
+    primary: {
+      fontFamily: "Arial",
+      fontSize: 26,
+      fontStyle: "normal",
+      fontWeight: "bold"
+    },
+    secondary: {
+      fontFamily: "Verdana",
+      fontSize: 24,
+      fontStyle: "normal",
+      fontWeight: "normal"
+    }
+  },
+  playful: {
+    name: "Verspielt",
+    primary: {
+      fontFamily: "Comic Sans MS",
+      fontSize: 26,
+      fontStyle: "normal",
+      fontWeight: "bold"
+    },
+    secondary: {
+      fontFamily: "Comic Sans MS",
+      fontSize: 24,
+      fontStyle: "italic",
+      fontWeight: "normal"
+    }
+  },
+  classic: {
+    name: "Klassisch",
+    primary: {
+      fontFamily: "Georgia",
+      fontSize: 28,
+      fontStyle: "normal",
+      fontWeight: "normal"
+    },
+    secondary: {
+      fontFamily: "Baskerville",
+      fontSize: 24,
+      fontStyle: "italic",
+      fontWeight: "normal"
+    }
+  }
+};
+
+
 function createColorPresets() {
   const container = document.querySelector(".color-presets");
   container.innerHTML = ""; // alte Farben löschen
@@ -1382,6 +1475,33 @@ function applyColorToEditableTexts(color) {
     if (obj.isType("i-text") && obj.isColorEditable === true) {
       obj.set("fill", color);
       console.log(`✅ Farbe gesetzt für: "${obj.text}"`);
+    }
+  });
+
+  canvas.renderAll();
+  saveTemporaryLayout();
+}
+
+function applyTextPreset(presetKey) {
+  sessionStorage.setItem("selectedTextPreset", presetKey); // 💾 speichern
+  const preset = textPresets[presetKey];
+  if (!preset) return;
+
+  console.log(`🎨 Text-Preset angewendet: ${preset.name}`);
+
+  canvas.getObjects().forEach(obj => {
+    if (obj.isType("i-text") && obj.isColorEditable === true) {
+      const group = obj.fontGroup || "primary";
+      const style = preset[group];
+
+      if (!style) return;
+
+      obj.set({
+        fontFamily: style.fontFamily,
+        fontSize: style.fontSize * canvasScaleY,
+        fontStyle: style.fontStyle,
+        fontWeight: style.fontWeight
+      });
     }
   });
 
@@ -1677,6 +1797,12 @@ function updateCanvasText() {
     if (storedColor) {
         console.log("🎨 Re-appliere gespeicherte Farbe:", storedColor);
         applyColorToEditableTexts(storedColor);
+    }
+    // 🟢 NEU: Textstil erneut anwenden, falls vorhanden!
+    const storedPreset = sessionStorage.getItem("selectedTextPreset");
+    if (storedPreset) {
+        console.log("🎨 Re-appliere gespeichertes Textpreset:", storedPreset);
+        applyTextPreset(storedPreset);
     }
 }
 
