@@ -1644,7 +1644,8 @@ function addTextGroups(layout) {
                 originX: "left",
                 originY: originY,
                 selectable: canvasScaleX === 1 && canvasScaleY === 1,
-                editable: canvasScaleX === 1 && canvasScaleY === 1
+                editable: canvasScaleX === 1 && canvasScaleY === 1,
+                isColorEditable: t.isColorEditable === true
             });
 
             canvas.add(textObj);
