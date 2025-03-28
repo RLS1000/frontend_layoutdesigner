@@ -1174,6 +1174,13 @@ console.log("🧪 Check Layout Text Presets:", layouts.map(l => l.textGroups.map
 
 
 const canvas = new fabric.Canvas("canvas");
+
+// ⬇️ Nach canvas = new fabric.Canvas(...) einfügen:
+const origToObject = fabric.IText.prototype.toObject;
+fabric.IText.prototype.toObject = function (propertiesToInclude) {
+  return origToObject.call(this, [...(propertiesToInclude || []), 'isColorEditable']);
+};
+
 // 🔧 Erweiterung: Eigene Property beim Speichern/Laden berücksichtigen
 fabric.IText.prototype.toObject = (function(toObject) {
   return function(...args) {
