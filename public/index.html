@@ -1208,10 +1208,11 @@ const canvas = new fabric.Canvas("canvas");
 // ✅ Custom Property korrekt ergänzen (ohne Endlosrekursion)
 const originalToObject = fabric.IText.prototype.toObject;
 fabric.IText.prototype.toObject = function (propertiesToInclude = []) {
-  const props = [...propertiesToInclude, 'isColorEditable'];
-  const baseObject = originalToObject.call(this, props);
-  return baseObject;
+  const obj = originalToObject.call(this, propertiesToInclude);
+  obj.isColorEditable = this.isColorEditable ?? false;
+  return obj;
 };
+
 
 const DEBUG_MODE = false; // ⬅️ auf true setzen, wenn du testen willst
 
