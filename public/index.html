@@ -280,7 +280,7 @@
                     display: flex;
                     justify-content: center;
                     gap: 5px;
-                    background: transparent;
+                    background: #ffffff;
                     /* box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08); */
                     z-index: 1001;
                 }
@@ -1453,26 +1453,30 @@ function changeLayout(layoutId, skipTextRender = false, callback = null) {
 
     const savedLayout = sessionStorage.getItem(`custom_layout_${layoutId}`);
     if (savedLayout) {
-        const parsed = JSON.parse(savedLayout);
-        const layoutData = parsed.data || parsed;
-        const format = parsed.format || "15x10";
+    const parsed = JSON.parse(savedLayout);
+    const layoutData = parsed.data || parsed;
+    const format = parsed.format || "15x10";
 
-        setCanvasSizeByFormat(format);
-        canvas.clear();
+    setCanvasSizeByFormat(format);
+    canvas.clear();
 
-        canvas.loadFromJSON(layoutData, () => {
-            canvas.renderAll();
-            replaceTextPlaceholders();
-            isProgrammaticLayoutChange = false;
-            saveTemporaryLayout();
+    // 🆕 Hole das Layout aus der globalen Liste für die Style-Infos
+    const layout = layouts.find(l => l.id == layoutId);
+    updateStyleSummary(layout); // ✅ WICHTIG: hier aufrufen!
 
-            if (typeof callback === "function") {
-                callback(layoutData);
-            }
-        });
+    canvas.loadFromJSON(layoutData, () => {
+        canvas.renderAll();
+        replaceTextPlaceholders();
+        isProgrammaticLayoutChange = false;
+        saveTemporaryLayout();
 
-        return;
-    }
+        if (typeof callback === "function") {
+            callback(layoutData);
+        }
+    });
+
+    return;
+}
 
     const layout = layouts.find(l => l.id == layoutId);
     updateStyleSummary(layout); // ✅ hier ergänzen
@@ -1506,15 +1510,15 @@ function changeLayout(layoutId, skipTextRender = false, callback = null) {
 
     }, { crossOrigin: "anonymous" });
     
+}
+
+function updateStyleSummary(layout) {
+    if (!layout) return;
     const photoCountMatch = layout.name.match(/(\d+)\s*Fotos?/i);
     const photoInfo = photoCountMatch ? `${photoCountMatch[1]} Fotos` : "–";
     const styleLabel = `${layout.name.split(" - ")[0]} | ${photoInfo} | ${layout.format}`;
-
     document.getElementById("styleLabel").textContent = styleLabel;
-
-
 }
-
 
 function updateCanvasText() {
     console.log("🔄 Update Canvas Text gestartet...");
