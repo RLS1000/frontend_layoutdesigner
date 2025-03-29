@@ -1710,21 +1710,7 @@ function changeLayout(layoutId, skipTextRender = false, callback = null) {
 
     canvas.loadFromJSON(layoutData, () => {
     canvas.renderAll();
-
-    // 🧪 DEBUG: Nach dem Laden prüfen, ob isColorEditable korrekt gesetzt wurde
-    canvas.getObjects().forEach(obj => {
-  if (obj.isType("i-text")) {
-    console.log(`🧪 Text: "${obj.text}" | isColorEditable: ${obj.isColorEditable}`);
-    if (obj.isColorEditable === true) {
-      obj.set("fill", color);
-      console.log(`✅ Farbe gesetzt für: "${obj.text}"`);
-    } else {
-      console.log(`🚫 Nicht färbbar: "${obj.text}"`);
-    }
-  }
-});
-
-
+    restoreSessionPresets(); // 🆕 Stelle Session-Farben & Presets wieder her
     replaceTextPlaceholders();
     isProgrammaticLayoutChange = false;
     saveTemporaryLayout();
@@ -1811,18 +1797,7 @@ function updateCanvasText() {
         console.log("💾 Änderungen durch updateCanvasText() speichern...");
         saveTemporaryLayout();
     }
-    // 🟢 NEU: Farbe erneut anwenden, falls vorhanden!
-        const storedColor = sessionStorage.getItem("selectedColor");
-    if (storedColor) {
-        console.log("🎨 Re-appliere gespeicherte Farbe:", storedColor);
-        applyColorToEditableTexts(storedColor);
-    }
-    // 🟢 NEU: Textstil erneut anwenden, falls vorhanden!
-    const storedPreset = sessionStorage.getItem("selectedTextPreset");
-    if (storedPreset && !isApplyingPreset) {
-    console.log("🎨 Re-appliere gespeichertes Textpreset:", storedPreset);
-    applyTextPreset(storedPreset);
-    }
+    restoreSessionPresets();
 }
 
 function addTextGroups(layout) {
@@ -2605,6 +2580,20 @@ function applyMobileVars() {
     changeSnap(0);
 }
 
+function restoreSessionPresets() {
+    const color = sessionStorage.getItem("selectedColor");
+    const preset = sessionStorage.getItem("selectedTextPreset");
+
+    if (color) {
+        applyColorToEditableTexts(color);
+        console.log("🎨 Session-Farbe wiederhergestellt:", color);
+    }
+
+    if (preset && !isApplyingPreset && textPresets[preset]) {
+        applyTextPreset(preset);
+        console.log("🔤 Text-Preset wiederhergestellt:", preset);
+    }
+}
 
 
 </script>
