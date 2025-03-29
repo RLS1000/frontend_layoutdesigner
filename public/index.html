@@ -482,8 +482,8 @@
                 <div id="bottom-info">
                     <div id="style-summary-row">
                       <span id="styleLabel">Wähle ein Layout aus</span>
-                      <span id="zoomIcon" style="cursor: pointer;" title="Zoom anzeigen">🔍</span>                    </div>
-                  </div>
+                      <span id="zoomIcon" title="Vergrößern" style="cursor: pointer; font-size: 20px;">🔍</span>
+                    </div>
                 
                 <div id="edit-presets">
                     <div class="color-presets">
@@ -580,7 +580,7 @@
 
     <script>
         const layouts = [
-    { id: 1, name: "Style 1 - 15x10 - 2 Fotos", format: "15x10", background: "https://app.layoutdesigner.einfach-knips.de/public_html/assets/style1.png", textGroups: [
+    { id: 1, name: "Style 1 - 15x10 - 2 Fotos", format: "15x10", focusX: 300, focusY: 150, background: "https://app.layoutdesigner.einfach-knips.de/public_html/assets/style1.png", textGroups: [
             { groupId: "names", 
                 groupX: 300,  // Mittelpunkt der Gruppe auf X-Achse
                 groupY: 84,   // Vertikale Position der Gruppe
@@ -2594,34 +2594,28 @@ function restoreSessionPresets() {
     }
 }
 
-const zoomBtn = document.getElementById("zoomIcon");
-let isZoomedIn = false;
+document.getElementById("zoomIcon").addEventListener("click", () => {
+  const layoutId = document.getElementById("layoutSelector").value;
+  const layout = layouts.find(l => l.id == layoutId);
+  if (!layout) {
+    alert("Bitte wähle zuerst ein Layout aus.");
+    return;
+  }
 
-zoomBtn.addEventListener("mousedown", zoomIn);
-zoomBtn.addEventListener("touchstart", zoomIn);
+  const focusX = (layout.focusX ?? logicalWidth / 2) * canvasScaleX;
+  const focusY = (layout.focusY ?? logicalHeight / 2) * canvasScaleY;
 
-zoomBtn.addEventListener("mouseup", zoomOut);
-zoomBtn.addEventListener("mouseleave", zoomOut); // falls der Finger rauswandert
-zoomBtn.addEventListener("touchend", zoomOut);
-zoomBtn.addEventListener("touchcancel", zoomOut);
+  const zoomLevel = 1.6;
+  const point = new fabric.Point(focusX, focusY);
 
-function zoomIn() {
-  if (isZoomedIn) return;
-  isZoomedIn = true;
-
-  canvas.setZoom(1.5); // z. B. 150%
+  canvas.zoomToPoint(point, zoomLevel);
   canvas.renderAll();
-  console.log("🔍 Zoom aktiviert");
-}
 
-function zoomOut() {
-  if (!isZoomedIn) return;
-  isZoomedIn = false;
+  console.log(`🔍 Gezoomt auf: (${focusX.toFixed(1)}, ${focusY.toFixed(1)})`);
+});
 
-  canvas.setZoom(1); // Zurück auf 100%
-  canvas.renderAll();
-  console.log("🔍 Zoom deaktiviert");
-}
+
+
 
 
 </script>
