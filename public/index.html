@@ -482,8 +482,7 @@
                 <div id="bottom-info">
                     <div id="style-summary-row">
                       <span id="styleLabel">Wähle ein Layout aus</span>
-                      <span id="editIcon" onclick="openEditSheet()" style="cursor: pointer;" title="Bearbeiten">[ bearbeiten ]</span>
-                    </div>
+                      <span id="zoomIcon" style="cursor: pointer;" title="Zoom anzeigen">🔍</span>                    </div>
                   </div>
                 
                 <div id="edit-presets">
@@ -2593,6 +2592,35 @@ function restoreSessionPresets() {
         applyTextPreset(preset);
         console.log("🔤 Text-Preset wiederhergestellt:", preset);
     }
+}
+
+const zoomBtn = document.getElementById("zoomIcon");
+let isZoomedIn = false;
+
+zoomBtn.addEventListener("mousedown", zoomIn);
+zoomBtn.addEventListener("touchstart", zoomIn);
+
+zoomBtn.addEventListener("mouseup", zoomOut);
+zoomBtn.addEventListener("mouseleave", zoomOut); // falls der Finger rauswandert
+zoomBtn.addEventListener("touchend", zoomOut);
+zoomBtn.addEventListener("touchcancel", zoomOut);
+
+function zoomIn() {
+  if (isZoomedIn) return;
+  isZoomedIn = true;
+
+  canvas.setZoom(1.5); // z. B. 150%
+  canvas.renderAll();
+  console.log("🔍 Zoom aktiviert");
+}
+
+function zoomOut() {
+  if (!isZoomedIn) return;
+  isZoomedIn = false;
+
+  canvas.setZoom(1); // Zurück auf 100%
+  canvas.renderAll();
+  console.log("🔍 Zoom deaktiviert");
 }
 
 
