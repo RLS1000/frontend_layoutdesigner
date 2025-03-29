@@ -482,7 +482,7 @@
                 <div id="bottom-info">
                     <div id="style-summary-row">
                       <span id="styleLabel">Wähle ein Layout aus</span>
-                      <span id="zoomIcon" title="Vergrößern" style="cursor: pointer; font-size: 20px;">🔍</span>
+                      <button id="zoomToggle" onclick="toggleZoom()" title="Zoom / Zurücksetzen">🔍 Zoom</button>
                     </div>
                 
                 <div id="edit-presets">
@@ -580,7 +580,7 @@
 
     <script>
         const layouts = [
-    { id: 1, name: "Style 1 - 15x10 - 2 Fotos", format: "15x10", focusX: 300, focusY: 150, background: "https://app.layoutdesigner.einfach-knips.de/public_html/assets/style1.png", textGroups: [
+    { id: 1, name: "Style 1 - 15x10 - 2 Fotos", format: "15x10", focus: { x: 300, y: 50 }, background: "https://app.layoutdesigner.einfach-knips.de/public_html/assets/style1.png", textGroups: [
             { groupId: "names", 
                 groupX: 300,  // Mittelpunkt der Gruppe auf X-Achse
                 groupY: 84,   // Vertikale Position der Gruppe
@@ -616,7 +616,7 @@
         ]
     },
 
-    { id: 2, name: "Style 2 - 15x10 - 2 Fotos", format: "15x10", background: "https://app.layoutdesigner.einfach-knips.de/public_html/assets/style2.png", textGroups: [
+    { id: 2, name: "Style 2 - 15x10 - 2 Fotos", format: "15x10", focus: { x: 300, y: 100 }, background: "https://app.layoutdesigner.einfach-knips.de/public_html/assets/style2.png", textGroups: [
             { groupId: "names", 
                 groupX: 300,  // Mittelpunkt der Gruppe auf X-Achse
                 groupY: 282,   // Vertikale Position der Gruppe
@@ -1232,6 +1232,8 @@ let isProgrammaticLayoutChange = false; // Temporäre Sperre beim Initialaufbau 
 let isSwipeInProgress = false;
 let currentSnap = 0; // 👈 NEU: Initiale Snap-Stufe
 let isApplyingPreset = false;
+let isZoomedIn = false;
+
 
 
  // 🔹 Globale API-Variablen
@@ -2594,29 +2596,33 @@ function restoreSessionPresets() {
     }
 }
 
-document.getElementById("zoomIcon").addEventListener("click", () => {
-  const layoutId = document.getElementById("layoutSelector").value;
-  const layout = layouts.find(l => l.id == layoutId);
-  if (!layout) {
-    alert("Bitte wähle zuerst ein Layout aus.");
-    return;
-  }
+function toggleZoom() {
+    if (isZoomedIn) {
+        // 🔁 Zurücksetzen auf 100%
+        canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+        isZoomedIn = false;
+        console.log("🔎 Zoom zurückgesetzt");
+    } else {
+        const layoutId = document.getElementById("layoutSelector").value;
+        const layout = layouts.find(l => l.id == layoutId);
+        if (!layout) return;
 
-  const focusX = (layout.focusX ?? logicalWidth / 2) * canvasScaleX;
-  const focusY = (layout.focusY ?? logicalHeight / 2) * canvasScaleY;
+        // 📌 Fokuspunkt ermitteln (Fallback auf Mitte)
+        const focus = layout.focus || { x: logicalWidth / 2, y: logicalHeight / 2 };
 
-  const zoomLevel = 1.6;
-  const point = new fabric.Point(focusX, focusY);
+        const zoomFactor = 2; // 🔍 Zoom-Stärke
+        canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, zoomFactor);
 
-  canvas.zoomToPoint(point, zoomLevel);
-  canvas.renderAll();
+        const offsetX = (canvas.width / 2 - focus.x * canvasScaleX * zoomFactor);
+        const offsetY = (canvas.height / 2 - focus.y * canvasScaleY * zoomFactor);
+        canvas.setViewportTransform([zoomFactor, 0, 0, zoomFactor, offsetX, offsetY]);
 
-  console.log(`🔍 Gezoomt auf: (${focusX.toFixed(1)}, ${focusY.toFixed(1)})`);
-});
+        isZoomedIn = true;
+        console.log("🔎 Zoom aktiviert auf:", focus);
+    }
 
-
-
-
+    canvas.renderAll();
+}
 
 </script>
 </body>
