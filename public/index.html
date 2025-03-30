@@ -434,24 +434,17 @@
 
                     .preset-buttons {
                     display: flex;
-                    flex-wrap: nowrap;
-                    overflow-x: auto;
-                    gap: 4px;
-                    justify-content: flex-start; /* 🔄 lieber linksbündig statt zentriert beim Scrollen */
-                    margin-top: 8px;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                    justify-content: center;
+                    margin-top: 8%;
                     width: 100%; /* ⬅️ Wichtig! */
-                    padding-bottom: 4px; /* Platz für Scrollbar */
                     }
 
 
                 .preset-buttons button {
-                    padding: 4px 8px;
-                    font-size: 12px;           /* 👈 kleiner! */
-                    border: 1px solid #ccc;
-                    border-radius: 4px;
-                    background-color: #fff;
-                    white-space: nowrap;
-                    flex-shrink: 0;            /* ❗ nicht schrumpfen */
+                    flex: 1 1 auto;
+                    min-width: 100px;
                     }
 
                 #canvas-container.zoomed {
