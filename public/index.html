@@ -449,6 +449,13 @@
                     flex-shrink: 0;            /* ❗ nicht schrumpfen */
                     }
 
+                #canvas-container.zoomed {
+                    transform-origin: center center;
+                    transition: transform 0.2s ease-out;
+                    touch-action: none;
+                    z-index: 10;
+                    }
+
                 @media (min-width: 768px) {
             #bottomSheet {
                    display: none !important;
@@ -2591,55 +2598,69 @@ function restoreSessionPresets() {
     }
 }
 
-(function enablePinchZoom() {
+(function enableContainerPinchZoom() {
   const container = document.getElementById("canvas-container");
-  let pinchStartDistance = null;
-  let pinchZoomOrigin = { x: 0, y: 0 };
   let isPinching = false;
+  let initialDistance = 0;
+  let currentScale = 1;
+  let lastTranslate = { x: 0, y: 0 };
+  let startMid = { x: 0, y: 0 };
 
   container.addEventListener("touchstart", function (e) {
     if (e.touches.length === 2) {
       isPinching = true;
-      pinchStartDistance = getPinchDistance(e);
-      pinchZoomOrigin = getMidPoint(e);
+      initialDistance = getDistance(e.touches[0], e.touches[1]);
+      startMid = getMidpoint(e.touches[0], e.touches[1]);
+      container.classList.add("zoomed");
     }
   }, { passive: false });
 
   container.addEventListener("touchmove", function (e) {
-    if (isPinching && e.touches.length === 2) {
-      e.preventDefault(); // ⛔ kein Scrollen
+    if (!isPinching || e.touches.length !== 2) return;
 
-      const newDistance = getPinchDistance(e);
-      const scale = newDistance / pinchStartDistance;
-      const zoom = Math.min(Math.max(scale, 1), 4); // Zoom von 1x bis 4x
+    e.preventDefault();
+    const newDistance = getDistance(e.touches[0], e.touches[1]);
+    const scale = Math.min(Math.max(newDistance / initialDistance, 1), 4);
+    currentScale = scale;
 
-      canvas.zoomToPoint(pinchZoomOrigin, zoom);
-    }
+    const newMid = getMidpoint(e.touches[0], e.touches[1]);
+
+    const dx = newMid.x - startMid.x;
+    const dy = newMid.y - startMid.y;
+
+    lastTranslate = { x: dx, y: dy };
+
+    container.style.transform = `scale(${scale}) translate(${dx / scale}px, ${dy / scale}px)`;
   }, { passive: false });
 
-  container.addEventListener("touchend", function () {
-    if (isPinching) {
+  container.addEventListener("touchend", function (e) {
+    if (e.touches.length === 0 && isPinching) {
       isPinching = false;
-      setTimeout(() => {
-        canvas.setViewportTransform([1, 0, 0, 1, 0, 0]); // 🔄 Reset Zoom
-        canvas.renderAll();
-      }, 300); // etwas Delay
+
+      // 🔄 Zurücksetzen
+      container.style.transform = "scale(1)";
+      container.classList.remove("zoomed");
+
+      // Zur Sicherheit:
+      currentScale = 1;
+      lastTranslate = { x: 0, y: 0 };
     }
   });
 
-  function getPinchDistance(e) {
-    const dx = e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].clientY - e.touches[1].clientY;
+  function getDistance(t1, t2) {
+    const dx = t2.clientX - t1.clientX;
+    const dy = t2.clientY - t1.clientY;
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  function getMidPoint(e) {
-    const rect = container.getBoundingClientRect();
-    const x = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
-    const y = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
-    return { x, y };
+  function getMidpoint(t1, t2) {
+    return {
+      x: (t1.clientX + t2.clientX) / 2,
+      y: (t1.clientY + t2.clientY) / 2
+    };
   }
 })();
+
 
 </script>
 </body>
