@@ -430,16 +430,6 @@
                     }
 
 
-                    .preset-buttons button {
-                        flex: 0 0 auto !important;
-                        width: 70px !important;
-                        max-width: 70px !important;
-                        box-sizing: border-box;
-                        border: 1px solid red;
-                        padding: 4px;
-                        background-color: white;
-                    }
-
                 #bottomSheet.snap-1 .preset-buttons {
                     display: flex;
                 }
@@ -454,6 +444,19 @@
                     touch-action: none;
                     z-index: 10;
                     }
+
+                /* ⬅️ Korrigiert vererbte Breite und Flex-Eigenschaften */
+                .preset-buttons button {
+                    width: auto;
+                    flex: 0 0 auto;
+                    max-width: none;
+                    white-space: nowrap;
+                    font-size: 14px;
+                    padding: 6px 10px;
+                    border: 1px solid #888;
+                    border-radius: 4px;
+                    background-color: #fff;
+                }
 
                 @media (min-width: 768px) {
             #bottomSheet {
