@@ -1564,7 +1564,11 @@ function applyTextPreset(presetKey) {
   console.log(`🎨 Text-Preset angewendet: ${preset.name}`);
 
   canvas.getObjects().forEach(obj => {
-    if (obj.isType("i-text") && obj.isColorEditable === true) {
+    if (
+      obj.isType("i-text") &&
+      obj.isColorEditable === true &&
+      (!obj._presetApplied || obj._presetKey !== presetKey)
+    ) {
       const group = obj.fontGroup || "primary";
       const style = preset[group];
       if (!style) return;
@@ -1579,19 +1583,20 @@ function applyTextPreset(presetKey) {
         fontStyle: style.fontStyle,
         fontWeight: style.fontWeight
       });
+
+      obj._presetApplied = true;
+      obj._presetKey = presetKey;
     }
   });
 
   canvas.renderAll();
   saveTemporaryLayout();
+  isApplyingPreset = false;
 
-  isApplyingPreset = false; // 🟢 wieder freigeben
-
-  // ❗ Nur repositionieren, wenn nicht aus updateCanvasText() heraus
-  if (!isProgrammaticLayoutChange) {
-    updateCanvasText(); 
-  }
+  // 🔄 KEINE Neupositionierung!
+  replaceTextPlaceholders(); // nur Text aktualisieren
 }
+
 
 document.addEventListener('touchmove', function(e) {
   const isHandle = e.target.closest("#bottomSheetHandle");
@@ -1753,6 +1758,12 @@ function updateStyleSummary(layout) {
     document.getElementById("styleLabel").textContent = styleText;
 }
 
+// 🧹 Reset aller _presetApplied-Flags, um frische Anwendung zu ermöglichen
+canvas.getObjects().forEach(obj => {
+    obj._presetApplied = false;
+    obj._presetKey = null;
+});
+
 function changeLayout(layoutId, skipTextRender = false, callback = null) {
     // ⬅️ Zoom visuell zurücksetzen, falls aktiv
     canvasContainer.style.transition = "none";
@@ -1856,6 +1867,12 @@ function updateCanvasText() {
         if (obj.isType("i-text")) {
             canvas.remove(obj);
         }
+    });
+
+    // 🔁 Reset Flags, damit applyTextPreset erneut wirken kann
+    canvas.getObjects().forEach(obj => {
+        obj._presetApplied = false;
+        obj._presetKey = null;
     });
 
     // 2️⃣ Gruppierte Texte neu hinzufügen und korrekt zentrieren
