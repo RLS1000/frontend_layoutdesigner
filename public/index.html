@@ -449,21 +449,6 @@
                     flex-shrink: 0;            /* ❗ nicht schrumpfen */
                     }
 
-                    #zoomToggle {
-                    position: absolute;
-                    top: 10px;
-                    right: 10px;
-                    border: 1px solid #ccc;
-                    background: white;
-                    border-radius: 6px;
-                    padding: 4px 8px;
-                    font-size: 18px;
-                    cursor: pointer;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-                    z-index: 1001;
-                }
-
-
                 @media (min-width: 768px) {
             #bottomSheet {
                    display: none !important;
@@ -495,8 +480,7 @@
                 <div id="bottom-info">
                     <div id="style-summary-row">
                       <span id="styleLabel">Wähle ein Layout aus</span>
-                      <button id="zoomToggle" onclick="toggleZoom()" title="Zoom" aria-label="Zoom Ansicht umschalten">🔍</button>
-                                          </div>
+                    </div>
                 
                 <div id="edit-presets">
                     <div class="color-presets">
@@ -593,7 +577,7 @@
 
     <script>
         const layouts = [
-    { id: 1, name: "Style 1 - 15x10 - 2 Fotos", format: "15x10", focus: { x: 300, y: 80 }, zoom: 1.5, background: "https://app.layoutdesigner.einfach-knips.de/public_html/assets/style1.png", textGroups: [
+    { id: 1, name: "Style 1 - 15x10 - 2 Fotos", format: "15x10", background: "https://app.layoutdesigner.einfach-knips.de/public_html/assets/style1.png", textGroups: [
             { groupId: "names", 
                 groupX: 300,  // Mittelpunkt der Gruppe auf X-Achse
                 groupY: 84,   // Vertikale Position der Gruppe
@@ -629,7 +613,7 @@
         ]
     },
 
-    { id: 2, name: "Style 2 - 15x10 - 2 Fotos", format: "15x10", focus: { x: 300, y: 250 }, zoom: 1.2, background: "https://app.layoutdesigner.einfach-knips.de/public_html/assets/style2.png", textGroups: [
+    { id: 2, name: "Style 2 - 15x10 - 2 Fotos", format: "15x10", background: "https://app.layoutdesigner.einfach-knips.de/public_html/assets/style2.png", textGroups: [
             { groupId: "names", 
                 groupX: 300,  // Mittelpunkt der Gruppe auf X-Achse
                 groupY: 282,   // Vertikale Position der Gruppe
@@ -656,7 +640,7 @@
         ]
     },
 
-    { id: 3, name: "Style 3 - 15x10 - 2 Fotos", format: "15x10", focus: { x: 150, y: 150 }, zoom: 2.5, background: "https://app.layoutdesigner.einfach-knips.de/public_html/assets/style3.png", textGroups: [
+    { id: 3, name: "Style 3 - 15x10 - 2 Fotos", format: "15x10", background: "https://app.layoutdesigner.einfach-knips.de/public_html/assets/style3.png", textGroups: [
             { groupId: "names1", 
                 groupX: 155,  // Mittelpunkt der Gruppe auf X-Achse
                 groupY: 127,   // Vertikale Position der Gruppe
@@ -708,7 +692,7 @@
         ]
     },
     
-    { id: 4, name: "Style 4 - 15x10 - 3 Fotos", format: "15x10", focus: { x: 150, y: 80 }, zoom: 2.5, background: "https://app.layoutdesigner.einfach-knips.de/public_html/assets/style4.png", textGroups: [
+    { id: 4, name: "Style 4 - 15x10 - 3 Fotos", format: "15x10", background: "https://app.layoutdesigner.einfach-knips.de/public_html/assets/style4.png", textGroups: [
     { groupId: "names", 
                 groupX: 166,  // Mittelpunkt der Gruppe auf X-Achse
                 groupY: 72,   // Vertikale Position der Gruppe
@@ -744,7 +728,7 @@
         ]
     },
 
-    { id: 5, name: "Style 5 - 10x15 - 6 Fotos", format: "10x15", focus: { x: 450, y: 0 }, zoom: 1.3, background: "https://app.layoutdesigner.einfach-knips.de/public_html/assets/style5.png", textGroups: [
+    { id: 5, name: "Style 5 - 10x15 - 6 Fotos", format: "10x15", background: "https://app.layoutdesigner.einfach-knips.de/public_html/assets/style5.png", textGroups: [
     { groupId: "names", 
                 groupX: 200,  // Mittelpunkt der Gruppe auf X-Achse
                 groupY: 463,   // Vertikale Position der Gruppe
@@ -1245,9 +1229,6 @@ let isProgrammaticLayoutChange = false; // Temporäre Sperre beim Initialaufbau 
 let isSwipeInProgress = false;
 let currentSnap = 0; // 👈 NEU: Initiale Snap-Stufe
 let isApplyingPreset = false;
-let isZoomedIn = false;
-
-
 
  // 🔹 Globale API-Variablen
 const apiVariables = {
@@ -1732,12 +1713,7 @@ function changeLayout(layoutId, skipTextRender = false, callback = null) {
     if (typeof callback === "function") {
         callback(layoutData);
     }
-
-    canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
-    isZoomedIn = false;
-
 });
-
 
     return;
 }
@@ -1764,6 +1740,7 @@ function changeLayout(layoutId, skipTextRender = false, callback = null) {
     canvas.renderAll();
 
     updateCanvasText(); // 🧠 Immer ausführen, damit auch Swipe die Texte rendert
+    canvas.setViewportTransform([1, 0, 0, 1, 0, 0]); // 🔁 Reset Zoom
 
     if (typeof callback === "function") {
         callback(layout);
@@ -2425,12 +2402,9 @@ function loadNextLayout(direction) {
     document.getElementById("layoutNotice").textContent = "Aktives Layout:";
     changeLayout(nextOption.value, false, () => {
         updateCanvasText();
+        canvas.setViewportTransform([1, 0, 0, 1, 0, 0]); // 🔁 Reset Zoom
         isProgrammaticLayoutChange = false;
     });
-
-    canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
-    isZoomedIn = false;
-
 }
 
 
@@ -2617,43 +2591,55 @@ function restoreSessionPresets() {
     }
 }
 
-function toggleZoom() {
-    const layoutId = document.getElementById("layoutSelector").value;
-    const layout = layouts.find(l => l.id == layoutId);
-    if (!layout) return;
+(function enablePinchZoom() {
+  const container = document.getElementById("canvas-container");
+  let pinchStartDistance = null;
+  let pinchZoomOrigin = { x: 0, y: 0 };
+  let isPinching = false;
 
-    if (isZoomedIn) {
-        canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
-        isZoomedIn = false;
-        console.log("🔁 Zoom zurückgesetzt");
-    } else {
-        const zoom = layout.zoom || 2;
-        const focus = layout.focus || {
-            x: logicalWidth / 2,
-            y: logicalHeight / 2
-        };
-
-        const zoomX = canvas.width / 2;
-        const zoomY = canvas.height / 2;
-
-        canvas.zoomToPoint({ x: zoomX, y: zoomY }, zoom);
-
-        const offsetX = zoomX - focus.x * canvasScaleX * zoom;
-        const offsetY = zoomY - focus.y * canvasScaleY * zoom;
-
-        canvas.setViewportTransform([zoom, 0, 0, zoom, offsetX, offsetY]);
-
-        isZoomedIn = true;
-        console.log("🔎 Zoom aktiviert:", { zoom, focus });
+  container.addEventListener("touchstart", function (e) {
+    if (e.touches.length === 2) {
+      isPinching = true;
+      pinchStartDistance = getPinchDistance(e);
+      pinchZoomOrigin = getMidPoint(e);
     }
+  }, { passive: false });
 
-    canvas.renderAll();
-}
+  container.addEventListener("touchmove", function (e) {
+    if (isPinching && e.touches.length === 2) {
+      e.preventDefault(); // ⛔ kein Scrollen
 
+      const newDistance = getPinchDistance(e);
+      const scale = newDistance / pinchStartDistance;
+      const zoom = Math.min(Math.max(scale, 1), 4); // Zoom von 1x bis 4x
 
+      canvas.zoomToPoint(pinchZoomOrigin, zoom);
+    }
+  }, { passive: false });
 
+  container.addEventListener("touchend", function () {
+    if (isPinching) {
+      isPinching = false;
+      setTimeout(() => {
+        canvas.setViewportTransform([1, 0, 0, 1, 0, 0]); // 🔄 Reset Zoom
+        canvas.renderAll();
+      }, 300); // etwas Delay
+    }
+  });
 
+  function getPinchDistance(e) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
 
+  function getMidPoint(e) {
+    const rect = container.getBoundingClientRect();
+    const x = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+    const y = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+    return { x, y };
+  }
+})();
 
 </script>
 </body>
