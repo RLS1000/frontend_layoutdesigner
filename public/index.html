@@ -336,11 +336,6 @@
                 display: block;
                 }
 
-                #bottomSheet.snap-1 .preset-buttons {
-                    display: flex;
-                }
-
-
                 /* Snap 2: Presets + Namen, Edit-Button ausblenden */
                 #bottomSheet.snap-2 #edit-presets {
                 display: block;
@@ -350,11 +345,6 @@
                 }
                 #bottomSheet.snap-2 #editBtn {
                 display: none;
-                }
-
-                /* Snap 0: nur Buttons + Style */
-                #bottomSheet.snap-0 #editBtn {
-                display: block;
                 }
 
                 /* Optional: Verhindere Scrollen im Hintergrund */
@@ -459,6 +449,14 @@
                     cursor: pointer;
                     transition: background 0.2s ease, border-color 0.2s ease;
                     }
+
+                #bottomSheet.snap-1 .preset-buttons {
+                    display: flex;
+                }
+
+                #bottomSheet.snap-2 .preset-buttons {
+                    display: flex;
+                }
 
                 #canvas-container.zoomed {
                     transform-origin: center center;
