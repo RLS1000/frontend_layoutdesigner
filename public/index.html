@@ -485,117 +485,112 @@
 <body>
     <header style="padding: 10px; text-align: center; background-color: #222; color: white;">
         <h2>LAYOUT-DESIGNER</h2>
-      </header>
+    </header>
 
-      <div id="main">
-        <!-- Canvas Section -->
-        <div id="canvasSection">
-            <div id="canvasSwipeWrapper">
-                <div id="canvas-container">
-                    <canvas id="canvas" width="800" height="400"></canvas>
+        <div id="main">
+        
+            <!-- Canvas Section -->
+            <div id="canvasSection">
+                <div id="canvasSwipeWrapper">
+                    <div id="canvas-container">
+                        <canvas id="canvas" width="800" height="400"></canvas>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div id="bottomSheet">
-            <div id="bottomSheetHandle"></div>
 
-            <div id="bottom-content">
-                <div id="bottom-info">
-                    <div id="style-summary-row">
-                      <span id="styleLabel">Wähle ein Layout aus</span>
-                    </div>
-                
-                    <div id="edit-presets">
-                        <div class="color-presets">
-                            <!-- Farben generieren wir später per JS -->
+            <div id="bottomSheet">
+                <div id="bottomSheetHandle"></div>
+                <div id="bottom-content">
+                    <div id="bottom-info">
+                        <div id="style-summary-row">
+                            <span id="styleLabel">Wähle ein Layout aus</span>
+                        </div>
+                        <div id="edit-presets">
+                            <div class="color-presets">
+                                <!-- Farben generieren wir später per JS -->
+                            </div>
+                        </div>
+                        <div class="preset-buttons">
+                        <!-- <button onclick="applyTextPreset('elegant')" style="font-family: Raleway">Elegant</button>  -->
+                        <!-- <button onclick="applyTextPreset('modern')" style="font-family: Arial">Modern</button>  -->
+                        <!-- <button onclick="applyTextPreset('playful')" style="font-family: 'Comic Sans MS'">Verspielt</button>  -->
+                        <!-- <button onclick="applyTextPreset('classic')" style="font-family: Georgia">Klassisch</button>  -->
+                        </div>
+                        <div id="edit-names">
+                            <label><span>Name 1:</span><input type="text" id="mobileName1"></label>
+                            <label><span>Name 2:</span><input type="text" id="mobileName2"></label>
+                            <label><span>Datum:</span><input type="text" id="mobileDate"></label>
+                            <button onclick="applyMobileVars()">Übernehmen</button>
                         </div>
                     </div>
-                    <div class="preset-buttons">
-                    <!-- <button onclick="applyTextPreset('elegant')" style="font-family: Raleway">Elegant</button>  -->
-                    <!-- <button onclick="applyTextPreset('modern')" style="font-family: Arial">Modern</button>  -->
-                    <!-- <button onclick="applyTextPreset('playful')" style="font-family: 'Comic Sans MS'">Verspielt</button>  -->
-                    <!-- <button onclick="applyTextPreset('classic')" style="font-family: Georgia">Klassisch</button>  -->
-                    </div>
-
-                    <div id="edit-names">
-                    <label><span>Name 1:</span><input type="text" id="mobileName1"></label>
-                    <label><span>Name 2:</span><input type="text" id="mobileName2"></label>
-                    <label><span>Datum:</span><input type="text" id="mobileDate"></label>
-                    <button onclick="applyMobileVars()">Übernehmen</button>
-                    </div>
+                </div>
             </div>
-          </div>
-        <!-- ✅ Action Buttons ganz unten! -->
-        <div id="fixed-action-bar">
-            <button onclick="saveLayoutToAPI(false)">Speichern</button>
-            <button onclick="saveLayoutToAPI(true)">Freigeben</button>
-        </div>
-
-        <!-- Tool Panel -->
-        <div id="toolPanel">
-          <div>
-            <span id="layoutNotice"><strong>Willkommen! Wähle ein Layout, um zu starten:</strong></span><br><br>
-            <select id="layoutSelector" onchange="changeLayout(this.value)"></select>
-          </div>
+            <!-- ✅ Action Buttons ganz unten! -->
+            <div id="fixed-action-bar">
+                <button onclick="saveLayoutToAPI(false)">Speichern</button>
+                <button onclick="saveLayoutToAPI(true)">Freigeben</button>
+            </div>
+            <!-- Tool Panel -->
+            <div id="toolPanel">
+                <div>
+                    <span id="layoutNotice"><strong>Willkommen! Wähle ein Layout, um zu starten:</strong></span><br><br>
+                    <select id="layoutSelector" onchange="changeLayout(this.value)"></select>
+                </div>
+                <div id="apiVariableEditor">
+                    <h3>Variablen bearbeiten</h3>
+                        <label>Name 1: <input type="text" id="varName1" value="SOPHIE"></label><br>
+                        <label>Name 2: <input type="text" id="varName2" value="MAX"></label><br>
+                        <label>Datum: <input type="text" id="varWeddingDate" value="12. März 2025"></label><br>
+                        <button onclick="updateVariables()">Variablen speichern</button>
+                </div>
     
-          <div id="apiVariableEditor">
-            <h3>Variablen bearbeiten</h3>
-            <label>Name 1: <input type="text" id="varName1" value="SOPHIE"></label><br>
-            <label>Name 2: <input type="text" id="varName2" value="MAX"></label><br>
-            <label>Datum: <input type="text" id="varWeddingDate" value="12. März 2025"></label><br>
-            <button onclick="updateVariables()">Variablen speichern</button>
-          </div>
-    
-          <div id="toolbar">
-            <div class="tool-section">
-              <label for="fontFamily">Schriftart:</label>
-              <select id="fontFamily" onchange="updateText('fontFamily', this.value)">
-                <option value="Raleway">Raleway</option>
-                <option value="Baskerville">Baskerville</option>
-                <option value="Arial">Arial</option>
-                <option value="Verdana">Verdana</option>
-                <option value="Courier New">Courier</option>
-                <option value="Georgia">Georgia</option>
-              </select>
-            </div>
+                <div id="toolbar">
+                    <div class="tool-section">
+                        <label for="fontFamily">Schriftart:</label>
+                        <select id="fontFamily" onchange="updateText('fontFamily', this.value)">
+                            <option value="Raleway">Raleway</option>
+                            <option value="Baskerville">Baskerville</option>
+                            <option value="Arial">Arial</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Courier New">Courier</option>
+                            <option value="Georgia">Georgia</option>
+                        </select>
+                    </div>
+                    <div class="tool-section">
+                        <label for="fontSize">Größe:</label>
+                        <input type="number" id="fontSize" value="30" min="10" max="100" onchange="updateText('fontSize', this.value)">
+                    </div>
+                    <div class="tool-section">
+                        <label for="textColor">Farbe:</label>
+                        <input type="color" id="textColor" onchange="updateText('fill', this.value)">
+                    </div>
           
-            <div class="tool-section">
-              <label for="fontSize">Größe:</label>
-              <input type="number" id="fontSize" value="30" min="10" max="100" onchange="updateText('fontSize', this.value)">
-            </div>
+                    <div class="tool-section">
+                        <label>Stil:</label>
+                        <button onclick="toggleBold()">B</button>
+                        <button onclick="toggleItalic()">I</button>
+                    </div>
+                    <div class="tool-section">
+                        <label>Ausrichtung:</label>
+                        <button onclick="setAlign('left')">⬅</button>
+                        <button onclick="setAlign('center')">🔳</button>
+                        <button onclick="setAlign('right')">➡</button>
+                    </div>
           
-            <div class="tool-section">
-              <label for="textColor">Farbe:</label>
-              <input type="color" id="textColor" onchange="updateText('fill', this.value)">
-            </div>
+                    <div class="tool-section">
+                        <button id="textModeBtn">➕ Textfeld</button>
+                        <button onclick="deleteText()">🗑 Löschen</button>
+                    </div>
           
-            <div class="tool-section">
-              <label>Stil:</label>
-              <button onclick="toggleBold()">B</button>
-              <button onclick="toggleItalic()">I</button>
-            </div>
+                    <div class="tool-section save-actions">
+                        <button onclick="saveLayoutToAPI(false)">💾 Speichern</button>
+                        <button onclick="saveLayoutToAPI(true)">🚀 Freigeben</button>
+                        <button id="exportBtn">📤 PNG Export</button>
+                    </div>
+                </div>
           
-            <div class="tool-section">
-              <label>Ausrichtung:</label>
-              <button onclick="setAlign('left')">⬅</button>
-              <button onclick="setAlign('center')">🔳</button>
-              <button onclick="setAlign('right')">➡</button>
             </div>
-          
-            <div class="tool-section">
-              <button id="textModeBtn">➕ Textfeld</button>
-              <button onclick="deleteText()">🗑 Löschen</button>
-            </div>
-          
-            <div class="tool-section save-actions">
-              <button onclick="saveLayoutToAPI(false)">💾 Speichern</button>
-              <button onclick="saveLayoutToAPI(true)">🚀 Freigeben</button>
-              <button id="exportBtn">📤 PNG Export</button>
-            </div>
-          </div>
-          
         </div>
-      </div>
 
     <script>
         const layouts = [
