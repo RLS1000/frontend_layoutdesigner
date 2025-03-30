@@ -298,34 +298,26 @@
                     color: #333;
                     }
                 
-                /* Default: alles versteckt */
-                #edit-names,
-                #edit-presets {
+                /* Snap 0: nur Buttons + Style */
+                #bottomSheet.snap-0 #edit-presets,  
+                #bottomSheet.snap-0 .preset-buttons,
+                #bottomSheet.snap-0 #edit-names {
                 display: none;
                 }
 
-                /* Snap 0: nur Buttons + Style */
-                #bottomSheet.snap-0 #edit-presets,
-                #bottomSheet.snap-0 #edit-names {
-                display: flex;
-                }
-
-                #bottomSheet.snap-0 .preset-buttons {
-                display: flex;
-                }                
-
                 /* Snap 1: nur Presets */
-                #bottomSheet.snap-1 #edit-presets {
-                display: flex;
+                #bottomSheet.snap-1 #edit-presets,
+                #bottomSheet.snap-1 .preset-buttons {
+                display: block;
                 }
+
                 #bottomSheet.snap-1 #edit-names {
-                display: flex;
+                display: none;
                 }
                 
                 /* Snap 2: Presets + Namen, Edit-Button ausblenden */
-                #bottomSheet.snap-2 #edit-presets {
-                display: block;
-                }
+                #bottomSheet.snap-2 #edit-presets,
+                #bottomSheet.snap-1 .preset-buttons,
                 #bottomSheet.snap-2 #edit-names {
                 display: block;
                 }
@@ -372,7 +364,7 @@
                 font-size: 15px;
                 margin-top: 12px;
                 padding: 4px 0;
-                background-color: rgba(0, 0, 0, 0.01); /* optional: super dezenter Kontrast */
+                justify-content: center;
                 }
 
                 #edit-names button {
@@ -417,15 +409,6 @@
                         margin-top: 4px;
                         padding-bottom: 4px;
                     }
-
-
-                #bottomSheet.snap-1 .preset-buttons {
-                    display: flex;
-                }
-
-                #bottomSheet.snap-2 .preset-buttons {
-                    display: flex;
-                }
 
                 #canvas-container.zoomed {
                     transform-origin: center center;
