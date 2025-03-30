@@ -195,7 +195,7 @@
                     left: 0;
                     right: 0;
                     height: 75vh;
-                    background-color: #444444;
+                    background-color: #ffffff;
                     border-top: 2px solid #ccc;
                     box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
                     overflow: hidden;
@@ -270,22 +270,18 @@
                     margin-bottom: 12px;
                     }
                
-                 #fixed-action-bar {
-                    height: 50px;
+                #fixed-action-bar {
                     position: fixed;
                     bottom: 0;
                     left: 0;
                     right: 0;
-                    z-index: 1200;
-                    width: 100%;
-                    padding: 4px 0px;
+                    padding: 4px 8px;
+                    z-index: 2000; /* muss über bottomSheet liegen */
+                    height: 44px;
+                    background: #ffffff;
                     display: flex;
                     justify-content: space-evenly;
-                    gap: 5px;
-                    background: #cccccc;
-                    border-top: 1px solid #ccc;
-                    box-shadow: 0 -1px 4px rgba(0,0,0,0.05);
-                   
+                    font-size: 14px;
                 }
 
                 #fixed-action-bar button {
@@ -294,6 +290,8 @@
                     padding: 6px;
                     color: #000000;
                     font-size: 13px;
+                    padding: 6px 10px;
+                    line-height: 1;
                     border: none;
                     border-radius: 4px;
                     font-weight: bold;
