@@ -461,6 +461,17 @@
                    display: none !important;
                   }
                 }
+                /* 🚫 Verhindert ungewollte Auswahl-Markierungen beim Zoomen & Wischen */
+                #canvas-container,
+                #canvasSwipeWrapper {
+                  -webkit-user-select: none;         /* iOS / Safari */
+                  -moz-user-select: none;            /* Firefox */
+                  -ms-user-select: none;             /* IE10+ */
+                  user-select: none;                 /* Moderne Browser */
+                
+                  -webkit-touch-callout: none;       /* Verhindert iOS-Kontextmenü */
+                  -webkit-tap-highlight-color: transparent; /* Entfernt lila Highlight */
+                }
 
 
         </style>
