@@ -430,18 +430,14 @@
                     }
 
 
-                .preset-buttons button {
-                    background: transparent;
-                    border: 1px solid red;
-                    color: #333;
-                    width:70px;
-                    font-size: 13px;
-                    padding: 4px 8px;
-                    border-radius: 4px;
-                    font-family: inherit;
-                    flex: 0 1 auto;
-                    cursor: pointer;
-                    transition: background 0.2s ease, border-color 0.2s ease;
+                    .preset-buttons button {
+                        flex: 0 0 auto !important;
+                        width: 70px !important;
+                        max-width: 70px !important;
+                        box-sizing: border-box;
+                        border: 1px solid red;
+                        padding: 4px;
+                        background-color: white;
                     }
 
                 #bottomSheet.snap-1 .preset-buttons {
