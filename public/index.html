@@ -316,17 +316,13 @@
                 }
 
                 /* Snap 0: nur Buttons + Style */
-                #bottomSheet.snap-0 #editBtn {
-                    display: block;
-                }
-
                 #bottomSheet.snap-0 #edit-presets,
                 #bottomSheet.snap-0 #edit-names {
-                    display: none;
+                display: flex;
                 }
 
                 #bottomSheet.snap-0 .preset-buttons {
-                display: none;
+                display: flex;
                 }                
 
                 /* Snap 1: nur Presets */
@@ -334,29 +330,22 @@
                 display: flex;
                 }
                 #bottomSheet.snap-1 #edit-names {
-                display: none;
+                display: flex;
                 }
-                #bottomSheet.snap-1 #editBtn {
-                display: block;
-                }
-
-                 /* Snap 2: Presets + Namen, Edit-Button ausblenden */
+                
+                /* Snap 2: Presets + Namen, Edit-Button ausblenden */
                 #bottomSheet.snap-2 #edit-presets {
                 display: block;
                 }
                 #bottomSheet.snap-2 #edit-names {
                 display: block;
                 }
-                #bottomSheet.snap-2 #editBtn {
-                display: none;
-                }
-
+                
                 /* Optional: Verhindere Scrollen im Hintergrund */
                 body.sheet-open {
                     overflow: hidden;
                 }
-                }
-
+                
                 #edit-names {
                     display: flex;
                     flex-direction: column;
@@ -519,10 +508,10 @@
                             </div>
                         </div>
                         <div class="preset-buttons">
-                        <button onclick="applyTextPreset('elegant')" style="font-family: Raleway">Elegant</button>
-                        <button onclick="applyTextPreset('modern')" style="font-family: Arial">Modern</button>
-                        <button onclick="applyTextPreset('playful')" style="font-family: 'Comic Sans MS'">Verspielt</button>
-                        <button onclick="applyTextPreset('classic')" style="font-family: Georgia">Klassisch</button>
+                            <button onclick="applyTextPreset('elegant')" style="font-family: Raleway">Elegant</button>
+                            <button onclick="applyTextPreset('modern')" style="font-family: Arial">Modern</button>
+                            <button onclick="applyTextPreset('playful')" style="font-family: 'Comic Sans MS'">Verspielt</button>
+                            <button onclick="applyTextPreset('classic')" style="font-family: Georgia">Klassisch</button>
                         </div>
                         <div id="edit-names">
                             <label><span>Name 1:</span><input type="text" id="mobileName1"></label>
