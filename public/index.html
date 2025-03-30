@@ -1188,7 +1188,7 @@ console.log("🧪 Check Layout Text Presets:", layouts.map(l => l.textGroups.map
 
 const canvas = new fabric.Canvas("canvas");
 
-/if (!fabric.IText.prototype._toObjectEnhanced) {
+if (!fabric.IText.prototype._toObjectEnhanced) {
   const originalToObject = fabric.IText.prototype.toObject;
 
   fabric.IText.prototype.toObject = function (propertiesToInclude = []) {
