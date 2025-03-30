@@ -1573,15 +1573,11 @@ function applyTextPreset(presetKey) {
       const style = preset[group];
       if (!style) return;
 
-      const originalFontSize = obj.fontSize / canvasScaleY;
-      const presetBaseSize = style.fontSize;
-      const scaleFactor = presetBaseSize / originalFontSize;
-
       obj.set({
         fontFamily: style.fontFamily,
-        fontSize: obj.fontSize * scaleFactor,
         fontStyle: style.fontStyle,
         fontWeight: style.fontWeight
+        // ❌ KEINE Änderung von fontSize!
       });
 
       obj._presetApplied = true;
@@ -1593,9 +1589,10 @@ function applyTextPreset(presetKey) {
   saveTemporaryLayout();
   isApplyingPreset = false;
 
-  // 🔄 KEINE Neupositionierung!
-  replaceTextPlaceholders(); // nur Text aktualisieren
+  // ❗ Re-Render erzwingen, um Layout zu fixieren
+  updateCanvasText(); // Position + Größenkorrektur
 }
+
 
 
 document.addEventListener('touchmove', function(e) {
