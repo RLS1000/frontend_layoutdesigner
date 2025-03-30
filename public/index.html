@@ -1573,18 +1573,15 @@ function applyTextPreset(presetKey) {
       const style = preset[group];
       if (!style) return;
 
-      // Wir ändern NICHT mehr die fontSize direkt!
-      const currentFontSize = obj.fontSize / canvasScaleY; // logische Größe
-      const desiredFontSize = style.fontSize;
-
-      const scaleFactor = desiredFontSize / currentFontSize;
+      const originalFontSize = obj.fontSize / canvasScaleY;
+      const presetBaseSize = style.fontSize;
+      const scaleFactor = presetBaseSize / originalFontSize;
 
       obj.set({
         fontFamily: style.fontFamily,
+        fontSize: obj.fontSize * scaleFactor,
         fontStyle: style.fontStyle,
-        fontWeight: style.fontWeight,
-        scaleY: canvasScaleY * scaleFactor, // Neue Skalierung
-        scaleX: canvasScaleX * scaleFactor, // falls symmetrisch
+        fontWeight: style.fontWeight
       });
 
       obj._presetApplied = true;
@@ -1594,14 +1591,12 @@ function applyTextPreset(presetKey) {
 
   canvas.renderAll();
   saveTemporaryLayout();
-
   isApplyingPreset = false;
 
-  // 🔄 Neupositionieren – Layout sauber zentrieren
-  if (!isProgrammaticLayoutChange) {
-    updateCanvasText(); // Textgruppen neu anlegen und zentrieren
-  }
+  // 🔄 KEINE Neupositionierung!
+  replaceTextPlaceholders(); // nur Text aktualisieren
 }
+
 
 document.addEventListener('touchmove', function(e) {
   const isHandle = e.target.closest("#bottomSheetHandle");
