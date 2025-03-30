@@ -327,7 +327,7 @@
 
                 /* Snap 1: nur Presets */
                 #bottomSheet.snap-1 #edit-presets {
-                display: block;
+                display: flex;
                 }
                 #bottomSheet.snap-1 #edit-names {
                 display: none;
@@ -335,6 +335,11 @@
                 #bottomSheet.snap-1 #editBtn {
                 display: block;
                 }
+
+                #bottomSheet.snap-1 .preset-buttons {
+                    display: flex;
+                }
+
 
                 /* Snap 2: Presets + Namen, Edit-Button ausblenden */
                 #bottomSheet.snap-2 #edit-presets {
