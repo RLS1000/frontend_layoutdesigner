@@ -433,18 +433,26 @@
                     }
 
                     .preset-buttons {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 8px;
-                    justify-content: center;
-                    margin-top: 8%;
-                    width: 100%; /* ⬅️ Wichtig! */
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 6px;
+                        justify-content: center;
+                        margin-top: 8px;
+                        padding-bottom: 8px;
                     }
 
 
                 .preset-buttons button {
-                    flex: 1 1 auto;
-                    min-width: 100px;
+                    background: transparent;
+                    border: 1px solid #888;
+                    color: #333;
+                    font-size: 13px;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-family: inherit;
+                    flex: 0 1 auto;
+                    cursor: pointer;
+                    transition: background 0.2s ease, border-color 0.2s ease;
                     }
 
                 #canvas-container.zoomed {
