@@ -191,7 +191,7 @@
                     
                 #bottomSheet {
                     position: fixed;
-                    bottom: 0;
+                    bottom: 50px;
                     left: 0;
                     right: 0;
                     height: 75vh;
@@ -271,17 +271,21 @@
                     }
                
                  #fixed-action-bar {
+                    height: 50px;
                     position: fixed;
-                    bottom: 5px;
+                    bottom: 0;
                     left: 0;
+                    right: 0;
+                    z-index: 1001;
                     width: 100%;
                     padding: 4px 0px;
                     display: flex;
-                    justify-content: center;
+                    justify-content: space-evenly;
                     gap: 5px;
                     background: #ffffff;
-                    /* box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08); */
-                    z-index: 1001;
+                    border-top: 1px solid #ccc;
+                    box-shadow: 0 -1px 4px rgba(0,0,0,0.05);
+                   
                 }
 
                 #fixed-action-bar button {
@@ -293,6 +297,7 @@
                     border: none;
                     border-radius: 4px;
                     font-weight: bold;
+                    margin: 0 4px;
                 }
                 
                 #style-summary-row {
@@ -500,25 +505,24 @@
                       <span id="styleLabel">Wähle ein Layout aus</span>
                     </div>
                 
-                <div id="edit-presets">
-                    <div class="color-presets">
-                        <!-- Farben generieren wir später per JS -->
+                    <div id="edit-presets">
+                        <div class="color-presets">
+                            <!-- Farben generieren wir später per JS -->
+                        </div>
                     </div>
-                </div>
-                <div class="preset-buttons">
-                   <!-- <button onclick="applyTextPreset('elegant')" style="font-family: Raleway">Elegant</button>  -->
-                   <!-- <button onclick="applyTextPreset('modern')" style="font-family: Arial">Modern</button>  -->
-                   <!-- <button onclick="applyTextPreset('playful')" style="font-family: 'Comic Sans MS'">Verspielt</button>  -->
-                   <!-- <button onclick="applyTextPreset('classic')" style="font-family: Georgia">Klassisch</button>  -->
-                </div>
+                    <div class="preset-buttons">
+                    <!-- <button onclick="applyTextPreset('elegant')" style="font-family: Raleway">Elegant</button>  -->
+                    <!-- <button onclick="applyTextPreset('modern')" style="font-family: Arial">Modern</button>  -->
+                    <!-- <button onclick="applyTextPreset('playful')" style="font-family: 'Comic Sans MS'">Verspielt</button>  -->
+                    <!-- <button onclick="applyTextPreset('classic')" style="font-family: Georgia">Klassisch</button>  -->
+                    </div>
 
-                <div id="edit-names">
-                  <label><span>Name 1:</span><input type="text" id="mobileName1"></label>
-                  <label><span>Name 2:</span><input type="text" id="mobileName2"></label>
-                  <label><span>Datum:</span><input type="text" id="mobileDate"></label>
-                  <button onclick="applyMobileVars()">Übernehmen</button>
-                </div>
-
+                    <div id="edit-names">
+                    <label><span>Name 1:</span><input type="text" id="mobileName1"></label>
+                    <label><span>Name 2:</span><input type="text" id="mobileName2"></label>
+                    <label><span>Datum:</span><input type="text" id="mobileDate"></label>
+                    <button onclick="applyMobileVars()">Übernehmen</button>
+                    </div>
             </div>
           </div>
         <!-- ✅ Action Buttons ganz unten! -->
