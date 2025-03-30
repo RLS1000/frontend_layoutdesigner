@@ -1393,6 +1393,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     // ✅ NEU: Aktualisiere Dropdown-Stile beim Start
         updateDropdownStyles();
+    
+    document.getElementById("canvas-container").addEventListener("selectstart", e => e.preventDefault());
+    document.getElementById("canvasSwipeWrapper").addEventListener("selectstart", e => e.preventDefault());
+  
 });
 
 const canvasWrapper = document.getElementById("canvasSwipeWrapper");
