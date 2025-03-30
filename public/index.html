@@ -1237,6 +1237,8 @@ let isSwipeInProgress = false;
 let currentSnap = 0; // 👈 NEU: Initiale Snap-Stufe
 let isApplyingPreset = false;
 
+
+
  // 🔹 Globale API-Variablen
 const apiVariables = {
     name1: "ERIKA",
@@ -1381,6 +1383,83 @@ document.addEventListener("DOMContentLoaded", () => {
     // ✅ NEU: Aktualisiere Dropdown-Stile beim Start
         updateDropdownStyles();
 });
+
+const canvasWrapper = document.getElementById("canvasSwipeWrapper");
+const canvasContainer = document.getElementById("canvas-container");
+
+let isZoomed = false;
+let initialDistance = 0;
+let initialScale = 1;
+let currentScale = 1;
+let translateX = 0;
+let translateY = 0;
+let lastTouchMid = { x: 0, y: 0 };
+
+// 📏 Abstand zwischen zwei Fingern
+function getDistance(touches) {
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+// 📍 Mittelpunkt zwischen zwei Fingern
+function getMidpoint(touches) {
+  return {
+    x: (touches[0].clientX + touches[1].clientX) / 2,
+    y: (touches[0].clientY + touches[1].clientY) / 2
+  };
+}
+
+// 👉 TOUCH START
+canvasContainer.addEventListener("touchstart", (e) => {
+  if (e.touches.length === 2) {
+    initialDistance = getDistance(e.touches);
+    lastTouchMid = getMidpoint(e.touches);
+    initialScale = currentScale;
+    isZoomed = true;
+    canvasContainer.style.transition = "none";
+  }
+}, { passive: false });
+
+// 👉 TOUCH MOVE
+canvasContainer.addEventListener("touchmove", (e) => {
+  if (e.touches.length === 2 && isZoomed) {
+    e.preventDefault();
+
+    const newDistance = getDistance(e.touches);
+    const scaleFactor = newDistance / initialDistance;
+
+    currentScale = Math.min(Math.max(initialScale * scaleFactor, 1), 3); // Limit zwischen 1x und 3x Zoom
+
+    // ✋ Verschiebung berechnen
+    const mid = getMidpoint(e.touches);
+    const deltaX = mid.x - lastTouchMid.x;
+    const deltaY = mid.y - lastTouchMid.y;
+
+    translateX += deltaX;
+    translateY += deltaY;
+
+    lastTouchMid = mid;
+
+    canvasContainer.style.transform = `scale(${currentScale}) translate(${translateX / currentScale}px, ${translateY / currentScale}px)`;
+  }
+}, { passive: false });
+
+// 👉 TOUCH END
+canvasContainer.addEventListener("touchend", (e) => {
+  if (e.touches.length === 0 && isZoomed) {
+    // 🔄 Zurücksetzen nach kurzem Delay
+    setTimeout(() => {
+      canvasContainer.style.transition = "transform 0.3s ease";
+      canvasContainer.style.transform = "none";
+      currentScale = 1;
+      translateX = 0;
+      translateY = 0;
+      isZoomed = false;
+    }, 150);
+  }
+});
+
 
 const colorPresets = [
   "#000000", "#d54291", "#4bb1a6", "#cc4e4e", "#006ba6",
@@ -1691,6 +1770,14 @@ function updateStyleSummary(layout) {
 }
 
 function changeLayout(layoutId, skipTextRender = false, callback = null) {
+    // ⬅️ Zoom visuell zurücksetzen, falls aktiv
+    canvasContainer.style.transition = "none";
+    canvasContainer.style.transform = "none";
+    currentScale = 1;
+    translateX = 0;
+    translateY = 0;
+    isZoomed = false;
+    
     document.getElementById("layoutNotice").textContent = "Aktives Layout:";
     document.getElementById("layoutSelector").classList.remove("intro-style");
 
@@ -2333,14 +2420,20 @@ function enableMobileSwipeWithAnimation() {
     });
 
     wrapper.addEventListener("touchend", (e) => {
-        const endX = e.changedTouches[0].clientX;
-        const deltaX = endX - startX;
+  if (isZoomed) {
+    console.log("📵 Swipe deaktiviert wegen aktivem Zoom");
+    return;
+  }
 
-        if (Math.abs(deltaX) > 50) {
-            const direction = deltaX < 0 ? "next" : "prev";
-            animateCanvasSlide(direction);
-        }
-    });
+  // ⬇️ Dein Swipe-Code
+  const endX = e.changedTouches[0].clientX;
+  const deltaX = endX - startX;
+
+  if (Math.abs(deltaX) > 50) {
+    const direction = deltaX < 0 ? "next" : "prev";
+    animateCanvasSlide(direction);
+  }
+});
 }
 
 function animateCanvasSlide(direction) {
