@@ -1210,6 +1210,9 @@ const bottomSheet = document.getElementById("bottomSheet");
 const sheetHandle = document.getElementById("bottomSheetHandle");
 
 canvas.selection = true; // Mehrfachauswahl durch Auswahlbox aktivieren
+
+const canvasScaleY = 0.5;
+canvas.setZoom(canvasScaleY);
         
 let textModeActive = false; // Standard: Kein neues Textfeld erstellen
 let isProgrammaticLayoutChange = false; // Temporäre Sperre beim Initialaufbau des Layouts
@@ -1573,28 +1576,49 @@ function applyTextPreset(presetKey) {
       const style = preset[group];
       if (!style) return;
 
-      const originalFontSize = obj.fontSize / canvasScaleY;
-      const presetBaseSize = style.fontSize;
-      const scaleFactor = presetBaseSize / originalFontSize;
+      // 🔁 Reset Skalierung auf neutral, falls Objekt verändert wurde
+      obj.set({
+        scaleX: 1,
+        scaleY: 1
+      });
+
+      // 📏 Fontgröße direkt anpassen auf Basis des canvasScaleY
+      const targetFontSize = style.fontSize * canvasScaleY;
 
       obj.set({
         fontFamily: style.fontFamily,
-        fontSize: obj.fontSize * scaleFactor,
+        fontSize: targetFontSize,
         fontStyle: style.fontStyle,
         fontWeight: style.fontWeight
       });
 
       obj._presetApplied = true;
       obj._presetKey = presetKey;
+
+      // 🧭 Optional: Text neu zentrieren
+      centerTextObject(obj);
     }
   });
 
   canvas.renderAll();
   saveTemporaryLayout();
+
   isApplyingPreset = false;
 
-  // 🔄 KEINE Neupositionierung!
-  replaceTextPlaceholders(); // nur Text aktualisieren
+  // 🔁 Textinhalte ggf. anpassen (Platzhalter etc.)
+  replaceTextPlaceholders();
+}
+
+function centerTextObject(obj) {
+  const centerX = canvas.getWidth() / 2;
+  const centerY = canvas.getHeight() / 2;
+
+  obj.set({
+    left: centerX - (obj.width * obj.scaleX) / 2,
+    top: obj.top // Y behalten, oder anpassen, wenn nötig
+  });
+
+  obj.setCoords(); // sehr wichtig für interaktive Objekte
 }
 
 
