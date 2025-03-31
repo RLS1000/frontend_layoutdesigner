@@ -2716,11 +2716,14 @@ function restoreSessionPresets() {
 
 (function enableContainerPinchZoom() {
   const container = document.getElementById("canvas-container");
+
   let isPinching = false;
+  let isPanning = false;
   let initialDistance = 0;
   let currentScale = 1;
   let lastTranslate = { x: 0, y: 0 };
   let startMid = { x: 0, y: 0 };
+  let panStart = { x: 0, y: 0 };
 
   container.addEventListener("touchstart", function (e) {
     if (e.touches.length === 2) {
@@ -2728,40 +2731,50 @@ function restoreSessionPresets() {
       initialDistance = getDistance(e.touches[0], e.touches[1]);
       startMid = getMidpoint(e.touches[0], e.touches[1]);
       container.classList.add("zoomed");
+    } else if (e.touches.length === 1 && currentScale > 1) {
+      isPanning = true;
+      panStart.x = e.touches[0].clientX - lastTranslate.x;
+      panStart.y = e.touches[0].clientY - lastTranslate.y;
     }
   }, { passive: false });
 
   container.addEventListener("touchmove", function (e) {
-    if (!isPinching || e.touches.length !== 2) return;
+    if (isPinching && e.touches.length === 2) {
+      e.preventDefault();
+      const newDistance = getDistance(e.touches[0], e.touches[1]);
+      const scale = Math.min(Math.max(newDistance / initialDistance, 1), 4);
+      currentScale = scale;
 
-    e.preventDefault();
-    const newDistance = getDistance(e.touches[0], e.touches[1]);
-    const scale = Math.min(Math.max(newDistance / initialDistance, 1), 4);
-    currentScale = scale;
+      const newMid = getMidpoint(e.touches[0], e.touches[1]);
+      const dx = newMid.x - startMid.x;
+      const dy = newMid.y - startMid.y;
 
-    const newMid = getMidpoint(e.touches[0], e.touches[1]);
-
-    const dx = newMid.x - startMid.x;
-    const dy = newMid.y - startMid.y;
-
-    lastTranslate = { x: dx, y: dy };
-
-    container.style.transform = `scale(${scale}) translate(${dx / scale}px, ${dy / scale}px)`;
+      lastTranslate = { x: dx, y: dy };
+      applyTransform(scale, dx, dy);
+    } else if (isPanning && e.touches.length === 1) {
+      e.preventDefault();
+      const dx = e.touches[0].clientX - panStart.x;
+      const dy = e.touches[0].clientY - panStart.y;
+      lastTranslate = { x: dx, y: dy };
+      applyTransform(currentScale, dx, dy);
+    }
   }, { passive: false });
 
   container.addEventListener("touchend", function (e) {
-    if (e.touches.length === 0 && isPinching) {
+    if (e.touches.length === 0) {
       isPinching = false;
-
-      // 🔄 Zurücksetzen
-      container.style.transform = "scale(1)";
-      container.classList.remove("zoomed");
-
-      // Zur Sicherheit:
-      currentScale = 1;
-      lastTranslate = { x: 0, y: 0 };
+      isPanning = false;
+    } else if (e.touches.length === 1 && currentScale > 1) {
+      isPinching = false;
+      isPanning = true;
+      panStart.x = e.touches[0].clientX - lastTranslate.x;
+      panStart.y = e.touches[0].clientY - lastTranslate.y;
     }
   });
+
+  function applyTransform(scale, dx, dy) {
+    container.style.transform = `scale(${scale}) translate(${dx / scale}px, ${dy / scale}px)`;
+  }
 
   function getDistance(t1, t2) {
     const dx = t2.clientX - t1.clientX;
@@ -2776,7 +2789,6 @@ function restoreSessionPresets() {
     };
   }
 })();
-
 
 </script>
 </body>
