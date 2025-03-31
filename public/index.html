@@ -1593,9 +1593,12 @@ function applyPresetToLayoutDefinition(presetKey) {
 
   layout.textGroups.forEach(group => {
     group.texts.forEach(textObj => {
-      const groupKey = textObj.fontGroup || "primary";
+      const groupKey = textObj.fontGroup;
+
+      // 🛑 Nur anwenden, wenn Gruppe vorhanden und im Preset definiert
+      if (!groupKey || !preset[groupKey]) return;
+
       const style = preset[groupKey];
-      if (!style) return;
 
       textObj.fontFamily = style.fontFamily;
       textObj.size = style.fontSize;
@@ -1604,7 +1607,6 @@ function applyPresetToLayoutDefinition(presetKey) {
     });
   });
 }
-
 
 document.addEventListener('touchmove', function(e) {
   const isHandle = e.target.closest("#bottomSheetHandle");
