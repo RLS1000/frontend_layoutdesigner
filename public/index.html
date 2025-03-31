@@ -1593,17 +1593,24 @@ function applyPresetToLayoutDefinition(presetKey) {
 
   layout.textGroups.forEach(group => {
     group.texts.forEach(textObj => {
+      // 🎯 Gültige Gruppe prüfen (primary / secondary)
       const groupKey = textObj.fontGroup;
+      const isEligible = groupKey === "primary" || groupKey === "secondary";
 
-      // 🛑 Nur anwenden, wenn Gruppe vorhanden und im Preset definiert
-      if (!groupKey || !preset[groupKey]) return;
+      if (!isEligible || !preset[groupKey]) {
+        console.log(`⏭️ Überspringe Text: "${textObj.text}" (kein gültiger fontGroup)`);
+        return;
+      }
 
       const style = preset[groupKey];
 
+      // 🔁 Schriftstil aus dem Preset übernehmen
       textObj.fontFamily = style.fontFamily;
       textObj.size = style.fontSize;
       textObj.fontStyle = style.fontStyle;
       textObj.fontWeight = style.fontWeight;
+
+      console.log(`✅ Anwenden auf "${textObj.text}" mit Gruppe "${groupKey}"`);
     });
   });
 }
