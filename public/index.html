@@ -2637,15 +2637,21 @@ bottomSheet.addEventListener("touchmove", (e) => {
 bottomSheet.addEventListener("touchend", () => {
   isDraggingSheet = false;
 
-  if (currentY < 20) {
-    changeSnap(2);
-  } else if (currentY < 60) {
-    changeSnap(1);
-  } else {
-    changeSnap(0);
-  }
-});
+  const snapEntries = Object.entries(snapMap); // z.B. [[0, 85], [1, 65], [2, 30]]
+  let closestSnap = 0;
+  let smallestDiff = Infinity;
 
+  snapEntries.forEach(([level, value]) => {
+    const diff = Math.abs(currentY - value);
+    if (diff < smallestDiff) {
+      smallestDiff = diff;
+      closestSnap = parseInt(level);
+    }
+  });
+
+  console.log(`📦 Auto-Snap auf Stufe: ${closestSnap} (Abstand: ${smallestDiff.toFixed(1)}%)`);
+  changeSnap(closestSnap);
+});
 
 function openBottomSheet() {
   bottomSheet.classList.add("expanded");
