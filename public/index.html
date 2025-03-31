@@ -1555,6 +1555,7 @@ function applyTextPreset(presetKey) {
   isApplyingPreset = true;
 
   sessionStorage.setItem("selectedTextPreset", presetKey);
+
   const preset = textPresets[presetKey];
   if (!preset) {
     isApplyingPreset = false;
@@ -1563,47 +1564,11 @@ function applyTextPreset(presetKey) {
 
   console.log(`🎨 Text-Preset angewendet: ${preset.name}`);
 
-  canvas.getObjects().forEach(obj => {
-    if (
-      obj.isType("i-text") &&
-      obj.isColorEditable === true &&
-      (!obj._presetApplied || obj._presetKey !== presetKey)
-    ) {
-      const group = obj.fontGroup || "primary";
-      const style = preset[group];
-      if (!style) return;
+  applyPresetToLayoutDefinition(presetKey); // 🧠 Apply auf Layout-Definition
+  updateCanvasText(); // 📏 Baut alle Texte korrekt neu auf
 
-      // 🔁 Reset Skalierung auf neutral, falls Objekt verändert wurde
-      obj.set({
-        scaleX: 1,
-        scaleY: 1
-      });
-
-      // 📏 Fontgröße direkt anpassen auf Basis des canvasScaleY
-      const targetFontSize = style.fontSize * canvasScaleY;
-
-      obj.set({
-        fontFamily: style.fontFamily,
-        fontSize: targetFontSize,
-        fontStyle: style.fontStyle,
-        fontWeight: style.fontWeight
-      });
-
-      obj._presetApplied = true;
-      obj._presetKey = presetKey;
-
-      // 🧭 Optional: Text neu zentrieren
-      centerTextObject(obj);
-    }
-  });
-
-  canvas.renderAll();
-  saveTemporaryLayout();
-
+  saveTemporaryLayout(); // 💾 Speichern nicht vergessen
   isApplyingPreset = false;
-
-  // 🔁 Textinhalte ggf. anpassen (Platzhalter etc.)
-  replaceTextPlaceholders();
 }
 
 function centerTextObject(obj) {
@@ -1616,6 +1581,28 @@ function centerTextObject(obj) {
   });
 
   obj.setCoords(); // sehr wichtig für interaktive Objekte
+}
+
+function applyPresetToLayoutDefinition(presetKey) {
+  const preset = textPresets[presetKey];
+  if (!preset) return;
+
+  const layoutId = document.getElementById("layoutSelector").value;
+  const layout = layouts.find(l => l.id == layoutId);
+  if (!layout) return;
+
+  layout.textGroups.forEach(group => {
+    group.texts.forEach(textObj => {
+      const groupKey = textObj.fontGroup || "primary";
+      const style = preset[groupKey];
+      if (!style) return;
+
+      textObj.fontFamily = style.fontFamily;
+      textObj.size = style.fontSize;
+      textObj.fontStyle = style.fontStyle;
+      textObj.fontWeight = style.fontWeight;
+    });
+  });
 }
 
 
