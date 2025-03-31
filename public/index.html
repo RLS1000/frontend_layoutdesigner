@@ -1587,30 +1587,29 @@ function applyPresetToLayoutDefinition(presetKey) {
   const preset = textPresets[presetKey];
   if (!preset) return;
 
-  const layoutId = document.getElementById("layoutSelector").value;
-  const layout = layouts.find(l => l.id == layoutId);
-  if (!layout) return;
+  layouts.forEach(layout => {
+    layout.textGroups.forEach(group => {
+      group.texts.forEach(t => {
+        const groupKey = t.fontGroup;
 
-  layout.textGroups.forEach(group => {
-    group.texts.forEach(textObj => {
-      // 🎯 Gültige Gruppe prüfen (primary / secondary)
-      const groupKey = textObj.fontGroup;
-      const isEligible = groupKey === "primary" || groupKey === "secondary";
+        // 🎯 Nur auf Texte mit gültiger fontGroup UND isColorEditable anwenden
+        if (
+          (groupKey === "primary" || groupKey === "secondary") &&
+          t.isColorEditable
+        ) {
+          const style = preset[groupKey];
+          if (!style) return;
 
-      if (!isEligible || !preset[groupKey]) {
-        console.log(`⏭️ Überspringe Text: "${textObj.text}" (kein gültiger fontGroup)`);
-        return;
-      }
+          t.fontFamily = style.fontFamily;
+          t.fontSize = style.fontSize;
+          t.fontStyle = style.fontStyle;
+          t.fontWeight = style.fontWeight;
 
-      const style = preset[groupKey];
-
-      // 🔁 Schriftstil aus dem Preset übernehmen
-      textObj.fontFamily = style.fontFamily;
-      textObj.size = style.fontSize;
-      textObj.fontStyle = style.fontStyle;
-      textObj.fontWeight = style.fontWeight;
-
-      console.log(`✅ Anwenden auf "${textObj.text}" mit Gruppe "${groupKey}"`);
+          console.log(`✅ Anwenden auf "${t.text}" mit Gruppe "${groupKey}"`);
+        } else {
+          console.log(`⏩ Überspringe "${t.text}" – keine gültige Gruppe oder nicht bearbeitbar`);
+        }
+      });
     });
   });
 }
