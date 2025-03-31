@@ -2795,25 +2795,6 @@ function restoreSessionPresets() {
   }
 })();
 
-
-  function applyTransform(scale, dx, dy) {
-    container.style.transform = `scale(${scale}) translate(${dx / scale}px, ${dy / scale}px)`;
-  }
-
-  function getDistance(t1, t2) {
-    const dx = t2.clientX - t1.clientX;
-    const dy = t2.clientY - t1.clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-
-  function getMidpoint(t1, t2) {
-    return {
-      x: (t1.clientX + t2.clientX) / 2,
-      y: (t1.clientY + t2.clientY) / 2
-    };
-  }
-})();
-
 </script>
 </body>
 </html>
