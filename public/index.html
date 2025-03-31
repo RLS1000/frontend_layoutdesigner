@@ -2768,7 +2768,7 @@ function restoreSessionPresets() {
       isPanning = false;
 
       // Optional: Wenn Pan wieder deaktiviert werden soll, wenn man loslässt:
-      // hasPinched = false;
+      hasPinched = false;
     } else if (e.touches.length === 1 && currentScale > 1 && hasPinched) {
       isPinching = false;
       isPanning = true;
