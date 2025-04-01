@@ -138,13 +138,6 @@
                 #main {
                     flex-direction: column;
                 }
-            
-                input,
-                select,
-                textarea,
-                button {
-                     /* ⬅️ ganz wichtig */
-                }
 
                 #canvasSection {
                     flex: none;
@@ -1711,17 +1704,41 @@ async function loadLayoutFromAPI(layoutId) {
 
         console.log("🔹 Aktualisierte API-Werte:", apiVariables);
 
-        if (layoutData.layoutData) {
+                if (layoutData.layoutData) {
             console.log("🟢 Lade gespeichertes Layout auf das Canvas...");
-            canvas.loadFromJSON(layoutData.layoutData, () => {
-                updateCanvasText();
-                canvas.renderAll();
-            });
+
+            const selectedLayout = layoutData.selectedLayout || layoutData.layoutId;
+            if (selectedLayout) {
+                document.getElementById("layoutSelector").value = selectedLayout;
+                changeLayout(selectedLayout, false, () => {
+                    canvas.loadFromJSON(layoutData.layoutData, () => {
+                        updateCanvasText();
+                        canvas.renderAll();
+                    });
+                });
+            } else {
+                console.warn("⚠️ Kein Layout ausgewählt, obwohl Layoutdaten vorhanden sind.");
+                loadWelcomeCanvas();
+            }
+
         } else {
             console.log("👋 Kein gespeichertes Layout vorhanden. Zeige Begrüßung.");
             loadWelcomeCanvas();
-}
+        }
 
+        // 🟡 Stelle Text-Presets und Farben wieder her (falls gespeichert)
+        if (layoutData.selectedColor) {
+            sessionStorage.setItem("selectedColor", layoutData.selectedColor);
+        }
+            if (layoutData.selectedPreset) {
+            sessionStorage.setItem("selectedTextPreset", layoutData.selectedPreset);
+        }
+            restoreSessionPresets(); // aktiviert Farbe & Schriftstil
+
+        else {
+            console.log("👋 Kein gespeichertes Layout vorhanden. Zeige Begrüßung.");
+            loadWelcomeCanvas();
+        }
 
         return layoutData;
     } catch (error) {
@@ -2166,7 +2183,11 @@ function showToolbar() {
     const payload = {
         layoutId: layoutId,
         layoutData: canvasData,
-        isFinal: isFinal
+        isFinal: isFinal,
+        selectedColor: sessionStorage.getItem("selectedColor") || null,
+        selectedPreset: sessionStorage.getItem("selectedTextPreset") || null,
+        selectedLayout: layoutId,
+        format: layouts.find(l => l.id == layoutId)?.format || null
     };
 
     try {
