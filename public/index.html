@@ -1704,27 +1704,29 @@ async function loadLayoutFromAPI(layoutId) {
 
         console.log("🔹 Aktualisierte API-Werte:", apiVariables);
 
-                if (layoutData.layoutData) {
-            console.log("🟢 Lade gespeichertes Layout auf das Canvas...");
+        if (layoutData.layoutData) {
+    console.log("🟢 Lade gespeichertes Layout auf das Canvas...");
 
-            const selectedLayout = layoutData.selectedLayout || layoutData.layoutId;
-            if (selectedLayout) {
-                document.getElementById("layoutSelector").value = selectedLayout;
-                changeLayout(selectedLayout, false, () => {
-                    canvas.loadFromJSON(layoutData.layoutData, () => {
-                        updateCanvasText();
-                        canvas.renderAll();
-                    });
-                });
-            } else {
-                console.warn("⚠️ Kein Layout ausgewählt, obwohl Layoutdaten vorhanden sind.");
-                loadWelcomeCanvas();
-            }
+    const selectedLayout = layoutData.selectedLayout || layoutData.layoutId;
+    if (selectedLayout) {
+        document.getElementById("layoutSelector").value = selectedLayout;
+        changeLayout(selectedLayout, false, () => {
+            canvas.loadFromJSON(layoutData.layoutData, () => {
+                updateCanvasText();
+                canvas.renderAll();
+                restoreSessionPresets(); // Stelle Stil & Farbe wieder her
+            });
+        });
+    } else {
+        console.warn("⚠️ Kein Layout ausgewählt, obwohl Layoutdaten vorhanden sind.");
+        loadWelcomeCanvas();
+    }
 
-        } else {
-            console.log("👋 Kein gespeichertes Layout vorhanden. Zeige Begrüßung.");
-            loadWelcomeCanvas();
-        }
+} else {
+    console.log("👋 Kein gespeichertes Layout vorhanden. Zeige Begrüßung.");
+    loadWelcomeCanvas();
+}
+
 
         // 🟡 Stelle Text-Presets und Farben wieder her (falls gespeichert)
         if (layoutData.selectedColor) {
@@ -1734,11 +1736,6 @@ async function loadLayoutFromAPI(layoutId) {
             sessionStorage.setItem("selectedTextPreset", layoutData.selectedPreset);
         }
             restoreSessionPresets(); // aktiviert Farbe & Schriftstil
-
-        else {
-            console.log("👋 Kein gespeichertes Layout vorhanden. Zeige Begrüßung.");
-            loadWelcomeCanvas();
-        }
 
         return layoutData;
     } catch (error) {
