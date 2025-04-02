@@ -2174,7 +2174,16 @@ function showToolbar() {
     canvas.on("object:added", saveTemporaryLayout);
 
     async function saveLayoutToAPI(isFinal = false) {
-    const layoutId = document.getElementById("layoutSelector").value;
+    // 🧠 Richtiges API-Layout holen (UUID, z. B. f8f9...)
+    const apiLayout = JSON.parse(sessionStorage.getItem("api_layout") || "{}");
+    const layoutId = apiLayout.id;
+
+    if (!layoutId) {
+        console.warn("❌ Kein gültiges Layout (API-ID) gefunden. Abbruch.");
+        alert("Fehler: Kein gültiges Layout ausgewählt oder geladen.");
+        return;
+    }
+
     const canvasData = JSON.stringify(canvas.toJSON());
 
     const payload = {
@@ -2183,9 +2192,13 @@ function showToolbar() {
         isFinal: isFinal,
         selectedColor: sessionStorage.getItem("selectedColor") || null,
         selectedPreset: sessionStorage.getItem("selectedTextPreset") || null,
-        selectedLayout: layoutId,
-        format: layouts.find(l => l.id == layoutId)?.format || null
+        selectedLayout: document.getElementById("layoutSelector").value,
+        format: layouts.find(l => l.id == document.getElementById("layoutSelector").value)?.format || null
     };
+
+    // 🧪 Debug-Log
+    console.log("🔄 Speichere Layout mit ID:", layoutId);
+    console.log("🧾 Payload:", payload);
 
     try {
         const response = await fetch(`https://backendlayoutdesigner-production.up.railway.app/layouts/${layoutId}`, {
@@ -2194,14 +2207,18 @@ function showToolbar() {
             body: JSON.stringify(payload)
         });
 
-        if (!response.ok) throw new Error("Fehler beim Speichern");
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Serverfehler (${response.status}): ${errorText}`);
+        }
 
         console.log(`✅ Layout ${layoutId} erfolgreich gespeichert`);
         alert("Layout gespeichert!");
     } catch (error) {
         console.error("❌ Fehler beim Speichern:", error);
+        alert(`Fehler beim Speichern: ${error.message}`);
     }
-}      
+}
 
 function updateDropdownStyles() {
     const dropdown = document.getElementById("layoutSelector");
