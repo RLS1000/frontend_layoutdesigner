@@ -1322,7 +1322,7 @@ document.addEventListener("DOMContentLoaded", () => {
     populateDropdown();
     enableMobileSwipeWithAnimation();
     createColorPresets(); // 🎨
-    await initLayoutDesigner(); // 👈 Neu: Layout per Deeplink laden
+    initLayoutDesigner(); // 👈 Neu: Layout per Deeplink laden
 
     const storedColor = sessionStorage.getItem("selectedColor");
     if (storedColor) {
