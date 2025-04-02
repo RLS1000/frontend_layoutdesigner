@@ -1795,14 +1795,14 @@ canvas.getObjects().forEach(obj => {
 });
 
 function changeLayout(layoutId, skipTextRender = false, callback = null) {
-    // ⬅️ Zoom visuell zurücksetzen, falls aktiv
+    // ⬅️ Zoom visuell zurücksetzen
     canvasContainer.style.transition = "none";
     canvasContainer.style.transform = "none";
     currentScale = 1;
     translateX = 0;
     translateY = 0;
     isZoomed = false;
-    
+
     document.getElementById("layoutNotice").textContent = "Aktives Layout:";
     document.getElementById("layoutSelector").classList.remove("intro-style");
 
@@ -1811,40 +1811,45 @@ function changeLayout(layoutId, skipTextRender = false, callback = null) {
 
     const savedLayout = sessionStorage.getItem(`custom_layout_${layoutId}`);
     if (savedLayout) {
-    const parsed = JSON.parse(savedLayout);
-    const layoutData = parsed.data || parsed;
-    const format = parsed.format || "15x10";
+        const parsed = JSON.parse(savedLayout);
+        const layoutData = parsed.data || parsed;
+        const format = parsed.format || "15x10";
 
-    setCanvasSizeByFormat(format);
-    canvas.clear();
+        setCanvasSizeByFormat(format);
+        canvas.clear();
 
-    // 🆕 Hole das Layout aus der globalen Liste für die Style-Infos
-    const layout = layouts.find(l => l.id == layoutId);
-    updateStyleSummary(layout); // ✅ WICHTIG: hier aufrufen!
+        const layout = layouts.find(l => l.id == layoutId);
+        updateStyleSummary(layout); // ✅ Wichtige Style-Info
 
-    canvas.loadFromJSON(layoutData, () => {
-    canvas.renderAll();
-    restoreSessionPresets(); // 🆕 Stelle Session-Farben & Presets wieder her
-    replaceTextPlaceholders();
-    isProgrammaticLayoutChange = false;
-    saveTemporaryLayout();
+        canvas.loadFromJSON(layoutData, () => {
+            canvas.renderAll();
+            restoreSessionPresets(); // 🔁 Farben & Presets
+            replaceTextPlaceholders();
+            isProgrammaticLayoutChange = false;
+            saveTemporaryLayout();
 
-    if (typeof callback === "function") {
-        callback(layoutData);
+            if (typeof callback === "function") {
+                callback(layoutData);
+            } else if (!skipTextRender) {
+                updateCanvasText();
+            }
+        });
+
+        return;
     }
-});
 
-    return;
-}
-
+    // 🔁 Standard-Layout laden
     const layout = layouts.find(l => l.id == layoutId);
-    updateStyleSummary(layout); // ✅ hier ergänzen
-    if (!layout) return;
+    if (!layout) {
+        console.warn(`❌ Layout mit ID ${layoutId} nicht gefunden`);
+        return;
+    }
 
+    updateStyleSummary(layout);
     canvas.clear();
     setCanvasSizeByFormat(layout.format);
 
-    fabric.Image.fromURL(layout.background, function(img) {
+    fabric.Image.fromURL(layout.background, function (img) {
         img.set({
             left: 0,
             top: 0,
@@ -1854,22 +1859,20 @@ function changeLayout(layoutId, skipTextRender = false, callback = null) {
             originY: "top"
         });
 
-    updateStyleSummary(layout); // ✅ hier ergänzen
-    canvas.setBackgroundImage(img, () => {
-    canvas.renderAll();
+        canvas.setBackgroundImage(img, () => {
+            canvas.renderAll();
+            restoreSessionPresets();
+            replaceTextPlaceholders();
+            saveTemporaryLayout();
+            isProgrammaticLayoutChange = false;
 
-    updateCanvasText(); // 🧠 Immer ausführen, damit auch Swipe die Texte rendert
-    canvas.setViewportTransform([1, 0, 0, 1, 0, 0]); // 🔁 Reset Zoom
-
-    if (typeof callback === "function") {
-        callback(layout);
-    }
-
-    isProgrammaticLayoutChange = false;
-});
-
+            if (typeof callback === "function") {
+                callback(layout);
+            } else if (!skipTextRender) {
+                updateCanvasText();
+            }
+        });
     }, { crossOrigin: "anonymous" });
-    
 }
 
 function updateStyleSummary(layout) {
