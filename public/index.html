@@ -1753,9 +1753,14 @@ async function loadLayoutFromAPI(layoutId) {
 
         canvas.loadFromJSON(layoutData.layoutData, () => {
             canvas.renderAll();
+        // NEU: Delay zur Sicherheit
+        requestAnimationFrame(() => {
+        setTimeout(() => {
             restoreSessionPresets(); 
             isLoadingFromAPI = false;
-        });
+        }, 100); // kleiner Delay (100–150ms)
+    });
+});
 
     } else {
         console.warn("🟡 Kein gespeichertes Canvas-JSON gefunden.");
