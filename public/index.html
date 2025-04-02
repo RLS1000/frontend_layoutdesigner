@@ -1209,6 +1209,7 @@ let isProgrammaticLayoutChange = false; // Temporäre Sperre beim Initialaufbau 
 let isSwipeInProgress = false;
 let currentSnap = 0; // 👈 NEU: Initiale Snap-Stufe
 let isApplyingPreset = false;
+let isLoadingFromAPI = false;
 
 
 
@@ -1745,26 +1746,25 @@ async function loadLayoutFromAPI(layoutId) {
         document.getElementById("layoutSelector").value = selectedLayout;
 
         // ✅ Layout laden und danach erst Presets anwenden!
-        changeLayout(selectedLayout, false, () => {
-            if (layoutData.layoutData) {
-                canvas.loadFromJSON(layoutData.layoutData, () => {
-                    console.log("🧠 Canvas geladen aus API JSON");
+        changeLayout(selectedLayout, true, () => {
+    if (layoutData.layoutData) {
+        console.log("🧠 Lade Layout aus API JSON...");
+        isLoadingFromAPI = true;
 
-                    updateCanvasText(); // falls nötig
-                    canvas.renderAll();
-
-                    // 🔄 Session-Farbe und Preset anwenden – NACHDEM das Canvas da ist
-                    setTimeout(() => {
-                        restoreSessionPresets(); 
-                    }, 100);
-                });
-            } else {
-                console.warn("🟡 Kein gespeichertes Canvas-JSON gefunden.");
-                updateCanvasText();
-                canvas.renderAll();
-                restoreSessionPresets();
-            }
+        canvas.loadFromJSON(layoutData.layoutData, () => {
+            canvas.renderAll();
+            restoreSessionPresets(); 
+            isLoadingFromAPI = false;
         });
+
+    } else {
+        console.warn("🟡 Kein gespeichertes Canvas-JSON gefunden.");
+        updateCanvasText();
+        canvas.renderAll();
+        restoreSessionPresets();
+    }
+});
+
 
     } catch (error) {
         console.error("❌ Fehler beim Laden des Layouts:", error);
@@ -1911,6 +1911,11 @@ function updateStyleSummary(layout) {
 }
 
 function updateCanvasText() {
+    if (isLoadingFromAPI) {
+    console.warn("⏩ updateCanvasText() übersprungen – Layout kommt aus API");
+    return;
+    }
+
     console.log("🔄 Update Canvas Text gestartet...");
 
     const layoutId = document.getElementById("layoutSelector").value;
