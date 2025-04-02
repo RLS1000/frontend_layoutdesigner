@@ -1210,6 +1210,8 @@ let isSwipeInProgress = false;
 let currentSnap = 0; // 👈 NEU: Initiale Snap-Stufe
 let isApplyingPreset = false;
 let isLoadingFromAPI = false;
+let hasRestoredPresets = false;
+
 
 
 
@@ -1885,7 +1887,6 @@ function changeLayout(layoutId, skipTextRender = false, callback = null) {
 
         canvas.loadFromJSON(layoutData, () => {
             canvas.renderAll();
-            restoreSessionPresets(); // 🔁 Farben & Presets
             replaceTextPlaceholders();
             isProgrammaticLayoutChange = false;
             saveTemporaryLayout();
@@ -1923,7 +1924,6 @@ function changeLayout(layoutId, skipTextRender = false, callback = null) {
 
         canvas.setBackgroundImage(img, () => {
             canvas.renderAll();
-            restoreSessionPresets();
             replaceTextPlaceholders();
             saveTemporaryLayout();
             isProgrammaticLayoutChange = false;
@@ -1990,7 +1990,6 @@ function updateCanvasText() {
         console.log("💾 Änderungen durch updateCanvasText() speichern...");
         saveTemporaryLayout();
     }
-    restoreSessionPresets();
 }
 
 function addTextGroups(layout) {
@@ -2821,6 +2820,13 @@ let restoreCounter = 0;
 function restoreSessionPresets() {
     restoreCounter++;
     console.warn(`🎨 restoreSessionPresets() #${restoreCounter} gestartet`);
+    
+    if (hasRestoredPresets) {
+        console.log("⏩ Presets bereits wiederhergestellt, überspringe.");
+        return;
+    }
+    hasRestoredPresets = true;
+    
     const color = sessionStorage.getItem("selectedColor");
     const preset = sessionStorage.getItem("selectedTextPreset");
 
