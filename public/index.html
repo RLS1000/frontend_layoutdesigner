@@ -1715,6 +1715,36 @@ document.getElementById("textModeBtn").addEventListener("click", function() {
     addText(centerX, centerY); // Erstellt sofort ein Textfeld in der Mitte des Canvas
 });
 
+function loadLayoutFromAPI(id) {
+    if (isLoadingFromAPI) {
+        console.warn("⏩ Ignoriere Mehrfach-Load für Layout", id);
+        return;
+    }
+
+    isLoadingFromAPI = true;
+    console.log("⬇️ Lade Layout aus API...", id);
+
+    apiGetLayout(id).then(layoutData => {
+        changeLayout(layoutData.layout, true, () => {
+            if (layoutData.layoutData) {
+                canvas.loadFromJSON(layoutData.layoutData, () => {
+                    canvas.renderAll();
+
+                    setTimeout(() => {
+                        restoreSessionPresets();
+                        isLoadingFromAPI = false;
+                    }, 50); // Du kannst das ggf. entfernen später
+                });
+            } else {
+                updateCanvasText();
+                restoreSessionPresets();
+                isLoadingFromAPI = false;
+            }
+        });
+    });
+}
+
+
 // ✅ Funktion zum Laden der Daten aus der API per Deeplink
 async function loadLayoutFromAPI(layoutId) {
     try {
@@ -1916,6 +1946,9 @@ function updateStyleSummary(layout) {
 }
 
 function updateCanvasText() {
+    console.warn("⚠️ updateCanvasText() TRIGGERED");
+    console.trace(); // zeigt dir, **WER** sie aufgerufen hat
+
     if (isLoadingFromAPI) {
     console.warn("⏩ updateCanvasText() übersprungen – Layout kommt aus API");
     return;
@@ -2783,7 +2816,11 @@ function applyMobileVars() {
     changeSnap(0);
 }
 
+let restoreCounter = 0;
+
 function restoreSessionPresets() {
+    restoreCounter++;
+    console.warn(`🎨 restoreSessionPresets() #${restoreCounter} gestartet`);
     const color = sessionStorage.getItem("selectedColor");
     const preset = sessionStorage.getItem("selectedTextPreset");
 
