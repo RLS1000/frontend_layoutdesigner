@@ -1692,56 +1692,52 @@ async function loadLayoutFromAPI(layoutId) {
         const layoutData = await response.json();
         console.log("📥 Geladenes Layout:", layoutData);
 
+        // 🧠 SessionStorage aktualisieren
         sessionStorage.setItem("api_layout", JSON.stringify(layoutData));
+        sessionStorage.setItem("selectedColor", layoutData.selectedColor || "#000000");
+        sessionStorage.setItem("selectedTextPreset", layoutData.selectedPreset || "elegant");
 
-        // 🔄 API-Variablen übernehmen
+        // 🧠 Globale Variablen setzen
         apiVariables.name1 = layoutData.name1 || "NAME 1";
         apiVariables.name2 = layoutData.name2 || "NAME 2";
         apiVariables.weddingDate = layoutData.eventDate || "DD. MMMM YYYY";
+        updateInputFields();
 
-        // 🟢 Inputfelder ebenfalls aktualisieren
-            updateInputFields();
+        // 📌 Layout-ID setzen und laden
+        const selectedLayout = layoutData.selectedLayout || layoutData.layoutId;
+        if (!selectedLayout) {
+            console.warn("⚠️ Kein Layout ausgewählt.");
+            loadWelcomeCanvas();
+            return;
+        }
 
-        console.log("🔹 Aktualisierte API-Werte:", apiVariables);
-
-        if (layoutData.layoutData) {
-    console.log("🟢 Lade gespeichertes Layout auf das Canvas...");
-
-    const selectedLayout = layoutData.selectedLayout || layoutData.layoutId;
-    if (selectedLayout) {
         document.getElementById("layoutSelector").value = selectedLayout;
+
+        // ✅ Layout laden und danach erst Presets anwenden!
         changeLayout(selectedLayout, false, () => {
-            canvas.loadFromJSON(layoutData.layoutData, () => {
+            if (layoutData.layoutData) {
+                canvas.loadFromJSON(layoutData.layoutData, () => {
+                    console.log("🧠 Canvas geladen aus API JSON");
+
+                    updateCanvasText(); // falls nötig
+                    canvas.renderAll();
+
+                    // 🔄 Session-Farbe und Preset anwenden – NACHDEM das Canvas da ist
+                    setTimeout(() => {
+                        restoreSessionPresets(); 
+                    }, 100);
+                });
+            } else {
+                console.warn("🟡 Kein gespeichertes Canvas-JSON gefunden.");
                 updateCanvasText();
                 canvas.renderAll();
-                restoreSessionPresets(); // Stelle Stil & Farbe wieder her
-            });
+                restoreSessionPresets();
+            }
         });
-    } else {
-        console.warn("⚠️ Kein Layout ausgewählt, obwohl Layoutdaten vorhanden sind.");
-        loadWelcomeCanvas();
-    }
 
-} else {
-    console.log("👋 Kein gespeichertes Layout vorhanden. Zeige Begrüßung.");
-    loadWelcomeCanvas();
-}
-
-
-        // 🟡 Stelle Text-Presets und Farben wieder her (falls gespeichert)
-        if (layoutData.selectedColor) {
-            sessionStorage.setItem("selectedColor", layoutData.selectedColor);
-        }
-            if (layoutData.selectedPreset) {
-            sessionStorage.setItem("selectedTextPreset", layoutData.selectedPreset);
-        }
-            restoreSessionPresets(); // aktiviert Farbe & Schriftstil
-
-        return layoutData;
     } catch (error) {
         console.error("❌ Fehler beim Laden des Layouts:", error);
         lockEditor("Fehler: Layout konnte nicht geladen werden.");
-        return null;
     }
 }
 
@@ -2177,7 +2173,6 @@ function showToolbar() {
     canvas.on("object:added", saveTemporaryLayout);
 
     async function saveLayoutToAPI(isFinal = false) {
-    // 🧠 Richtiges API-Layout holen (UUID, z. B. f8f9...)
     const apiLayout = JSON.parse(sessionStorage.getItem("api_layout") || "{}");
     const layoutId = apiLayout.id;
 
@@ -2189,19 +2184,29 @@ function showToolbar() {
 
     const canvasData = JSON.stringify(canvas.toJSON());
 
+    // 🧠 Werte holen oder mit Fallback versehen
+    const selectedColor = sessionStorage.getItem("selectedColor") || "#000000";
+    const selectedPreset = sessionStorage.getItem("selectedTextPreset") || "elegant";
+    const selectedLayout = document.getElementById("layoutSelector").value;
+    const layoutFormat = layouts.find(l => l.id == selectedLayout)?.format || null;
+
     const payload = {
-        layoutId: layoutId,
+        layoutId,
         layoutData: canvasData,
-        isFinal: isFinal,
-        selectedColor: sessionStorage.getItem("selectedColor") || null,
-        selectedPreset: sessionStorage.getItem("selectedTextPreset") || null,
-        selectedLayout: document.getElementById("layoutSelector").value,
-        format: layouts.find(l => l.id == document.getElementById("layoutSelector").value)?.format || null
+        isFinal,
+        selectedColor,
+        selectedPreset,
+        selectedLayout,
+        format: layoutFormat
     };
 
-    // 🧪 Debug-Log
-    console.log("🔄 Speichere Layout mit ID:", layoutId);
-    console.log("🧾 Payload:", payload);
+    // 🧪 Logging
+    console.groupCollapsed("💾 Speichern an API");
+    console.log("🔐 Layout-ID:", layoutId);
+    console.log("🎨 Preset:", selectedPreset);
+    console.log("🌈 Farbe:", selectedColor);
+    console.log("📦 Payload:", payload);
+    console.groupEnd();
 
     try {
         const response = await fetch(`https://backendlayoutdesigner-production.up.railway.app/layouts/${layoutId}`, {
