@@ -1322,6 +1322,7 @@ document.addEventListener("DOMContentLoaded", () => {
     populateDropdown();
     enableMobileSwipeWithAnimation();
     createColorPresets(); // 🎨
+    await initLayoutDesigner(); // 👈 Neu: Layout per Deeplink laden
 
     const storedColor = sessionStorage.getItem("selectedColor");
     if (storedColor) {
@@ -1506,6 +1507,27 @@ const textPresets = {
   }
 };
 
+function getIdFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("id");
+}
+
+function showInitialSnapState() {
+    setSnapStep(0); // reduziert die UI auf die erste Snap-Stufe
+}
+
+async function initLayoutDesigner() {
+    const layoutId = getIdFromURL();
+
+    if (layoutId) {
+        console.log("🔗 Layout ID aus URL erkannt:", layoutId);
+        showInitialSnapState(); // Optional: nur nötig, wenn Snap-Logik gewünscht ist
+        await loadLayoutFromAPI(layoutId); // Holt und lädt Layout
+    } else {
+        console.log("👋 Keine Layout-ID übergeben. Starte mit Welcome-Layout.");
+        loadWelcomeCanvas();
+    }
+}
 
 function createColorPresets() {
   const container = document.querySelector(".color-presets");
