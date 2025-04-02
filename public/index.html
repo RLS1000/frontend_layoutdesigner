@@ -1512,8 +1512,17 @@ function getIdFromURL() {
     return params.get("id");
 }
 
+function setSnapStep(step) {
+    console.log(`(Dummy) Snap-Step auf ${step} gesetzt`);
+    // Wenn du Snap-UI hast, hier dein echtes Snap-Verhalten implementieren
+}
+
 function showInitialSnapState() {
-    setSnapStep(0); // reduziert die UI auf die erste Snap-Stufe
+    if (typeof setSnapStep === "function") {
+        setSnapStep(0);
+    } else {
+        console.warn("⚠️ setSnapStep nicht definiert – Snap-Effekt wird übersprungen");
+    }
 }
 
 async function initLayoutDesigner() {
