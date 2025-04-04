@@ -1,0 +1,27 @@
+/* src/fonts.css */
+
+/* Optional: Eigene Font-Face Einbindung, falls du lokal hostest oder keine Google Fonts nutzt */
+@font-face {
+    font-family: "Baskerville";
+    src: local("Baskerville"), url("/fonts/Baskerville.woff2") format("woff2");
+    font-style: normal;
+    font-weight: normal;
+  }
+  
+  /* Beispiele für zusätzliche Font-Styling-Klassen */
+  .font-primary {
+    font-family: "Raleway", sans-serif;
+  }
+  
+  .font-secondary {
+    font-family: "Baskerville", serif;
+  }
+  
+  .font-italic {
+    font-style: italic;
+  }
+  
+  .font-bold {
+    font-weight: bold;
+  }
+  
