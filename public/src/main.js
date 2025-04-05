@@ -4,7 +4,7 @@ import { appState, setCanvasDefaults } from './state.js';
 import { layouts, prepareLayouts, getCurrentLayout } from './layoutData.js';
 import { renderCanvas } from './canvas.js';
 import { updateTextInputs, bindUIEvents } from './uiUtils.js';
-import { loadImage } from './utils.js';
+import { loadImage } from './helpers.js';
 import { setupApi } from './api.js';
 
 async function init() {
