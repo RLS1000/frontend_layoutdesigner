@@ -1,3 +1,6 @@
+import { appState } from './state.js';
+import { renderCanvas } from './canvas.js';
+
 export function updateStyleSummary(layout) {
     if (!layout) return;
   
@@ -31,3 +34,23 @@ export function updateStyleSummary(layout) {
     inputElement.classList.add("updated");
     setTimeout(() => inputElement.classList.remove("updated"), 1000);
   }  
+
+  export function bindUIEvents() {
+    document.querySelectorAll("[data-text-id]").forEach(input => {
+      input.addEventListener("input", (e) => {
+        const textId = e.target.getAttribute("data-text-id");
+        const value = e.target.value;
+        const groupId = e.target.getAttribute("data-group-id");
+  
+        const group = appState.canvas.textGroups.find(g => g.groupId === groupId);
+        if (!group) return;
+  
+        const textObj = group.texts.find(t => t.originalText === textId || t.text === textId);
+        if (!textObj) return;
+  
+        textObj.text = value;
+        renderCanvas(); // neu rendern
+      });
+    });
+  }
+  

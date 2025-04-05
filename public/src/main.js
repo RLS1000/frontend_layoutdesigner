@@ -9,7 +9,7 @@ import { loadImage } from './helpers.js';
 import { setupApi } from './api.js';
 
 async function init() {
-  prepareLayouts(); // ➜ Setzt Defaults wie fontGroup etc.
+  prepareLayouts();
 
   // 🖼 Layout-Auswahl vorbereiten
   appState.selectedLayoutId = layouts[0].id; // Default: erstes Layout
@@ -36,19 +36,12 @@ async function init() {
   // 🧩 UI binden
   bindUIEvents();
 
-  // 🌐 API-Setup (optional für Speichern, Freigeben etc.)
+  // 🔗 Events aktivieren
+  attachEventListeners();
+
+  // 🌐 API
   setupApi();
 }
 
-function init() {
-  prepareLayouts();
-  setCanvasDefaults();
-  renderCanvas();
-  updateTextInputs(getCurrentLayout()); // optional
-  attachEventListeners(); // hier werden alle Events aktiviert!
-  setupApi(); // falls du REST-Funktionen nutzt
-}
-
-init();
-
+// Aufruf
 window.addEventListener('DOMContentLoaded', init);
