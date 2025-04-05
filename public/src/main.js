@@ -3,7 +3,7 @@
 import { appState, setCanvasDefaults } from './state.js';
 import { layouts, prepareLayouts, getCurrentLayout } from './layout.js';
 import { renderCanvas } from './canvas.js';
-import { updateTextInputs, bindUIEvents } from './uiUtils.js';
+import { bindUIEvents } from './uiUtils.js';
 import { loadImage } from './helpers.js';
 import { setupApi } from './api.js';
 
@@ -33,7 +33,6 @@ async function init() {
   renderCanvas();
 
   // 🧩 UI binden
-  updateTextInputs();
   bindUIEvents();
 
   // 🌐 API-Setup (optional für Speichern, Freigeben etc.)
