@@ -79,7 +79,7 @@ export function renderTextGroups(textGroups) {
         top: group.groupY + offsetY,
         fontSize: text.size,
         fontFamily: text.fontFamily,
-        fill: text.fill,
+        fill: text.fill || "#000000",
         charSpacing: text.charSpacing,
         originX: "center",
         originY: group.originY || "top"
