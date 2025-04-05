@@ -9,9 +9,18 @@ import { loadImage } from './helpers.js';
 import { setupApi } from './api.js';
 
 async function init() {
-  // 🖼 Layout-Auswahl vorbereiten
-  appState.selectedLayoutId = layouts[0].id; // Default: erstes Layout
+  console.log("▶️ init läuft");
+  console.log("🧱 layouts geladen?", layouts.length, layouts);
+
+  appState.selectedLayoutId = layouts[0]?.id;
   const layout = getCurrentLayout();
+  console.log("✅ selected ID:", appState.selectedLayoutId);
+  console.log("🎯 aktuelles Layout:", layout);
+
+  if (!layout) {
+    console.error("❌ Kein Layout gefunden – Abbruch.");
+    return;
+  }
 
   // 📐 Canvas-Größe setzen
   setCanvasDefaults({
