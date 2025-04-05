@@ -70,24 +70,33 @@ export function renderCanvas() {
 }
 
 export function renderTextGroups(textGroups) {
+  if (!textGroups || !Array.isArray(textGroups)) return;
+
+  // Alte Texte entfernen
+  canvas.getObjects("text").forEach(obj => canvas.remove(obj));
+
   textGroups.forEach(group => {
     let offsetY = 0;
+    group.texts.forEach((text, index) => {
+      const value = appState.variables[text.text] || text.text;
 
-    group.texts.forEach(text => {
-      const textObj = new fabric.Text(text.text, {
+      const textObj = new fabric.Text(value, {
         left: group.groupX,
         top: group.groupY + offsetY,
         fontSize: text.size,
         fontFamily: text.fontFamily,
         fill: text.fill || "#000000",
-        charSpacing: text.charSpacing,
+        charSpacing: text.charSpacing || 0,
         originX: "center",
         originY: group.originY || "top"
       });
 
       canvas.add(textObj);
-      offsetY += group.spacing;
+      offsetY += group.spacing || 0;
     });
   });
+
+  canvas.renderAll();
 }
+
 
