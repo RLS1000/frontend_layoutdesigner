@@ -77,3 +77,44 @@ export async function saveLayoutToAPI(isFinal = false) {
     throw error;
   }
 }
+
+/**
+ * Bindet API-bezogene UI-Elemente an Klick-Events.
+ */
+export function setupApi() {
+  const saveBtn = document.getElementById("saveBtn");
+  const shareBtn = document.getElementById("shareBtn");
+  const downloadBtn = document.getElementById("downloadBtn");
+
+  if (saveBtn) {
+    saveBtn.addEventListener("click", async () => {
+      try {
+        await saveLayoutToAPI(false);
+        alert("Layout erfolgreich gespeichert!");
+      } catch (err) {
+        alert("Fehler beim Speichern.");
+      }
+    });
+  }
+
+  if (shareBtn) {
+    shareBtn.addEventListener("click", () => {
+      // Platzhalter für Sharing-Funktion
+      alert("Teilen-Funktion folgt!");
+    });
+  }
+
+  if (downloadBtn) {
+    downloadBtn.addEventListener("click", () => {
+      const dataURL = canvas.toDataURL({
+        format: 'png',
+        multiplier: 2
+      });
+
+      const link = document.createElement('a');
+      link.download = 'layout.png';
+      link.href = dataURL;
+      link.click();
+    });
+  }
+}
