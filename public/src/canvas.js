@@ -64,3 +64,7 @@ export function setCanvasSizeByFormat(format) {
 
   console.log(`🎯 Canvas-Größe: ${displayWidth}x${displayHeight} (Format: ${format})`);
 }
+
+export function renderCanvas() {
+  canvas.renderAll();
+}
