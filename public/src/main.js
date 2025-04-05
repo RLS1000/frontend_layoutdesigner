@@ -2,6 +2,7 @@
 
 import { appState, setCanvasDefaults } from './state.js';
 import { layouts, prepareLayouts, getCurrentLayout } from './layout.js';
+import { attachEventListeners } from './eventListeners.js';
 import { renderCanvas } from './canvas.js';
 import { bindUIEvents } from './uiUtils.js';
 import { loadImage } from './helpers.js';
@@ -38,5 +39,16 @@ async function init() {
   // 🌐 API-Setup (optional für Speichern, Freigeben etc.)
   setupApi();
 }
+
+function init() {
+  prepareLayouts();
+  setCanvasDefaults();
+  renderCanvas();
+  updateTextInputs(getCurrentLayout()); // optional
+  attachEventListeners(); // hier werden alle Events aktiviert!
+  setupApi(); // falls du REST-Funktionen nutzt
+}
+
+init();
 
 window.addEventListener('DOMContentLoaded', init);
