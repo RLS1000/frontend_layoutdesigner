@@ -1,7 +1,7 @@
 // src/main.js
 
 import { appState, setCanvasDefaults } from './state.js';
-import { layouts, prepareLayouts, getCurrentLayout } from './layout.js';
+import { layouts, getCurrentLayout } from './layout.js';
 import { attachEventListeners } from './eventListeners.js';
 import { renderCanvas } from './canvas.js';
 import { bindUIEvents } from './uiUtils.js';
@@ -9,8 +9,6 @@ import { loadImage } from './helpers.js';
 import { setupApi } from './api.js';
 
 async function init() {
-  prepareLayouts();
-
   // 🖼 Layout-Auswahl vorbereiten
   appState.selectedLayoutId = layouts[0].id; // Default: erstes Layout
   const layout = getCurrentLayout();
