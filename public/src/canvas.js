@@ -1,5 +1,5 @@
 // 📁 src/canvas.js
-import { fabric } from 'fabric';
+// fabric wird global über das <script>-Tag geladen – kein Import nötig
 import { appState } from './state.js';
 
 export const canvas = new fabric.Canvas("canvas", {
