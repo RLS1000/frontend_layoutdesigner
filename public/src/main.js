@@ -3,7 +3,7 @@
 import { appState, setCanvasDefaults } from './state.js';
 import { layouts, getCurrentLayout } from './layout.js';
 import { attachEventListeners } from './eventListeners.js';
-import { renderCanvas } from './canvas.js';
+import { renderCanvas, setCanvasSizeByFormat } from './canvas.js';
 import { bindUIEvents } from './uiUtils.js';
 import { loadImage } from './helpers.js';
 import { setupApi } from './api.js';
