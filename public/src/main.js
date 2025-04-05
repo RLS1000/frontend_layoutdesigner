@@ -3,7 +3,7 @@
 import { appState, setCanvasDefaults } from './state.js';
 import { layouts, getCurrentLayout } from './layout.js';
 import { attachEventListeners } from './eventListeners.js';
-import { renderCanvas, setCanvasSizeByFormat } from './canvas.js';
+import { renderCanvas, setCanvasSizeByFormat, renderTextGroups } from './canvas.js';
 import { bindUIEvents } from './uiUtils.js';
 import { loadImage } from './helpers.js';
 import { setupApi } from './api.js';
@@ -32,6 +32,7 @@ async function init() {
 
   // ✍️ Texte vorbereiten
   appState.canvas.textGroups = layout.textGroups;
+  renderTextGroups(layout.textGroups);
 
   // 🖌 Initiales Rendering
   renderCanvas();
@@ -45,6 +46,8 @@ async function init() {
   // 🌐 API
   setupApi();
 }
+
+
 
 // Aufruf
 window.addEventListener('DOMContentLoaded', init);

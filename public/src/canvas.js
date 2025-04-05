@@ -68,3 +68,26 @@ export function setCanvasSizeByFormat(format) {
 export function renderCanvas() {
   canvas.renderAll();
 }
+
+export function renderTextGroups(textGroups) {
+  textGroups.forEach(group => {
+    let offsetY = 0;
+
+    group.texts.forEach(text => {
+      const textObj = new fabric.Text(text.text, {
+        left: group.groupX,
+        top: group.groupY + offsetY,
+        fontSize: text.size,
+        fontFamily: text.fontFamily,
+        fill: text.fill,
+        charSpacing: text.charSpacing,
+        originX: "center",
+        originY: group.originY || "top"
+      });
+
+      canvas.add(textObj);
+      offsetY += group.spacing;
+    });
+  });
+}
+
