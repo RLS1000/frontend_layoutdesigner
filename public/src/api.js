@@ -2,7 +2,7 @@
 
 import { appState } from './state.js';
 import { canvas } from './canvas.js';
-import { getCurrentLayout } from './layoutData.js';
+import { getCurrentLayout } from './layout.js';
 
 /**
  * Lädt Layout-Daten aus der API anhand einer ID.
