@@ -23,12 +23,8 @@ async function init() {
   }
 
   // 📐 Canvas-Größe setzen
-  setCanvasDefaults({
-    scaleX: 2,
-    scaleY: 2,
-    logicalWidth: 600,
-    logicalHeight: 400
-  });
+  setCanvasSizeByFormat(layout.format);
+
 
   // 🖼 Bild laden
   const bgImage = await loadImage(layout.background);
