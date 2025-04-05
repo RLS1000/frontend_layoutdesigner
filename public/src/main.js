@@ -1,7 +1,7 @@
 // src/main.js
 
 import { appState, setCanvasDefaults } from './state.js';
-import { layouts, prepareLayouts, getCurrentLayout } from './layoutData.js';
+import { layouts, prepareLayouts, getCurrentLayout } from './layout.js';
 import { renderCanvas } from './canvas.js';
 import { updateTextInputs, bindUIEvents } from './uiUtils.js';
 import { loadImage } from './helpers.js';
